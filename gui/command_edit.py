@@ -1,0 +1,127 @@
+"""Notepad input with inline ghost-text slash-command autosuggest.
+
+Type `/c` and a grayed completion (`/clear`) is painted after the cursor.
+Tab/Enter accepts, Up/Down cycles matches, Esc dismisses. Pressing Enter on a
+full command line runs it (via the `command_entered` signal) instead of adding a
+newline.
+"""
+
+from __future__ import annotations
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QKeyEvent, QPainter, QPaintEvent
+from PySide6.QtWidgets import QPlainTextEdit
+
+from gui.commands import parse_command, suggest
+
+
+class CommandEdit(QPlainTextEdit):
+    """QPlainTextEdit that recognises `/`-prefixed editor commands."""
+
+    command_entered = Signal(str)
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._ghost_matches: list[str] = []
+        self._ghost_index = 0
+        self.textChanged.connect(self._refresh_ghost)
+        self.cursorPositionChanged.connect(self._refresh_ghost)
+
+    # --- ghost state -------------------------------------------------------
+
+    def _current_prefix(self) -> str | None:
+        """Text of the current line up to the cursor, if the cursor sits at the
+        line end; else None (no suggestion while editing mid-line)."""
+        cursor = self.textCursor()
+        if cursor.hasSelection():
+            return None
+        block_text = cursor.block().text()
+        col = cursor.positionInBlock()
+        if col != len(block_text):
+            return None
+        return block_text[:col]
+
+    def _refresh_ghost(self) -> None:
+        prefix = self._current_prefix()
+        matches = suggest(prefix) if prefix is not None else []
+        if matches != self._ghost_matches:
+            self._ghost_matches = matches
+            self._ghost_index = 0
+            self.viewport().update()
+
+    def _ghost_suffix(self) -> str:
+        """The grayed remainder shown after the cursor, or ""."""
+        if not self._ghost_matches:
+            return ""
+        prefix = self._current_prefix() or ""
+        return self._ghost_matches[self._ghost_index][len(prefix):]
+
+    def _clear_ghost(self) -> None:
+        if self._ghost_matches:
+            self._ghost_matches = []
+            self._ghost_index = 0
+            self.viewport().update()
+
+    def _accept_ghost(self) -> None:
+        suffix = self._ghost_suffix()
+        if suffix:
+            self.textCursor().insertText(suffix)  # fires textChanged -> refresh
+        self._clear_ghost()
+
+    # --- painting ----------------------------------------------------------
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        super().paintEvent(event)
+        suffix = self._ghost_suffix()
+        if not suffix:
+            return
+        painter = QPainter(self.viewport())
+        painter.setFont(self.font())
+        painter.setPen(self.palette().placeholderText().color())
+        # cursorRect() is already in viewport coords; drawText's point is the
+        # baseline, so offset the line top by the font ascent.
+        rect = self.cursorRect()
+        baseline = rect.top() + self.fontMetrics().ascent()
+        painter.drawText(rect.left(), baseline, suffix)
+        painter.end()
+
+    # --- keys --------------------------------------------------------------
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        key = event.key()
+        has_ghost = bool(self._ghost_matches)
+
+        if has_ghost and key in (Qt.Key.Key_Up, Qt.Key.Key_Down):
+            step = -1 if key == Qt.Key.Key_Up else 1
+            self._ghost_index = (self._ghost_index + step) % len(self._ghost_matches)
+            self.viewport().update()
+            return
+
+        if has_ghost and key == Qt.Key.Key_Escape:
+            self._clear_ghost()
+            return
+
+        if has_ghost and key == Qt.Key.Key_Tab:
+            self._accept_ghost()
+            return
+
+        if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            if has_ghost:
+                self._accept_ghost()
+            name = parse_command(self.textCursor().block().text())
+            if name is not None:
+                self._run_current_line(name)
+                return
+            super().keyPressEvent(event)
+            return
+
+        super().keyPressEvent(event)
+
+    def _run_current_line(self, name: str) -> None:
+        """Delete the command line's text, then emit so the window can act on a
+        document that no longer contains the command."""
+        cursor = self.textCursor()
+        cursor.select(cursor.SelectionType.LineUnderCursor)
+        cursor.removeSelectedText()
+        self._clear_ghost()
+        self.command_entered.emit(name)

@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (
 )
 
 from app_logger import AppLogger
+from gui.command_edit import CommandEdit
+from gui.commands import build_copy_text, last_result_text
 from gui.document_evaluator import evaluate_document, format_result
 
 _log = AppLogger.get(__name__)
@@ -27,9 +29,10 @@ class MainWindow(QMainWindow):
         font.setStyleHint(QFont.StyleHint.Monospace)
         font.setPointSize(12)
 
-        self._input = QPlainTextEdit()
+        self._input = CommandEdit()
         self._input.setFont(font)
         self._input.setFrameStyle(0)
+        self._input.command_entered.connect(self._run_command)
 
         self._results = QPlainTextEdit()
         self._results.setFont(font)
@@ -54,6 +57,21 @@ class MainWindow(QMainWindow):
     def _recalculate(self) -> None:
         results = evaluate_document(self._input.toPlainText())
         self._results.setPlainText("\n".join(format_result(r) for r in results))
+
+    def _run_command(self, name: str) -> None:
+        _log.info("ran %s", name)
+        if name == "/clear":
+            self._input.clear()
+            return
+        # The command line was already removed by the widget, so the document
+        # holds only real lines to copy.
+        lines = self._input.toPlainText().split("\n")
+        results = evaluate_document("\n".join(lines))
+        if name == "/copy":
+            text = build_copy_text(lines, results)
+        else:  # /copy-last
+            text = last_result_text(results)
+        QGuiApplication.clipboard().setText(text)
 
     def _sync_scrollbars(self) -> None:
         # keep both panes aligned row-for-row while scrolling
