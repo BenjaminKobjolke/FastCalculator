@@ -34,6 +34,10 @@ MANIFEST
 compile_settings.bat
 claude-plans/
 
+# Code analysis (machine-specific config + generated results)
+tools/analyze_code_config.bat
+code_analysis_results/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
