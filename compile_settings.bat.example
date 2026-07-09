@@ -1,0 +1,2 @@
+@echo off
+set OUTPUT_PATH=C:\path\to\output\folder

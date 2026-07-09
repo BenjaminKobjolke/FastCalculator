@@ -16,6 +16,7 @@ dev = [
     "ruff",
     "mypy",
     "pytest",
+    "pyinstaller",
 ]
 
 [tool.ruff]
