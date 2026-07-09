@@ -8,6 +8,7 @@ from gui.commands import (
     command_at,
     last_result_text,
     parse_command,
+    parse_command_line,
     suggest,
 )
 
@@ -95,6 +96,61 @@ def test_parse_command_trims_whitespace() -> None:
 def test_parse_command_rejects_partial() -> None:
     assert parse_command("/copyx") is None
     assert parse_command("/cop") is None
+
+
+def test_parse_command_line_with_arg() -> None:
+    assert parse_command_line("/window-opacity 80") == ("/window-opacity", "80")
+
+
+def test_parse_command_line_no_arg() -> None:
+    assert parse_command_line("/window-title") == ("/window-title", "")
+
+
+def test_parse_command_line_non_command() -> None:
+    assert parse_command_line("5 + 5") is None
+    assert parse_command_line("100/5") is None
+
+
+def test_parse_command_line_unknown_slash() -> None:
+    assert parse_command_line("/nope 1") is None
+
+
+def test_parse_command_line_is_case_insensitive() -> None:
+    assert parse_command_line("/WINDOW-OPACITY 80") == ("/window-opacity", "80")
+
+
+def test_suggest_window_family() -> None:
+    assert suggest("/window") == [
+        "/window-opacity",
+        "/window-title",
+        "/window-background-color",
+        "/window-font-color",
+        "/window-theme",
+        "/window-margin",
+    ]
+
+
+def test_parse_command_line_margin() -> None:
+    assert parse_command_line("/window-margin 12") == ("/window-margin", "12")
+
+
+def test_suggest_margin() -> None:
+    assert suggest("/window-m") == ["/window-margin"]
+
+
+def test_parse_command_line_color_with_hex() -> None:
+    assert parse_command_line("/window-background-color #282a36") == (
+        "/window-background-color",
+        "#282a36",
+    )
+
+
+def test_suggest_background_color() -> None:
+    assert suggest("/window-b") == ["/window-background-color"]
+
+
+def test_suggest_font_color() -> None:
+    assert suggest("/window-f") == ["/window-font-color"]
 
 
 def test_parse_command_exact_copy() -> None:

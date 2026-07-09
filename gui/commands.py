@@ -10,7 +10,19 @@ from __future__ import annotations
 from engine import EvalResult
 from gui.document_evaluator import format_result
 
-COMMANDS: list[str] = ["/clear", "/copy", "/copy-last", "/exit", "/paste-last-result"]
+COMMANDS: list[str] = [
+    "/clear",
+    "/copy",
+    "/copy-last",
+    "/exit",
+    "/paste-last-result",
+    "/window-opacity",
+    "/window-title",
+    "/window-background-color",
+    "/window-font-color",
+    "/window-theme",
+    "/window-margin",
+]
 
 
 def command_at(text: str, col: int) -> str | None:
@@ -47,6 +59,22 @@ def parse_command(line: str) -> str | None:
     """Return the command if `line` (trimmed) is exactly one, else None."""
     stripped = line.strip().lower()
     return stripped if stripped in COMMANDS else None
+
+
+def parse_command_line(line: str) -> tuple[str, str] | None:
+    """`(command, arg)` if `line`'s first token is a known command, else None.
+
+    Handles argument-carrying commands (`/window-opacity 80`) that
+    `parse_command` rejects because they are not an exact whole-line match. `arg`
+    is the trimmed remainder (`""` when the command takes none)."""
+    stripped = line.strip()
+    if not stripped.startswith("/"):
+        return None
+    cmd, _, rest = stripped.partition(" ")
+    cmd = cmd.lower()
+    if cmd not in COMMANDS:
+        return None
+    return cmd, rest.strip()
 
 
 def build_copy_text(lines: list[str], results: list[EvalResult]) -> str:

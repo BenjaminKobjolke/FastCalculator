@@ -12,7 +12,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QKeyEvent, QPainter, QPaintEvent, QTextCursor
 from PySide6.QtWidgets import QPlainTextEdit
 
-from gui.commands import command_at, parse_command, suggest
+from gui.commands import command_at, parse_command, parse_command_line, suggest
 
 
 class CommandEdit(QPlainTextEdit):
@@ -115,6 +115,13 @@ class CommandEdit(QPlainTextEdit):
             if name is not None:
                 self._run_current_line(name)
                 return
+            # Argument-carrying whole-line command (`/window-opacity 80`): the
+            # trailing arg means no `/`-token sits at the cursor, so the token
+            # path above misses it.
+            parsed = parse_command_line(cursor.block().text())
+            if parsed is not None:
+                self._run_command_line(*parsed)
+                return
             super().keyPressEvent(event)
             return
 
@@ -132,3 +139,15 @@ class CommandEdit(QPlainTextEdit):
         cursor.removeSelectedText()
         self._clear_ghost()
         self.command_entered.emit(name)
+
+    def _run_command_line(self, name: str, arg: str) -> None:
+        """Delete the whole logical block, then emit `"name arg"` so the window
+        can act. Used for argument-carrying commands, which own the whole line."""
+        cursor = self.textCursor()
+        cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock)
+        cursor.movePosition(
+            QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor
+        )
+        cursor.removeSelectedText()
+        self._clear_ghost()
+        self.command_entered.emit(f"{name} {arg}".strip())

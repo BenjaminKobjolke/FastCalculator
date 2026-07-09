@@ -13,6 +13,25 @@ they are not math and produce no result value.
 | `/copy-last` | Copy the value of the last result.                        |
 | `/paste-last-result` | Insert the last result at the cursor position.    |
 | `/exit`      | Close the calculator (quit the app).                      |
+| `/window-opacity <n>` | Set window opacity to `n` percent (clamped 10–100). Persists. |
+| `/window-title` | Toggle the title bar (show / hide). Persists.          |
+| `/window-background-color <hex>` | Set the pane background, e.g. `#282a36`. Persists. |
+| `/window-font-color <hex>` | Set the pane text color, e.g. `#f8f8f2`. Persists. |
+| `/window-theme <name>` | Apply a preset theme (sets background + font color). Persists. |
+| `/window-margin <px>` | Set the editor text margin in pixels (default 8). Persists. |
+
+## Value commands
+
+`/window-opacity`, `/window-margin`, `/window-background-color`,
+`/window-font-color`, and `/window-theme` take a value. Pass it inline
+(`/window-opacity 80`, `/window-theme dracula`) — or run the command **with no
+value** and an input box appears: a number box for opacity and margin, a hex text
+box for the colors, and a dropdown of theme names for `/window-theme`.
+
+Preset themes: `dracula`, `nord`, `monokai`, `solarized-dark`, `solarized-light`.
+
+All of these persist across restarts — see
+[persistent-settings.md](persistent-settings.md).
 
 ## Inline autosuggest
 
