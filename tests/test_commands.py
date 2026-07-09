@@ -177,10 +177,16 @@ def test_build_copy_text_all_empty() -> None:
 
 
 def test_last_result_text_returns_last_success() -> None:
+    lines = ["a", "b", "c"]
     results = [EvalResult.ok(1), EvalResult.ok(20), EvalResult.fail("x")]
-    assert last_result_text(results) == "20"
+    assert last_result_text(lines, results) == "20"
 
 
 def test_last_result_text_empty_when_none_succeed() -> None:
-    assert last_result_text([EvalResult.fail("x")]) == ""
-    assert last_result_text([]) == ""
+    assert last_result_text(["a"], [EvalResult.fail("x")]) == ""
+    assert last_result_text([], []) == ""
+
+
+def test_last_result_text_rounds_to_input_decimals() -> None:
+    # Matches the display: "11.99+19%" shows 14.27, not the raw 14.2681.
+    assert last_result_text(["11.99+19%"], [EvalResult.ok(14.2681)]) == "14.27"

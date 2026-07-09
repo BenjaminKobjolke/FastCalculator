@@ -93,9 +93,9 @@ def build_copy_text(lines: list[str], results: list[EvalResult]) -> str:
     return "\n".join(pairs)
 
 
-def last_result_text(results: list[EvalResult]) -> str:
+def last_result_text(lines: list[str], results: list[EvalResult]) -> str:
     """Formatted value of the last successful result, or `""` if none."""
-    for result in reversed(results):
+    for line, result in reversed(list(zip(lines, results, strict=False))):
         if result.success and result.value is not None:
-            return format_result(result)
+            return format_result(result, line)
     return ""
