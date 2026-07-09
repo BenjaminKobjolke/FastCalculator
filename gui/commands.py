@@ -7,6 +7,8 @@ Kept free of PySide6 so it is unit-testable without a display. The widget layer
 
 from __future__ import annotations
 
+import os
+
 from engine import EvalResult
 from gui.document_evaluator import format_result
 
@@ -53,6 +55,14 @@ def suggest(prefix: str) -> list[str]:
     if not p.startswith("/"):
         return []
     return [c for c in COMMANDS if c.startswith(p)]
+
+
+def common_prefix(matches: list[str]) -> str:
+    """Longest string that every command in `matches` starts with (``""`` if
+    empty). Single match -> the whole command, so completion still fills fully."""
+    if not matches:
+        return ""
+    return os.path.commonprefix(matches)
 
 
 def parse_command(line: str) -> str | None:

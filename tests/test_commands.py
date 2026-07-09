@@ -6,6 +6,7 @@ from engine import EvalResult
 from gui.commands import (
     build_copy_text,
     command_at,
+    common_prefix,
     last_result_text,
     parse_command,
     parse_command_line,
@@ -58,6 +59,27 @@ def test_suggest_exit() -> None:
 
 def test_suggest_paste_last_result() -> None:
     assert suggest("/p") == ["/paste-last-result"]
+
+
+def test_common_prefix_window_family_extends_to_dash() -> None:
+    assert common_prefix(suggest("/win")) == "/window-"
+
+
+def test_common_prefix_copy_family_cannot_extend() -> None:
+    # LCP already equals what's typed -> Tab opens the list instead of filling.
+    assert common_prefix(suggest("/c")) == "/c"
+
+
+def test_common_prefix_single_match_is_full_command() -> None:
+    assert common_prefix(suggest("/e")) == "/exit"
+
+
+def test_common_prefix_empty() -> None:
+    assert common_prefix([]) == ""
+
+
+def test_common_prefix_copy_narrowed() -> None:
+    assert common_prefix(suggest("/copy")) == "/copy"
 
 
 def test_parse_command_exact_paste_last_result() -> None:

@@ -35,18 +35,37 @@ All of these persist across restarts — see
 
 ## Inline autosuggest
 
-As you type a command, a grayed **ghost** completion appears after the cursor:
+As you type a command, a grayed **ghost** shows the **longest common prefix** of
+every command that still matches — so it never mis-guesses which one you mean:
 
 ```
-/c̲l̲e̲a̲r̲          you typed "/c", the rest is suggested
+/win → /window-      six commands match; the shared "/window-" is ghosted
+/e   → /exit         only one match; the whole command is ghosted
 ```
 
-| Key         | Action                                        |
-|-------------|-----------------------------------------------|
-| `Tab`       | Accept the suggestion (fills the command).    |
-| `↑` / `↓`   | Cycle through matching commands.              |
-| `Esc`       | Dismiss the suggestion.                       |
-| `Enter`     | Accept (if a suggestion is showing) and run the command. |
+Press **Tab** to fill the ghost. When several commands still match, Tab also
+drops a **stacked list** below the cursor to pick from:
+
+```
+/window-
+  /window-opacity        ← highlighted
+  /window-title
+  /window-background-color
+  /window-font-color
+  /window-theme
+  /window-margin
+```
+
+| Key         | Action                                                    |
+|-------------|-----------------------------------------------------------|
+| `Tab`       | Fill the common prefix; open the list if several match; complete fully when one match remains. |
+| `↑` / `↓`   | Move the highlight in the list (`↓` also opens it).       |
+| `Enter`     | Pick the highlighted command and run it (runs directly when only one matches). |
+| `Esc`       | Close the list, or dismiss the ghost.                     |
+
+Keep typing at any time to narrow the list; once a single command remains it
+collapses back to a plain ghost. When the common prefix can't extend (e.g. `/c`
+matches `/clear`, `/copy`, `/copy-last`), the first `Tab` opens the list at once.
 
 Suggestions appear whenever the trailing word at the cursor starts with `/`, so
 normal math is never interrupted.
