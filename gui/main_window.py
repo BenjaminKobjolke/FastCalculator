@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QSettings, Qt, QTimer
 from PySide6.QtGui import (
     QCloseEvent,
     QFont,
@@ -63,6 +63,14 @@ class MainWindow(QMainWindow):
         self._input.setFrameStyle(0)
         self._input.command_entered.connect(self._run_command)
 
+        saved_text = str(QSettings().value("document/text", "", type=str))
+        if saved_text:
+            self._input.setPlainText(saved_text)
+            pos = int(str(QSettings().value("document/cursor", 0)))
+            cursor = self._input.textCursor()
+            cursor.setPosition(min(pos, len(saved_text)))
+            self._input.setTextCursor(cursor)
+
         self._results = QPlainTextEdit()
         self._results.setFont(font)
         self._results.setReadOnly(True)
@@ -85,6 +93,16 @@ class MainWindow(QMainWindow):
         self._restore_margin()
 
         self._input.textChanged.connect(self._recalculate)
+
+        # ponytail: debounced autosave — one single-shot timer, .start() on each
+        # keystroke restarts it, so we only write ~800ms after typing stops.
+        self._save_timer = QTimer(self)
+        self._save_timer.setSingleShot(True)
+        self._save_timer.setInterval(800)
+        self._save_timer.timeout.connect(self._save_document)
+        self._input.textChanged.connect(self._save_timer.start)
+
+        self._recalculate()  # populate results for restored text
         self._install_font_shortcuts()
         self._sync_scrollbars()
         self._restore_geometry()
@@ -288,6 +306,11 @@ class MainWindow(QMainWindow):
             frame.moveCenter(primary.availableGeometry().center())
             self.move(frame.topLeft())
 
+    def _save_document(self) -> None:
+        QSettings().setValue("document/text", self._input.toPlainText())
+        QSettings().setValue("document/cursor", self._input.textCursor().position())
+
     def closeEvent(self, event: QCloseEvent) -> None:
         QSettings().setValue("window/geometry", self.saveGeometry())
+        self._save_document()
         super().closeEvent(event)

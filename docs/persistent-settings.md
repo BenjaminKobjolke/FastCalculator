@@ -13,9 +13,26 @@ registry under `HKEY_CURRENT_USER\Software\BenjaminKobjolke\Calculator`.
 | `window/bg_color` | pane background, hex (`#rrggbb`) | unset → Qt palette | `_restore_colors` | `/window-background-color`, `/window-theme` |
 | `window/font_color` | pane text color, hex (`#rrggbb`) | unset → Qt palette | `_restore_colors` | `/window-font-color`, `/window-theme` |
 | `window/margin` | editor text margin, px (clamped 0–200) | `8` | `_restore_margin` | `/window-margin` (`_set_margin`) |
+| `document/text` | notepad contents (autosaved while typing, on exit; `/clear` resets it) | `""` (empty) | `MainWindow.__init__` | `_save_document` (debounced `textChanged` + `closeEvent`) |
+| `document/cursor` | cursor character offset in the notepad | `0` | `MainWindow.__init__` | `_save_document` |
 
 All keys are read/written in `gui/main_window.py`. Opacity is clamped to
 **10–100** (`clamp_opacity`) so the window can never become fully invisible —
 a frameless, transparent window would be unrecoverable.
+
+## Document restore
+
+`document/text` and `document/cursor` reload the notepad on startup:
+
+- Text is autosaved ~800 ms after typing stops (single-shot `QTimer` on
+  `textChanged`) and flushed on exit via `closeEvent`, so a crash loses at most
+  the last unsaved keystrokes.
+- On launch `MainWindow.__init__` restores the text, moves the cursor to the
+  saved offset (clamped to text length), then calls `_recalculate()` once so the
+  results pane is populated immediately — no need to edit a line first.
+- Cursor offset only changes with `textChanged`; arrow-key-only moves are
+  captured on exit by `closeEvent`.
+- `/clear` empties the document, which saves an empty string — the cleared
+  state persists.
 
 See `docs/commands.md` for the `/window-opacity` and `/window-title` commands.
