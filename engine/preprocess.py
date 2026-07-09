@@ -35,6 +35,10 @@ _COMMA_DECIMAL_RE = re.compile(r"(?<=\d),(?=\d)")
 # stays a variable ("x = 10", "x hoch 2").
 # ponytail: number-flanked only; `10 x pi` / `10 x (2+3)` still won't multiply.
 _X_MULTIPLY_RE = re.compile(r"(?<=[\d.])\s*[xX]\s*(?=[\d.])")
+# Postfix percent: "19%" -> _pct(19). Only when '%' has no right operand, so
+# modulo ("10 % 3") is left alone. The evaluator makes '+'/'-' apply the
+# percent to the left side (Numi-style: 100+19% = 119); '*'/'/' just use 0.19.
+_PERCENT_RE = re.compile(r"(\d+(?:\.\d+)?)\s*%(?!\s*[\w.(])")
 
 
 def split_assignment(line: str) -> tuple[str | None, str]:
@@ -53,6 +57,7 @@ def split_assignment(line: str) -> tuple[str | None, str]:
 def normalize(expr: str) -> str:
     """Rewrite a raw expression into Python-math syntax (steps 2-5)."""
     expr = _COMMA_DECIMAL_RE.sub(".", expr)
+    expr = _PERCENT_RE.sub(r"_pct(\1)", expr)
     expr = _X_MULTIPLY_RE.sub("*", expr)
     expr = expr.replace(";", ",")
     expr = _WORD_PATTERN.sub(lambda m: _WORD_LOOKUP[m.group(0).lower()], expr)

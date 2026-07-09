@@ -25,3 +25,18 @@ def test_format_number_trims_integers() -> None:
     results = evaluate_document("6 / 2\n9 / 2")
     assert format_result(results[0]) == "3"
     assert format_result(results[1]) == "4.5"
+
+
+def test_output_mirrors_input_decimal_style() -> None:
+    line = "100.00 + 19%"
+    r = evaluate_document(line)[0]
+    assert format_result(r, line) == "119.00"
+
+    line = "100,00 + 19%"
+    r = evaluate_document(line)[0]
+    assert format_result(r, line) == "119,00"
+
+    # No explicit decimals in input -> keep the plain formatting.
+    line = "100 + 19%"
+    r = evaluate_document(line)[0]
+    assert format_result(r, line) == "119"

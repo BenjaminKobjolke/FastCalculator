@@ -61,7 +61,7 @@ def build_copy_text(lines: list[str], results: list[EvalResult]) -> str:
         if result.assigned_name is not None:
             pairs.append(text)
         else:
-            pairs.append(f"{text} = {format_result(result)}")
+            pairs.append(f"{text} = {format_result(result, line)}")
     return "\n".join(pairs)
 
 

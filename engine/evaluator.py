@@ -24,6 +24,14 @@ from .result import EvalResult
 
 Scope = dict[str, float]
 
+
+class _Percent(float):
+    """A number typed with a trailing '%'. Its float value is already p/100
+    (so 19% == 0.19), which makes '*' and '/' correct for free; '+' and '-'
+    get special handling in BinOp so "100+19%" means 100 + 19% of 100."""
+
+    __slots__ = ()
+
 _BINARY_OPS: dict[type[ast.operator], Callable[[float, float], float]] = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
@@ -79,7 +87,11 @@ def _eval_node(node: ast.AST, scope: Scope) -> float:
         op = _BINARY_OPS.get(type(node.op))
         if op is None:
             raise UnsafeExpressionError("unsupported operator")
-        return op(_eval_node(node.left, scope), _eval_node(node.right, scope))
+        left = _eval_node(node.left, scope)
+        right = _eval_node(node.right, scope)
+        if isinstance(right, _Percent) and isinstance(node.op, (ast.Add, ast.Sub)):
+            return op(left, left * float(right))
+        return op(left, right)
 
     if isinstance(node, ast.UnaryOp):
         unary = _UNARY_OPS.get(type(node.op))
@@ -105,6 +117,10 @@ def _eval_call(node: ast.Call, scope: Scope) -> float:
         raise UnsafeExpressionError("unsupported call")
     if node.keywords:
         raise UnsafeExpressionError("keyword arguments are not allowed")
+    if node.func.id == "_pct":
+        if len(node.args) != 1:
+            raise UnsafeExpressionError("percent takes one value")
+        return _Percent(_eval_node(node.args[0], scope) / 100.0)
     func = FUNCTIONS.get(node.func.id)
     if func is None:
         raise UnknownFunctionError(f"unknown function: {node.func.id}")

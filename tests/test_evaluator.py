@@ -21,6 +21,16 @@ def test_basic_operators() -> None:
     assert _val("2 ^ 8") == 256
 
 
+def test_percent() -> None:
+    assert _val("100 * 19%") == 19
+    assert _val("100 + 19%") == 119
+    assert _val("100 - 19%") == 81
+    assert _val("100 / 50%") == 200
+    assert _val("19%") == pytest.approx(0.19)
+    assert _val("50%") == 0.5
+    assert _val("10 % 3") == 1  # bare modulo still works
+
+
 def test_x_as_multiply_between_numbers() -> None:
     assert _val("10 x 10") == 100
     assert _val("10x10") == 100

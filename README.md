@@ -10,6 +10,12 @@ natural-language operators in **English and German**.
 - **Live multi-line notepad** — every line is evaluated as you type; the result
   shows on the same row on the right.
 - **`,` and `.` are both the decimal point**: `3,5 + 1,5` = `5`.
+- **Percent (`%`)** — Numi-style: `100 * 19%` = `19`, `100 + 19%` = `119`,
+  `100 - 19%` = `81`, `100 / 50%` = `200`, bare `19%` = `0.19`. Plain modulo
+  (`10 % 3` = `1`) still works — `%` is percent only when nothing follows it.
+- **Output mirrors your decimal style** — if the line uses explicit decimals,
+  the result copies the separator and place count: `100.00 + 19%` = `119.00`,
+  `100,00 + 19%` = `119,00`.
 - **Variables across lines** — assign once, reuse below:
   ```
   x = 10
@@ -39,6 +45,10 @@ natural-language operators in **English and German**.
 
 Words are case-insensitive. Longest phrase wins (`divided by` beats `over`).
 Parentheses and unary minus work as expected: `-(2 + 3) * 4`.
+
+`%` is dual-purpose: modulo when it has a right operand (`10 % 3`), percent when
+it doesn't (`19%`, `100 + 19%`). Percent applies to the left side for `+`/`-`
+and is just `value/100` for `*`/`/`.
 
 Examples:
 ```
@@ -95,7 +105,7 @@ update.bat                       # upgrade deps, ruff, mypy, tests
 
 ```
 engine/    pure evaluation library (stdlib only, no GUI, no third-party deps)
-  preprocess.py  , -> .  ;  ; -> ,  ;  word operators (longest-match)  ;  ^ -> **
+  preprocess.py  , -> .  ;  postfix % -> _pct(...)  ;  ; -> ,  ;  words  ;  ^ -> **
   evaluator.py   evaluate(line, scope) + ast whitelist walker (security boundary)
   words.py       operator word map (English + German), data-only
   functions.py   whitelisted functions + constants, data-only
