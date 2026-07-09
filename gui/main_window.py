@@ -202,9 +202,7 @@ class MainWindow(QMainWindow):
     def _set_color(self, key: str, arg: str) -> None:
         if not arg:
             current = (self._bg if key == "window/bg_color" else self._fg) or ""
-            arg, ok = QInputDialog.getText(
-                self, "Color", "Hex color (e.g. #282a36):", text=current
-            )
+            arg, ok = QInputDialog.getText(self, "Color", "Hex color (e.g. #282a36):", text=current)
             if not ok:
                 return
         arg = arg.strip()

@@ -55,7 +55,7 @@ class CommandEdit(QPlainTextEdit):
         if not self._ghost_matches:
             return ""
         prefix = self._current_prefix() or ""
-        return self._ghost_matches[self._ghost_index][len(prefix):]
+        return self._ghost_matches[self._ghost_index][len(prefix) :]
 
     def _clear_ghost(self) -> None:
         if self._ghost_matches:
@@ -145,9 +145,7 @@ class CommandEdit(QPlainTextEdit):
         can act. Used for argument-carrying commands, which own the whole line."""
         cursor = self.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock)
-        cursor.movePosition(
-            QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor
-        )
+        cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor)
         cursor.removeSelectedText()
         self._clear_ghost()
         self.command_entered.emit(f"{name} {arg}".strip())

@@ -32,6 +32,7 @@ class _Percent(float):
 
     __slots__ = ()
 
+
 _BINARY_OPS: dict[type[ast.operator], Callable[[float, float], float]] = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
