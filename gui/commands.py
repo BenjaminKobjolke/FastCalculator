@@ -13,6 +13,24 @@ from gui.document_evaluator import format_result
 COMMANDS: list[str] = ["/clear", "/copy", "/copy-last", "/exit", "/paste-last-result"]
 
 
+def command_at(text: str, col: int) -> str | None:
+    """The `/`-token ending at `col`: from the last `/` of the trailing non-space
+    run up to the cursor.
+
+    Lets a command be recognised anywhere in a line, with (`105+ /pas`) or
+    without (`81+/pas`) a space before the slash. Returns None when the trailing
+    run holds no `/`. Non-command slashes (division, `100/5` -> `/5`) fall
+    through `suggest`/`parse_command`, which reject them.
+    """
+    head = text[:col]
+    i = len(head)
+    while i > 0 and not head[i - 1].isspace():
+        i -= 1
+    run = head[i:]
+    slash = run.rfind("/")
+    return run[slash:] if slash != -1 else None
+
+
 def suggest(prefix: str) -> list[str]:
     """Full commands that start with `prefix` (case-insensitive).
 

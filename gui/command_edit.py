@@ -9,10 +9,10 @@ newline.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QKeyEvent, QPainter, QPaintEvent
+from PySide6.QtGui import QKeyEvent, QPainter, QPaintEvent, QTextCursor
 from PySide6.QtWidgets import QPlainTextEdit
 
-from gui.commands import parse_command, suggest
+from gui.commands import command_at, parse_command, suggest
 
 
 class CommandEdit(QPlainTextEdit):
@@ -30,8 +30,9 @@ class CommandEdit(QPlainTextEdit):
     # --- ghost state -------------------------------------------------------
 
     def _current_prefix(self) -> str | None:
-        """Text of the current line up to the cursor, if the cursor sits at the
-        line end; else None (no suggestion while editing mid-line)."""
+        """The `/`-command token at the cursor, if the cursor sits at the line
+        end; else None. The token may start anywhere in the line (`105+ /pas`),
+        not just at column 0. None while a selection exists or mid-line."""
         cursor = self.textCursor()
         if cursor.hasSelection():
             return None
@@ -39,7 +40,7 @@ class CommandEdit(QPlainTextEdit):
         col = cursor.positionInBlock()
         if col != len(block_text):
             return None
-        return block_text[:col]
+        return command_at(block_text, col)
 
     def _refresh_ghost(self) -> None:
         prefix = self._current_prefix()
@@ -108,7 +109,9 @@ class CommandEdit(QPlainTextEdit):
         if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             if has_ghost:
                 self._accept_ghost()
-            name = parse_command(self.textCursor().block().text())
+            cursor = self.textCursor()
+            token = command_at(cursor.block().text(), cursor.positionInBlock())
+            name = parse_command(token) if token is not None else None
             if name is not None:
                 self._run_current_line(name)
                 return
@@ -118,10 +121,14 @@ class CommandEdit(QPlainTextEdit):
         super().keyPressEvent(event)
 
     def _run_current_line(self, name: str) -> None:
-        """Delete the command line's text, then emit so the window can act on a
-        document that no longer contains the command."""
+        """Delete just the `/command` token before the cursor, then emit so the
+        window can act. Removing only the token (not the whole line) lets a
+        command run mid-line: `105+ /paste-last-result` keeps `105+ ` and the
+        window inserts the result where the token was."""
         cursor = self.textCursor()
-        cursor.select(cursor.SelectionType.LineUnderCursor)
+        cursor.movePosition(
+            QTextCursor.MoveOperation.Left, QTextCursor.MoveMode.KeepAnchor, len(name)
+        )
         cursor.removeSelectedText()
         self._clear_ghost()
         self.command_entered.emit(name)

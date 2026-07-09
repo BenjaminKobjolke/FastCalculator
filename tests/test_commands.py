@@ -4,12 +4,47 @@ from __future__ import annotations
 
 from engine import EvalResult
 from gui.commands import (
-    COMMANDS,
     build_copy_text,
+    command_at,
     last_result_text,
     parse_command,
     suggest,
 )
+
+
+def test_command_at_start_of_line() -> None:
+    assert command_at("/cle", 4) == "/cle"
+
+
+def test_command_at_mid_line() -> None:
+    assert command_at("105+ /pas", 9) == "/pas"
+
+
+def test_command_at_no_space_before_slash() -> None:
+    assert command_at("81+/pas", 7) == "/pas"
+
+
+def test_command_at_division_slash_returns_non_command() -> None:
+    # "/5" is picked up but suggest()/parse_command() reject it, so no false run.
+    assert command_at("100/5", 5) == "/5"
+    assert parse_command(command_at("100/5", 5) or "") is None
+
+
+def test_command_at_full_command_mid_line() -> None:
+    text = "price = /paste-last-result"
+    assert command_at(text, len(text)) == "/paste-last-result"
+
+
+def test_command_at_non_slash_word_is_none() -> None:
+    assert command_at("5 + 5", 5) is None
+
+
+def test_command_at_trailing_space_is_none() -> None:
+    assert command_at("/copy ", 6) is None
+
+
+def test_command_at_empty_is_none() -> None:
+    assert command_at("", 0) is None
 
 
 def test_suggest_single_letter_matches_all() -> None:
