@@ -45,3 +45,17 @@ tools\run_tests.bat              # unit tests
 tools\run_integration_tests.bat  # integration tests
 update.bat                       # deps upgrade + ruff + mypy + tests
 ```
+
+## Code Analysis
+
+After implementing new features or making significant changes, run the code analysis:
+
+```bash
+powershell -Command "cd 'D:\GIT\BenjaminKobjolke\calculator'; cmd /c '.\tools\analyze_code.bat'"
+```
+
+Results are written to `code_analysis_results/` as **per-rule CSV files** (e.g.
+`max_lines_per_file.csv`, `ruff_analyze.csv`, `pmd_duplicates.csv`) — a missing
+CSV means that rule found nothing. Fix any reported issues before committing.
+Auto-fix Ruff issues with `tools\fix_ruff_issues.bat` (preview:
+`fix_ruff_issues_dry_run.bat`).
