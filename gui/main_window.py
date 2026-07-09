@@ -63,6 +63,9 @@ class MainWindow(QMainWindow):
         if name == "/clear":
             self._input.clear()
             return
+        if name == "/exit":
+            self.close()
+            return
         # The command line was already removed by the widget, so the document
         # holds only real lines to copy.
         lines = self._input.toPlainText().split("\n")

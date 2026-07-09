@@ -13,7 +13,15 @@ from gui.commands import (
 
 
 def test_suggest_single_letter_matches_all() -> None:
-    assert suggest("/c") == COMMANDS
+    assert suggest("/c") == ["/clear", "/copy", "/copy-last"]
+
+
+def test_suggest_exit() -> None:
+    assert suggest("/e") == ["/exit"]
+
+
+def test_parse_command_exact_exit() -> None:
+    assert parse_command("/exit") == "/exit"
 
 
 def test_suggest_narrows_to_copy_family() -> None:
