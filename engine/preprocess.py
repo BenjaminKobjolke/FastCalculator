@@ -4,6 +4,7 @@ Pipeline (strict order):
   1. split off a leading "name =" assignment (single '=', not '==')
   2. comma-decimal normalize: a comma between two digits becomes '.'
      (both ',' and '.' mean decimal point — the whole point of this app)
+  2b. 'x' between two numbers becomes '*' ("10 x 10"); a lone 'x' stays a variable
   3. ';' -> ',' so multi-arg functions like min(1;2) reach ast as min(1,2)
      (needed because ',' is now a decimal point, so args can't use it)
   4. word operators -> symbols (English + German), longest phrase first
@@ -30,6 +31,10 @@ _WORD_PATTERN = re.compile(
 
 _ASSIGNMENT_RE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(.+)$")
 _COMMA_DECIMAL_RE = re.compile(r"(?<=\d),(?=\d)")
+# "10 x 10" / "10x10" -> multiply. Only between numbers so a standalone `x`
+# stays a variable ("x = 10", "x hoch 2").
+# ponytail: number-flanked only; `10 x pi` / `10 x (2+3)` still won't multiply.
+_X_MULTIPLY_RE = re.compile(r"(?<=[\d.])\s*[xX]\s*(?=[\d.])")
 
 
 def split_assignment(line: str) -> tuple[str | None, str]:
@@ -48,6 +53,7 @@ def split_assignment(line: str) -> tuple[str | None, str]:
 def normalize(expr: str) -> str:
     """Rewrite a raw expression into Python-math syntax (steps 2-5)."""
     expr = _COMMA_DECIMAL_RE.sub(".", expr)
+    expr = _X_MULTIPLY_RE.sub("*", expr)
     expr = expr.replace(";", ",")
     expr = _WORD_PATTERN.sub(lambda m: _WORD_LOOKUP[m.group(0).lower()], expr)
     expr = expr.replace("^", "**")

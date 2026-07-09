@@ -21,6 +21,18 @@ def test_basic_operators() -> None:
     assert _val("2 ^ 8") == 256
 
 
+def test_x_as_multiply_between_numbers() -> None:
+    assert _val("10 x 10") == 100
+    assert _val("10x10") == 100
+    assert _val("2,5 x 4") == 10
+
+
+def test_x_stays_a_variable() -> None:
+    scope: dict[str, float] = {}
+    assert evaluate("x = 10", scope).success
+    assert evaluate("x hoch 2", scope).value == 100
+
+
 def test_precedence_and_parens() -> None:
     assert _val("2 + 3 * 4") == 14
     assert _val("(2 + 3) * 4") == 20
