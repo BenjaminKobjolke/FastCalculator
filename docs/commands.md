@@ -8,6 +8,7 @@ Commands act on the editor — they are not math and produce no result value.
 | `/clear`     | Clear the whole document.                                 |
 | `/copy`      | Copy every line as `input = result`, one per line.        |
 | `/copy-last` | Copy the value of the last result.                        |
+| `/paste-last-result` | Insert the last result at the cursor position.    |
 | `/exit`      | Close the calculator (quit the app).                      |
 
 ## Inline autosuggest

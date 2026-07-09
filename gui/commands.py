@@ -10,7 +10,7 @@ from __future__ import annotations
 from engine import EvalResult
 from gui.document_evaluator import format_result
 
-COMMANDS: list[str] = ["/clear", "/copy", "/copy-last", "/exit"]
+COMMANDS: list[str] = ["/clear", "/copy", "/copy-last", "/exit", "/paste-last-result"]
 
 
 def suggest(prefix: str) -> list[str]:

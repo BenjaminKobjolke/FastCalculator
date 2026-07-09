@@ -20,6 +20,14 @@ def test_suggest_exit() -> None:
     assert suggest("/e") == ["/exit"]
 
 
+def test_suggest_paste_last_result() -> None:
+    assert suggest("/p") == ["/paste-last-result"]
+
+
+def test_parse_command_exact_paste_last_result() -> None:
+    assert parse_command("/paste-last-result") == "/paste-last-result"
+
+
 def test_parse_command_exact_exit() -> None:
     assert parse_command("/exit") == "/exit"
 

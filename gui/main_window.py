@@ -98,6 +98,9 @@ class MainWindow(QMainWindow):
         # holds only real lines to copy.
         lines = self._input.toPlainText().split("\n")
         results = evaluate_document("\n".join(lines))
+        if name == "/paste-last-result":
+            self._input.textCursor().insertText(last_result_text(results))
+            return
         if name == "/copy":
             text = build_copy_text(lines, results)
         else:  # /copy-last
