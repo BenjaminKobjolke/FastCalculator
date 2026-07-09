@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 from PySide6.QtCore import QSettings, Qt
-from PySide6.QtGui import QCloseEvent, QFont, QGuiApplication, QTextOption
+from PySide6.QtGui import (
+    QCloseEvent,
+    QFont,
+    QGuiApplication,
+    QKeySequence,
+    QShortcut,
+    QTextOption,
+)
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QMainWindow,
@@ -15,6 +22,7 @@ from app_logger import AppLogger
 from gui.command_edit import CommandEdit
 from gui.commands import build_copy_text, last_result_text
 from gui.document_evaluator import evaluate_document, format_result
+from gui.font_scale import clamp_font_size
 
 _log = AppLogger.get(__name__)
 
@@ -27,7 +35,9 @@ class MainWindow(QMainWindow):
 
         font = QFont("Consolas")
         font.setStyleHint(QFont.StyleHint.Monospace)
-        font.setPointSize(12)
+        saved_size = QSettings().value("editor/font_point_size")
+        font.setPointSize(clamp_font_size(int(saved_size)) if saved_size is not None else 12)
+        self._font = font
 
         self._input = CommandEdit()
         self._input.setFont(font)
@@ -51,8 +61,26 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
 
         self._input.textChanged.connect(self._recalculate)
+        self._install_font_shortcuts()
         self._sync_scrollbars()
         self._restore_geometry()
+
+    def _install_font_shortcuts(self) -> None:
+        # Ctrl++ / Ctrl+= (same physical key with/without shift) and Alt+Up grow;
+        # Ctrl+- and Alt+Down shrink.
+        for seq in ("Ctrl++", "Ctrl+=", "Alt+Up"):
+            QShortcut(QKeySequence(seq), self).activated.connect(lambda: self._adjust_font(1))
+        for seq in ("Ctrl+-", "Alt+Down"):
+            QShortcut(QKeySequence(seq), self).activated.connect(lambda: self._adjust_font(-1))
+
+    def _adjust_font(self, delta: int) -> None:
+        size = clamp_font_size(self._font.pointSize() + delta)
+        if size == self._font.pointSize():
+            return
+        self._font.setPointSize(size)
+        self._input.setFont(self._font)
+        self._results.setFont(self._font)
+        QSettings().setValue("editor/font_point_size", size)
 
     def _recalculate(self) -> None:
         results = evaluate_document(self._input.toPlainText())
