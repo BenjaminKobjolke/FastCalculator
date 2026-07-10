@@ -10,15 +10,33 @@ from __future__ import annotations
 import re
 
 from engine import EvalResult, evaluate
+from engine.inline import scope_key
 
 # A decimal number in the raw input: capture the separator and the fraction.
 _INPUT_DECIMAL_RE = re.compile(r"\d+([.,])(\d+)")
 
+_SUM_KEY = scope_key("sum")
+
 
 def evaluate_document(text: str) -> list[EvalResult]:
-    """Return one EvalResult per line of `text`, sharing a fresh variable scope."""
+    """Return one EvalResult per line of `text`, sharing a fresh variable scope.
+
+    Also feeds the `$sum` inline variable: `_SUM_KEY` is injected before each
+    line as the running total of the successful results *above* it in the current
+    group (a contiguous block of lines; a blank line starts a new group).
+    """
     scope: dict[str, float] = {}
-    return [evaluate(line, scope) for line in text.split("\n")]
+    results: list[EvalResult] = []
+    group_sum = 0.0
+    for line in text.split("\n"):
+        if not line.strip():
+            group_sum = 0.0
+        scope[_SUM_KEY] = group_sum
+        result = evaluate(line, scope)
+        results.append(result)
+        if result.success and result.value is not None:
+            group_sum += result.value
+    return results
 
 
 def format_result(result: EvalResult, line: str | None = None) -> str:

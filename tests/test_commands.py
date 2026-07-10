@@ -154,6 +154,7 @@ def test_suggest_window_family() -> None:
         "/window-operator-color",
         "/window-function-color",
         "/window-variable-color",
+        "/window-inline-color",
     ]
 
 
@@ -164,6 +165,33 @@ def test_suggest_syntax_color_family() -> None:
     assert suggest("/window-fu") == ["/window-function-color"]
     assert suggest("/window-v") == ["/window-variable-color"]
     assert suggest("/window-h") == ["/window-highlighting"]
+    assert suggest("/window-i") == ["/window-inline-color"]
+
+
+def test_suggest_inline_variable() -> None:
+    assert suggest("$") == ["$sum"]
+    assert suggest("$su") == ["$sum"]
+    assert suggest("$SUM") == ["$sum"]  # case-insensitive
+
+
+def test_suggest_unknown_inline_variable_is_empty() -> None:
+    assert suggest("$foo") == []
+
+
+def test_command_at_dollar_token_mid_expression() -> None:
+    assert command_at("Rabatt: $su", len("Rabatt: $su")) == "$su"
+    assert command_at("2000 + $sum", len("2000 + $sum")) == "$sum"
+
+
+def test_command_at_dollar_no_space_before() -> None:
+    assert command_at("2000+$su", len("2000+$su")) == "$su"
+
+
+def test_parse_command_line_inline_color() -> None:
+    assert parse_command_line("/window-inline-color #ffb86c") == (
+        "/window-inline-color",
+        "#ffb86c",
+    )
 
 
 def test_parse_command_line_syntax_color() -> None:

@@ -18,6 +18,10 @@ from engine import evaluate
         ("10 divided by 2", 5.0),
         ("2 to the power of 10", 1024.0),
         ("min(3;9;1)", 1.0),
+        ("Price: 5 + 5", 10.0),
+        ("Tax: 100 * 1,19", 119.0),
+        ("5 + 5 apples", 10.0),
+        ("5 kg + 5 kg", 10.0),
     ],
 )
 def test_lines_produce_expected_values(line: str, expected: float) -> None:

@@ -69,6 +69,22 @@ def test_comma_as_decimal() -> None:
     assert _val("3,5 + 1,5") == 5.0
 
 
+def test_colon_label_prefix() -> None:
+    assert _val("Price: 5 + 5") == 10
+    assert _val("Tax: 100 * 1,19") == 119
+
+
+def test_trailing_unit_text() -> None:
+    assert _val("5 + 5 apples") == 10
+    assert _val("5 kg + 5 kg") == 10
+
+
+def test_unit_text_keeps_scope_variables() -> None:
+    scope: dict[str, float] = {}
+    assert evaluate("x = 5", scope).success
+    assert evaluate("x + 3 dollars", scope).value == 8
+
+
 @pytest.mark.parametrize(
     "expr",
     [

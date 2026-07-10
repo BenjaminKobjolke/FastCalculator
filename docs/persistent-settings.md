@@ -18,6 +18,7 @@ registry under `HKEY_CURRENT_USER\Software\BenjaminKobjolke\Calculator`.
 | `window/syntax_operator` | operator token color, hex | `#ff79c6` | `_restore_syntax` | `/window-operator-color`, `/window-theme` |
 | `window/syntax_function` | function/constant token color, hex | `#8be9fd` | `_restore_syntax` | `/window-function-color`, `/window-theme` |
 | `window/syntax_variable` | variable token color, hex | `#50fa7b` | `_restore_syntax` | `/window-variable-color`, `/window-theme` |
+| `window/syntax_inline` | inline `$`-variable token color, hex | `#ffb86c` | `_restore_syntax` | `/window-inline-color`, `/window-theme` |
 | `document/text` | notepad contents (autosaved while typing, on exit; `/clear` resets it) | `""` (empty) | `MainWindow.__init__` | `_save_document` (debounced `textChanged` + `closeEvent`) |
 | `document/cursor` | cursor character offset in the notepad | `0` | `MainWindow.__init__` | `_save_document` |
 

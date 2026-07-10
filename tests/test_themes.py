@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from gui.themes import THEMES, Theme, is_valid_hex, theme_names
+from gui.themes import THEMES, Theme, is_valid_hex, syntax_colors, theme_names
 
 
 def test_dracula_colors() -> None:
@@ -20,6 +20,17 @@ def test_is_valid_hex_accepts_six_and_three_digit() -> None:
     assert is_valid_hex("#282a36")
     assert is_valid_hex("#abc")
     assert is_valid_hex("  #FFF  ")
+
+
+def test_syntax_colors_includes_inline() -> None:
+    colors = syntax_colors(THEMES["dracula"])
+    assert colors["inline"] == "#ffb86c"
+    assert set(colors) == {"number", "operator", "function", "variable", "inline"}
+
+
+def test_every_theme_sets_a_valid_inline_color() -> None:
+    for theme in THEMES.values():
+        assert is_valid_hex(theme.inline)
 
 
 def test_is_valid_hex_rejects_bad() -> None:

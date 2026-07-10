@@ -15,8 +15,9 @@ import re
 from engine.functions import CONSTANTS, FUNCTIONS
 from engine.words import WORD_OPERATORS
 
-# The four user-facing color categories (also the QSettings/command suffixes).
-CATEGORIES: tuple[str, ...] = ("number", "operator", "function", "variable")
+# The user-facing color categories (also the QSettings/command suffixes).
+# `inline` tints `$`-variables ("$sum"), distinct from user `variable` names.
+CATEGORIES: tuple[str, ...] = ("number", "operator", "function", "variable", "inline")
 
 _NAMES = {name.lower() for name in FUNCTIONS} | {name.lower() for name in CONSTANTS}
 
@@ -33,6 +34,7 @@ _WORD_ALT = "|".join(
 _TOKEN_RE = re.compile(
     r"(?P<operator>\b(?:" + _WORD_ALT + r")\b)"
     r"|(?P<number>\d+(?:[.,]\d+)?%?)"
+    r"|(?P<inline>\$[A-Za-z_]\w*)"
     r"|(?P<ident>[A-Za-z_]\w*)"
     r"|(?P<symop>[-+*/^%=])",
     re.IGNORECASE,
@@ -55,7 +57,7 @@ def tokenize(line: str) -> list[tuple[int, int, str]]:
             category = "operator"
         elif kind == "ident":
             category = "function" if m.group().lower() in _NAMES else "variable"
-        else:  # "operator" (word) or "number"
+        else:  # "operator" (word), "number", or "inline" ($-variable)
             assert kind is not None
             category = kind
         spans.append((m.start(), len(m.group()), category))

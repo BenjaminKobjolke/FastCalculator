@@ -24,6 +24,7 @@ they are not math and produce no result value.
 | `/window-operator-color <hex>` | Color of operator tokens (`+`, `mal`, `divided by`, …). Persists. |
 | `/window-function-color <hex>` | Color of function/constant tokens (`sqrt`, `pi`, …). Persists. |
 | `/window-variable-color <hex>` | Color of variable tokens. Persists. |
+| `/window-inline-color <hex>` | Color of inline `$`-variable tokens (`$sum`). Persists. |
 
 ## Value commands
 
@@ -50,12 +51,14 @@ understands:
 | `operator` | symbols (`+ - * / ^ % =`) and word operators (`mal`, `divided by`)  |
 | `function` | function and constant names (`sqrt`, `min`, `pi`, `e`)              |
 | `variable` | any other identifier (assignment names and references)             |
+| `inline`   | inline `$`-variables (`$sum`)                                        |
 
 Set an individual color with `/window-<category>-color <hex>`, swap the whole
 palette with `/window-theme <name>`, or turn coloring off with
 `/window-highlighting off`. `/command` lines are never colored.
 
-All of these persist across restarts — see
+See [syntax-coloring.md](syntax-coloring.md) for the full palette and preset
+themes. All of these persist across restarts — see
 [persistent-settings.md](persistent-settings.md).
 
 ## Inline autosuggest
@@ -93,7 +96,9 @@ collapses back to a plain ghost. When the common prefix can't extend (e.g. `/c`
 matches `/clear`, `/copy`, `/copy-last`), the first `Tab` opens the list at once.
 
 Suggestions appear whenever the trailing word at the cursor starts with `/`, so
-normal math is never interrupted.
+normal math is never interrupted. The same ghost/Tab autosuggest also works for
+inline `$`-variables — type `$` and `$sum` is offered (see
+[syntax.md](syntax.md)).
 
 ## Examples
 

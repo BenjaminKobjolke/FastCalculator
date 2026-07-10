@@ -67,3 +67,16 @@ def test_word_operator_is_case_insensitive() -> None:
 def test_identifier_containing_operator_word_stays_variable() -> None:
     # "plusval" must not match the "plus" word operator (\b anchors).
     assert _cats("plusval") == [("plusval", "variable")]
+
+
+def test_dollar_variable_is_one_inline_token() -> None:
+    # "$sum" is a single `inline` span, not "$" + a plain `variable` "sum".
+    assert _cats("$sum") == [("$sum", "inline")]
+
+
+def test_dollar_variable_in_expression() -> None:
+    assert _cats("$sum - 5%") == [
+        ("$sum", "inline"),
+        ("-", "operator"),
+        ("5%", "number"),
+    ]

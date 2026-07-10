@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 
 from engine import EvalResult
+from engine.inline import INLINE_VARS
 from gui.document_evaluator import format_result
 
 COMMANDS: list[str] = [
@@ -29,37 +30,43 @@ COMMANDS: list[str] = [
     "/window-operator-color",
     "/window-function-color",
     "/window-variable-color",
+    "/window-inline-color",
 ]
+
+# Inline `$`-variable tokens, autocompleted like commands but kept in the text.
+INLINE_TOKENS: list[str] = [f"${name}" for name in INLINE_VARS]
 
 
 def command_at(text: str, col: int) -> str | None:
-    """The `/`-token ending at `col`: from the last `/` of the trailing non-space
-    run up to the cursor.
+    """The `/`- or `$`-token ending at `col`: from the last `/`/`$` of the
+    trailing non-space run up to the cursor.
 
-    Lets a command be recognised anywhere in a line, with (`105+ /pas`) or
-    without (`81+/pas`) a space before the slash. Returns None when the trailing
-    run holds no `/`. Non-command slashes (division, `100/5` -> `/5`) fall
-    through `suggest`/`parse_command`, which reject them.
+    Lets a command or `$sum` be recognised anywhere in a line, with (`105+ /pas`)
+    or without (`81+/pas`) a space before it. Returns None when the trailing run
+    holds neither `/` nor `$`. Non-command slashes (division, `100/5` -> `/5`)
+    fall through `suggest`/`parse_command`, which reject them.
     """
     head = text[:col]
     i = len(head)
     while i > 0 and not head[i - 1].isspace():
         i -= 1
     run = head[i:]
-    slash = run.rfind("/")
-    return run[slash:] if slash != -1 else None
+    start = max(run.rfind("/"), run.rfind("$"))
+    return run[start:] if start != -1 else None
 
 
 def suggest(prefix: str) -> list[str]:
-    """Full commands that start with `prefix` (case-insensitive).
+    """Full completions that start with `prefix` (case-insensitive).
 
-    Returns `[]` when `prefix` does not begin with `/`, so plain math lines never
-    trigger suggestions.
+    `/`-prefixes match commands, `$`-prefixes match inline variables; anything
+    else returns `[]`, so plain math lines never trigger suggestions.
     """
     p = prefix.strip().lower()
-    if not p.startswith("/"):
-        return []
-    return [c for c in COMMANDS if c.startswith(p)]
+    if p.startswith("/"):
+        return [c for c in COMMANDS if c.startswith(p)]
+    if p.startswith("$"):
+        return [v for v in INLINE_TOKENS if v.startswith(p)]
+    return []
 
 
 def common_prefix(matches: list[str]) -> str:

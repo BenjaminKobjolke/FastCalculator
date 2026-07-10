@@ -19,7 +19,12 @@ from .errors import (
     UnsafeExpressionError,
 )
 from .functions import CONSTANTS, FUNCTIONS
-from .preprocess import normalize, split_assignment
+from .preprocess import (
+    normalize,
+    split_assignment,
+    strip_label,
+    strip_unknown_words,
+)
 from .result import EvalResult
 
 Scope = dict[str, float]
@@ -58,8 +63,9 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
         if not stripped:
             raise EmptyLineError("empty")
 
-        name, raw_expr = split_assignment(stripped)
-        tree = ast.parse(normalize(raw_expr), mode="eval")
+        name, raw_expr = split_assignment(strip_label(stripped))
+        known = {*scope, *CONSTANTS, *FUNCTIONS, "_pct"}
+        tree = ast.parse(strip_unknown_words(normalize(raw_expr), known), mode="eval")
         value = float(_eval_node(tree.body, scope))
 
         if name is not None:

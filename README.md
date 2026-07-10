@@ -23,12 +23,20 @@ natural-language operators in **English and German**.
   price = 20
   price minus 5 mal 2   -> 10
   ```
+- **Inline `$`-variables** — `$sum` totals the results above it (within the
+  current group; a blank line starts a new group):
+  ```
+  Angebot: 2000
+  Rabatt: $sum - 5%   -> 1900
+  ```
+  Type `$` to autocomplete. See [docs/inline-variables.md](docs/inline-variables.md).
 - **Word operators (English + German)** — see table below.
 - **Functions & constants** — sqrt, trig, logs, rounding, min/max, `pi`, `e`.
-- **Syntax coloring** — numbers, operators, functions, and variables are tinted
-  live as you type. Pick a preset with `/window-theme`, recolor a single token
-  category with `/window-number-color` (and friends), or turn it off with
-  `/window-highlighting off`. See [docs/commands.md](docs/commands.md).
+- **Syntax coloring** — numbers, operators, functions, variables, and inline
+  `$`-variables are tinted live as you type. Pick a preset with `/window-theme`,
+  recolor a single token category with `/window-number-color` (and friends), or
+  turn it off with `/window-highlighting off`. See
+  [docs/syntax-coloring.md](docs/syntax-coloring.md).
 - **Window remembers size + position** across launches; if the saved spot is off
   every screen (monitor unplugged / resolution change), it re-centers on the
   primary screen instead of opening off-view.
@@ -109,10 +117,11 @@ update.bat                       # upgrade deps, ruff, mypy, tests
 
 ```
 engine/    pure evaluation library (stdlib only, no GUI, no third-party deps)
-  preprocess.py  , -> .  ;  postfix % -> _pct(...)  ;  ; -> ,  ;  words  ;  ^ -> **
+  preprocess.py  , -> .  ;  $sum -> _inline_sum  ;  postfix % -> _pct(...)  ;  ; -> ,  ;  words  ;  ^ -> **
   evaluator.py   evaluate(line, scope) + ast whitelist walker (security boundary)
   words.py       operator word map (English + German), data-only
   functions.py   whitelisted functions + constants, data-only
+  inline.py      inline $-variable names ($sum, ...), data-only
   result.py      EvalResult typed return
 gui/       PySide6 window + Qt-free document evaluator
 main.py    entry point
