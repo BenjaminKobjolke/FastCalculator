@@ -25,6 +25,10 @@ natural-language operators in **English and German**.
   ```
 - **Word operators (English + German)** — see table below.
 - **Functions & constants** — sqrt, trig, logs, rounding, min/max, `pi`, `e`.
+- **Syntax coloring** — numbers, operators, functions, and variables are tinted
+  live as you type. Pick a preset with `/window-theme`, recolor a single token
+  category with `/window-number-color` (and friends), or turn it off with
+  `/window-highlighting off`. See [docs/commands.md](docs/commands.md).
 - **Window remembers size + position** across launches; if the saved spot is off
   every screen (monitor unplugged / resolution change), it re-centers on the
   primary screen instead of opening off-view.

@@ -14,21 +14,46 @@ they are not math and produce no result value.
 | `/paste-last-result` | Insert the last result at the cursor position.    |
 | `/exit`      | Close the calculator (quit the app).                      |
 | `/window-opacity <n>` | Set window opacity to `n` percent (clamped 10–100). Persists. |
-| `/window-title` | Toggle the title bar (show / hide). Persists.          |
+| `/window-title` | Toggle the title bar (show / hide). Persists. Hidden bar still keeps native Aero Snap / Win+Arrow on Windows. |
 | `/window-background-color <hex>` | Set the pane background, e.g. `#282a36`. Persists. |
 | `/window-font-color <hex>` | Set the pane text color, e.g. `#f8f8f2`. Persists. |
-| `/window-theme <name>` | Apply a preset theme (sets background + font color). Persists. |
+| `/window-theme <name>` | Apply a preset theme (sets background, font color **and** syntax colors). Persists. |
 | `/window-margin <px>` | Set the editor text margin in pixels (default 8). Persists. |
+| `/window-highlighting <on\|off>` | Turn syntax coloring on/off (no arg toggles). Persists. |
+| `/window-number-color <hex>` | Color of number tokens, e.g. `#bd93f9`. Persists. |
+| `/window-operator-color <hex>` | Color of operator tokens (`+`, `mal`, `divided by`, …). Persists. |
+| `/window-function-color <hex>` | Color of function/constant tokens (`sqrt`, `pi`, …). Persists. |
+| `/window-variable-color <hex>` | Color of variable tokens. Persists. |
 
 ## Value commands
 
 `/window-opacity`, `/window-margin`, `/window-background-color`,
-`/window-font-color`, and `/window-theme` take a value. Pass it inline
-(`/window-opacity 80`, `/window-theme dracula`) — or run the command **with no
-value** and an input box appears: a number box for opacity and margin, a hex text
-box for the colors, and a dropdown of theme names for `/window-theme`.
+`/window-font-color`, `/window-theme`, and the four `/window-*-color` syntax
+commands take a value. Pass it inline (`/window-opacity 80`,
+`/window-theme dracula`, `/window-number-color #ffb86c`) — or run the command
+**with no value** and an input box appears: a number box for opacity and margin, a
+hex text box for the colors, and a dropdown of theme names for `/window-theme`.
 
 Preset themes: `dracula`, `nord`, `monokai`, `solarized-dark`, `solarized-light`.
+Each preset sets a full palette — background, font color, and the four syntax
+token colors.
+
+## Syntax coloring
+
+The notepad tints math tokens as you type. The tokenizer (`gui/syntax.py`) reuses
+the engine's own maps, so the colored categories match what the evaluator
+understands:
+
+| Category   | Matches                                                              |
+|------------|---------------------------------------------------------------------|
+| `number`   | numbers incl. `,`/`.` decimals and trailing `%` (`19%`, `100,00`)   |
+| `operator` | symbols (`+ - * / ^ % =`) and word operators (`mal`, `divided by`)  |
+| `function` | function and constant names (`sqrt`, `min`, `pi`, `e`)              |
+| `variable` | any other identifier (assignment names and references)             |
+
+Set an individual color with `/window-<category>-color <hex>`, swap the whole
+palette with `/window-theme <name>`, or turn coloring off with
+`/window-highlighting off`. `/command` lines are never colored.
 
 All of these persist across restarts — see
 [persistent-settings.md](persistent-settings.md).
@@ -108,3 +133,9 @@ value (`price = 20 = 20`).
 - `gui/main_window.py` — `_run_command` performs the side effects: clipboard
   writes (`/copy`, `/copy-last`) and inserting the last result at the cursor
   (`/paste-last-result`).
+- `gui/frameless_win.py` — `FramelessWindow`, the base window that `/window-title`
+  uses to hide the title bar. Instead of Qt's `FramelessWindowHint` (which strips
+  the native `WS_CAPTION`/`WS_THICKFRAME` styles and kills Aero Snap / Win+Arrow),
+  it keeps the window a normal native window and zeroes the non-client area in the
+  `WM_NCCALCSIZE` message, so Windows still snaps and moves it. Non-Windows
+  platforms fall back to `FramelessWindowHint`.

@@ -149,7 +149,32 @@ def test_suggest_window_family() -> None:
         "/window-font-color",
         "/window-theme",
         "/window-margin",
+        "/window-highlighting",
+        "/window-number-color",
+        "/window-operator-color",
+        "/window-function-color",
+        "/window-variable-color",
     ]
+
+
+def test_suggest_syntax_color_family() -> None:
+    # /window-op* is shared with /window-opacity, so disambiguation needs a 4th char.
+    assert suggest("/window-n") == ["/window-number-color"]
+    assert suggest("/window-ope") == ["/window-operator-color"]
+    assert suggest("/window-fu") == ["/window-function-color"]
+    assert suggest("/window-v") == ["/window-variable-color"]
+    assert suggest("/window-h") == ["/window-highlighting"]
+
+
+def test_parse_command_line_syntax_color() -> None:
+    assert parse_command_line("/window-number-color #ffb86c") == (
+        "/window-number-color",
+        "#ffb86c",
+    )
+
+
+def test_parse_command_line_highlighting_toggle() -> None:
+    assert parse_command_line("/window-highlighting off") == ("/window-highlighting", "off")
 
 
 def test_parse_command_line_margin() -> None:
@@ -172,7 +197,8 @@ def test_suggest_background_color() -> None:
 
 
 def test_suggest_font_color() -> None:
-    assert suggest("/window-f") == ["/window-font-color"]
+    # /window-f is shared with /window-function-color, so it needs a 4th char.
+    assert suggest("/window-fo") == ["/window-font-color"]
 
 
 def test_parse_command_exact_copy() -> None:

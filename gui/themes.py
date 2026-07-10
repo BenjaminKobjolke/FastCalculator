@@ -14,19 +14,37 @@ _HEX = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 
 @dataclass(frozen=True)
 class Theme:
-    """A pane color pair: background + foreground, both `#rgb`/`#rrggbb` hex."""
+    """A pane color pair plus a syntax palette, all `#rgb`/`#rrggbb` hex.
+
+    `number`/`operator`/`function`/`variable` tint the notepad tokens (see
+    `gui/syntax.CATEGORIES`) and default to the Dracula accents.
+    """
 
     background: str
     foreground: str
+    number: str = "#bd93f9"
+    operator: str = "#ff79c6"
+    function: str = "#8be9fd"
+    variable: str = "#50fa7b"
 
 
 THEMES: dict[str, Theme] = {
-    "dracula": Theme("#282a36", "#f8f8f2"),
-    "nord": Theme("#2e3440", "#d8dee9"),
-    "monokai": Theme("#272822", "#f8f8f2"),
-    "solarized-dark": Theme("#002b36", "#839496"),
-    "solarized-light": Theme("#fdf6e3", "#657b83"),
+    "dracula": Theme("#282a36", "#f8f8f2", "#bd93f9", "#ff79c6", "#8be9fd", "#50fa7b"),
+    "nord": Theme("#2e3440", "#d8dee9", "#b48ead", "#81a1c1", "#88c0d0", "#a3be8c"),
+    "monokai": Theme("#272822", "#f8f8f2", "#ae81ff", "#f92672", "#66d9ef", "#a6e22e"),
+    "solarized-dark": Theme("#002b36", "#839496", "#6c71c4", "#d33682", "#268bd2", "#2aa198"),
+    "solarized-light": Theme("#fdf6e3", "#657b83", "#6c71c4", "#d33682", "#268bd2", "#2aa198"),
 }
+
+
+def syntax_colors(theme: Theme) -> dict[str, str]:
+    """A `category -> hex` map for the highlighter (keys match `syntax.CATEGORIES`)."""
+    return {
+        "number": theme.number,
+        "operator": theme.operator,
+        "function": theme.function,
+        "variable": theme.variable,
+    }
 
 
 def is_valid_hex(color: str) -> bool:

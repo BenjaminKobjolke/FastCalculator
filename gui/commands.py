@@ -24,6 +24,11 @@ COMMANDS: list[str] = [
     "/window-font-color",
     "/window-theme",
     "/window-margin",
+    "/window-highlighting",
+    "/window-number-color",
+    "/window-operator-color",
+    "/window-function-color",
+    "/window-variable-color",
 ]
 
 

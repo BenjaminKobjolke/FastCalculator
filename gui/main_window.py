@@ -14,7 +14,6 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QInputDialog,
-    QMainWindow,
     QPlainTextEdit,
     QWidget,
 )
@@ -24,7 +23,10 @@ from gui.command_edit import CommandEdit
 from gui.commands import build_copy_text, last_result_text
 from gui.document_evaluator import evaluate_document, format_result
 from gui.font_scale import clamp_font_size
-from gui.themes import THEMES, is_valid_hex, theme_names
+from gui.frameless_win import FramelessWindow
+from gui.highlighter import MathHighlighter
+from gui.syntax import CATEGORIES
+from gui.window_appearance import Appearance
 
 _log = AppLogger.get(__name__)
 
@@ -45,7 +47,7 @@ def clamp_margin(px: int) -> int:
     return max(0, min(MAX_MARGIN, px))
 
 
-class MainWindow(QMainWindow):
+class MainWindow(FramelessWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Calculator")
@@ -87,9 +89,9 @@ class MainWindow(QMainWindow):
         layout.addWidget(self._results, 0)
         self.setCentralWidget(container)
 
-        self._bg: str | None = None
-        self._fg: str | None = None
-        self._restore_colors()
+        self._highlighter = MathHighlighter(self._input.document())
+        self._appearance = Appearance(self, self._highlighter)
+        self._appearance.restore_colors()
         self._restore_margin()
 
         self._input.textChanged.connect(self._recalculate)
@@ -146,17 +148,24 @@ class MainWindow(QMainWindow):
             self._toggle_title()
             return
         if name.startswith("/window-background-color"):
-            self._set_color("window/bg_color", name.partition(" ")[2].strip())
+            self._appearance.set_color("window/bg_color", name.partition(" ")[2].strip())
             return
         if name.startswith("/window-font-color"):
-            self._set_color("window/font_color", name.partition(" ")[2].strip())
+            self._appearance.set_color("window/font_color", name.partition(" ")[2].strip())
             return
         if name.startswith("/window-theme"):
-            self._set_theme(name.partition(" ")[2].strip())
+            self._appearance.set_theme(name.partition(" ")[2].strip())
             return
         if name.startswith("/window-margin"):
             self._set_margin(name.partition(" ")[2].strip())
             return
+        if name.startswith("/window-highlighting"):
+            self._appearance.set_highlighting(name.partition(" ")[2].strip())
+            return
+        for category in CATEGORIES:
+            if name.startswith(f"/window-{category}-color"):
+                self._appearance.set_syntax_color(category, name.partition(" ")[2].strip())
+                return
         # The command line was already removed by the widget, so the document
         # holds only real lines to copy.
         lines = self._input.toPlainText().split("\n")
@@ -176,7 +185,7 @@ class MainWindow(QMainWindow):
         """Apply persisted opacity and title-bar state on startup. Title bar
         defaults to hidden (frameless)."""
         frameless = bool(QSettings().value("window/frameless", True, type=bool))
-        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, frameless)
+        self.set_frameless(frameless, reshow=False)
         saved = QSettings().value("window/opacity")
         if saved is not None:
             self.setWindowOpacity(clamp_opacity(int(saved)) / 100)
@@ -196,59 +205,6 @@ class MainWindow(QMainWindow):
         percent = clamp_opacity(int(arg))
         self.setWindowOpacity(percent / 100)
         QSettings().setValue("window/opacity", percent)
-
-    # --- colors and themes -------------------------------------------------
-
-    def _restore_colors(self) -> None:
-        self._bg = QSettings().value("window/bg_color")
-        self._fg = QSettings().value("window/font_color")
-        self._apply_colors()
-
-    def _apply_colors(self) -> None:
-        # One rule on the window cascades to both QPlainTextEdit panes; the
-        # layout has no gaps, so this covers all visible area.
-        # ponytail: ghost-completion text keeps the default placeholderText
-        # color (stylesheets don't retint it). Also set the PlaceholderText
-        # palette role if it reads poorly on a dark theme.
-        parts = []
-        if self._bg:
-            parts.append(f"background-color:{self._bg};")
-        if self._fg:
-            parts.append(f"color:{self._fg};")
-        self.setStyleSheet(f"QPlainTextEdit {{ {' '.join(parts)} }}" if parts else "")
-
-    def _set_color(self, key: str, arg: str) -> None:
-        if not arg:
-            current = (self._bg if key == "window/bg_color" else self._fg) or ""
-            arg, ok = QInputDialog.getText(self, "Color", "Hex color (e.g. #282a36):", text=current)
-            if not ok:
-                return
-        arg = arg.strip()
-        if not is_valid_hex(arg):
-            _log.info("ignored %s with invalid hex %r", key, arg)
-            return
-        if key == "window/bg_color":
-            self._bg = arg
-        else:
-            self._fg = arg
-        self._apply_colors()
-        QSettings().setValue(key, arg)
-
-    def _set_theme(self, arg: str) -> None:
-        if not arg:
-            arg, ok = QInputDialog.getItem(
-                self, "Theme", "Choose a theme:", theme_names(), 0, False
-            )
-            if not ok:
-                return
-        theme = THEMES.get(arg.strip())
-        if theme is None:
-            _log.info("ignored /window-theme with unknown name %r", arg)
-            return
-        self._bg, self._fg = theme.background, theme.foreground
-        self._apply_colors()
-        QSettings().setValue("window/bg_color", self._bg)
-        QSettings().setValue("window/font_color", self._fg)
 
     # --- editor margin -----------------------------------------------------
 
@@ -277,9 +233,8 @@ class MainWindow(QMainWindow):
         QSettings().setValue("window/margin", px)
 
     def _toggle_title(self) -> None:
-        frameless = not bool(self.windowFlags() & Qt.WindowType.FramelessWindowHint)
-        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, frameless)
-        self.show()  # Qt hides the window when its flags change; re-show it.
+        frameless = not self._frameless
+        self.set_frameless(frameless)  # re-shows the window after the change
         QSettings().setValue("window/frameless", frameless)
 
     def _sync_scrollbars(self) -> None:
