@@ -35,9 +35,7 @@ class _MenuOverlay(QWidget):
         self._rows: list[str] = []
         self._selected = 0
 
-    def show_rows(
-        self, rows: list[str], selected: int, font: QFont, top: int, width: int
-    ) -> None:
+    def show_rows(self, rows: list[str], selected: int, font: QFont, top: int, width: int) -> None:
         self._rows = rows
         self._selected = selected
         self.setFont(font)
