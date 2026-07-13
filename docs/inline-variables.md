@@ -32,6 +32,26 @@ What counts toward the total:
 - The current line and everything below it are **excluded** ("above it").
 - Error / blank lines contribute nothing (a blank line also resets the group).
 
+## Formatting
+
+A `$`-variable line **inherits the decimal style of its group**. When the line
+carries no decimals of its own, it borrows the separator and place-count of the
+lines above it, so a `,00` group keeps `,00` down through its total:
+
+```
+Angebot: 2000,00 Euro     -> 2000,00
+Discount: $sum - 35%      -> 1300,00   (inherits ",00" from the group)
+```
+
+Rules:
+
+- Only lines that **reference a `$`-variable** inherit — a plain `5 * 3` is not
+  reformatted by a `,00` group.
+- A line with **its own decimals wins**: `$sum + 1,5` uses one place, not the
+  group's two.
+- A group with **no decimals stays integer**: `$sum` over `10` / `20` is `30`.
+- A **blank line resets** the inherited style along with the total.
+
 ## Autocomplete
 
 Type `$` and the available inline variables are offered as ghost text, exactly
@@ -57,19 +77,25 @@ security boundary) is untouched.
   name here.
 - `engine/preprocess.py` — `normalize()` rewrites each `$name` to `scope_key(name)`
   via `_DOLLAR_RE`. Only defined names are rewritten; a stray `$foo` is left for
-  `ast.parse` to reject as an invalid expression.
+  `ast.parse` to reject as an invalid expression. `has_inline_var()` (same regex)
+  reports whether a line references a `$`-variable, used for the formatting rule.
 - `gui/document_evaluator.py` — `evaluate_document()` is the only layer that knows
   line order. It keeps a per-group running sum, resets it on blank lines, and
   writes it into `scope[_SUM_KEY]` **before** each `evaluate()` call, folding the
-  line's own result in afterward.
+  line's own result in afterward. `inherited_styles()` walks the same groups to
+  give each `$`-variable line the decimal style to inherit (see
+  [Formatting](#formatting)); `format_result()` applies it when the line has no
+  decimals of its own.
 - `gui/syntax.py` — the `inline` token category and its `$`-token regex group.
 - `gui/themes.py` — the `inline` color field, per-theme values, and
   `syntax_colors()` entry.
 - `gui/commands.py` — `INLINE_TOKENS` (autocomplete) and the `$`-aware
-  `command_at`/`suggest`; the `/window-inline-color` command.
-- Tests: `tests/test_preprocess.py` (rewrite), `tests/test_document_evaluator.py`
-  (grouping / reset / assignments), `tests/test_syntax.py` (coloring),
-  `tests/test_themes.py` (palette), `tests/test_commands.py` (autocomplete).
+  `command_at`/`suggest`; the `/window-inline-color` command; `build_copy_text`
+  and `last_result_text` thread the inherited style so the clipboard matches the pane.
+- Tests: `tests/test_preprocess.py` (rewrite, `has_inline_var`),
+  `tests/test_document_evaluator.py` (grouping / reset / assignments / style
+  inheritance), `tests/test_syntax.py` (coloring), `tests/test_themes.py`
+  (palette), `tests/test_commands.py` (autocomplete, inherited-style copy).
 
 ### Adding another inline variable
 

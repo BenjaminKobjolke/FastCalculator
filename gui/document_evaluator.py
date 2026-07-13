@@ -11,6 +11,10 @@ import re
 
 from engine import EvalResult, evaluate
 from engine.inline import scope_key
+from engine.preprocess import has_inline_var
+
+# The decimal style (separator, fraction digits) a line inherits from its group.
+Style = tuple[str, int | None]
 
 # A decimal number in the raw input: capture the separator and the fraction.
 _INPUT_DECIMAL_RE = re.compile(r"\d+([.,])(\d+)")
@@ -39,16 +43,48 @@ def evaluate_document(text: str) -> list[EvalResult]:
     return results
 
 
-def format_result(result: EvalResult, line: str | None = None) -> str:
+def inherited_styles(lines: list[str]) -> list[Style | None]:
+    """Per-line group decimal style to inherit, or None.
+
+    A line inherits its group's `(separator, place count)` only when it references
+    an inline `$`-variable and carries no decimals of its own — so `$sum - 35%`
+    under a `,00` group renders `,00` too. Mirrors the grouping in
+    `evaluate_document`: a blank line starts a new group, and only lines *above*
+    the current one contribute the style.
+    """
+    styles: list[Style | None] = []
+    group_sep = "."
+    group_places: int | None = None
+    for line in lines:
+        if not line.strip():
+            group_sep, group_places = ".", None
+        sep, places = _input_decimal_style(line)
+        if places is None and group_places is not None and has_inline_var(line):
+            styles.append((group_sep, group_places))
+        else:
+            styles.append(None)
+        if places is not None:
+            group_places = max(group_places or 0, places)
+            group_sep = sep
+    return styles
+
+
+def format_result(
+    result: EvalResult, line: str | None = None, inherited: Style | None = None
+) -> str:
     """Render a result as the short text shown in the results pane.
 
     Empty lines and errors render as blank so the pane stays quiet while typing.
     When `line` has explicit decimals ("100,00"), the output mirrors its decimal
-    separator and place count so "100,00 + 19%" reads back as "119,00".
+    separator and place count so "100,00 + 19%" reads back as "119,00". When the
+    line has none of its own, `inherited` (the group's style, for `$sum` lines)
+    is used instead.
     """
     if not result.success or result.value is None:
         return ""
     sep, places = _input_decimal_style(line) if line else (".", None)
+    if places is None and inherited is not None:
+        sep, places = inherited
     if places is None:
         return _format_number(result.value)
     text = f"{result.value:.{places}f}"

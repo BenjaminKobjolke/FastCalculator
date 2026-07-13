@@ -11,7 +11,7 @@ import os
 
 from engine import EvalResult
 from engine.inline import INLINE_VARS
-from gui.document_evaluator import format_result
+from gui.document_evaluator import Style, format_result
 
 COMMANDS: list[str] = [
     "/clear",
@@ -99,10 +99,19 @@ def parse_command_line(line: str) -> tuple[str, str] | None:
     return cmd, rest.strip()
 
 
-def build_copy_text(lines: list[str], results: list[EvalResult]) -> str:
+def _styles_for(lines: list[str], styles: list[Style | None] | None) -> list[Style | None]:
+    """Align a per-line inherited-style list with `lines`, or all-None if absent."""
+    return styles if styles is not None else [None] * len(lines)
+
+
+def build_copy_text(
+    lines: list[str],
+    results: list[EvalResult],
+    styles: list[Style | None] | None = None,
+) -> str:
     """Render non-empty, successful lines as `input = result`, newline-joined."""
     pairs = []
-    for line, result in zip(lines, results, strict=False):
+    for line, result, style in zip(lines, results, _styles_for(lines, styles), strict=False):
         text = line.strip()
         if not text or not result.success or result.value is None:
             continue
@@ -111,13 +120,18 @@ def build_copy_text(lines: list[str], results: list[EvalResult]) -> str:
         if result.assigned_name is not None:
             pairs.append(text)
         else:
-            pairs.append(f"{text} = {format_result(result, line)}")
+            pairs.append(f"{text} = {format_result(result, line, style)}")
     return "\n".join(pairs)
 
 
-def last_result_text(lines: list[str], results: list[EvalResult]) -> str:
+def last_result_text(
+    lines: list[str],
+    results: list[EvalResult],
+    styles: list[Style | None] | None = None,
+) -> str:
     """Formatted value of the last successful result, or `""` if none."""
-    for line, result in reversed(list(zip(lines, results, strict=False))):
+    triples = list(zip(lines, results, _styles_for(lines, styles), strict=False))
+    for line, result, style in reversed(triples):
         if result.success and result.value is not None:
-            return format_result(result, line)
+            return format_result(result, line, style)
     return ""

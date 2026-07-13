@@ -1,4 +1,5 @@
 from engine.preprocess import (
+    has_inline_var,
     normalize,
     split_assignment,
     strip_label,
@@ -23,6 +24,13 @@ def test_word_operators_english() -> None:
 def test_dollar_sum_rewritten_to_internal_name() -> None:
     assert normalize("$sum") == "_inline_sum"
     assert normalize("$sum - 5%") == "_inline_sum - _pct(5)"
+
+
+def test_has_inline_var_detects_defined_names() -> None:
+    assert has_inline_var("$sum - 5%") is True
+    assert has_inline_var("2000 + $sum") is True
+    assert has_inline_var("$foo") is False  # not a defined inline var
+    assert has_inline_var("5 + 5") is False
 
 
 def test_unknown_dollar_var_is_left_untouched() -> None:

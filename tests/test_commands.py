@@ -266,3 +266,20 @@ def test_last_result_text_empty_when_none_succeed() -> None:
 def test_last_result_text_rounds_to_input_decimals() -> None:
     # Matches the display: "11.99+19%" shows 14.27, not the raw 14.2681.
     assert last_result_text(["11.99+19%"], [EvalResult.ok(14.2681)]) == "14.27"
+
+
+def test_build_copy_text_applies_inherited_style() -> None:
+    # A "$sum" line inherits the group's ",00" so the clipboard matches the pane.
+    lines = ["Angebot: 2000,00", "Discount: $sum - 35%"]
+    results = [EvalResult.ok(2000), EvalResult.ok(1300)]
+    styles: list[tuple[str, int | None] | None] = [None, (",", 2)]
+    assert build_copy_text(lines, results, styles) == (
+        "Angebot: 2000,00 = 2000,00\nDiscount: $sum - 35% = 1300,00"
+    )
+
+
+def test_last_result_text_applies_inherited_style() -> None:
+    lines = ["Angebot: 2000,00", "Discount: $sum - 35%"]
+    results = [EvalResult.ok(2000), EvalResult.ok(1300)]
+    styles: list[tuple[str, int | None] | None] = [None, (",", 2)]
+    assert last_result_text(lines, results, styles) == "1300,00"

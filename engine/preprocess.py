@@ -55,6 +55,15 @@ _PERCENT_RE = re.compile(r"(\d+(?:\.\d+)?)\s*%(?!\s*[\w.(])")
 _DOLLAR_RE = re.compile(r"\$(" + "|".join(re.escape(n) for n in INLINE_VARS) + r")\b")
 
 
+def has_inline_var(line: str) -> bool:
+    """True if the line references a defined inline `$`-variable ("$sum").
+
+    Reuses `_DOLLAR_RE` (the same names as `normalize`), so a stray `$foo` that
+    isn't a declared inline var reads as False.
+    """
+    return _DOLLAR_RE.search(line) is not None
+
+
 def strip_label(line: str) -> str:
     """Drop a leading 'Label:' prefix; return the rest ("Price: 5+5" -> "5+5").
 

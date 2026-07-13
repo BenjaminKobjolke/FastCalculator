@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
 from app_logger import AppLogger
 from gui.command_edit import CommandEdit
 from gui.commands import build_copy_text, last_result_text
-from gui.document_evaluator import evaluate_document, format_result
+from gui.document_evaluator import evaluate_document, format_result, inherited_styles
 from gui.font_scale import clamp_font_size
 from gui.frameless_win import FramelessWindow
 from gui.highlighter import MathHighlighter
@@ -129,8 +129,12 @@ class MainWindow(FramelessWindow):
     def _recalculate(self) -> None:
         lines = self._input.toPlainText().split("\n")
         results = evaluate_document("\n".join(lines))
+        styles = inherited_styles(lines)
         self._results.setPlainText(
-            "\n".join(format_result(r, line) for line, r in zip(lines, results, strict=False))
+            "\n".join(
+                format_result(r, line, style)
+                for line, r, style in zip(lines, results, styles, strict=False)
+            )
         )
 
     def _run_command(self, name: str) -> None:
@@ -170,13 +174,14 @@ class MainWindow(FramelessWindow):
         # holds only real lines to copy.
         lines = self._input.toPlainText().split("\n")
         results = evaluate_document("\n".join(lines))
+        styles = inherited_styles(lines)
         if name == "/paste-last-result":
-            self._input.textCursor().insertText(last_result_text(lines, results))
+            self._input.textCursor().insertText(last_result_text(lines, results, styles))
             return
         if name == "/copy":
-            text = build_copy_text(lines, results)
+            text = build_copy_text(lines, results, styles)
         else:  # /copy-last
-            text = last_result_text(lines, results)
+            text = last_result_text(lines, results, styles)
         QGuiApplication.clipboard().setText(text)
 
     # --- window chrome (opacity, title bar) --------------------------------

@@ -9,7 +9,8 @@ on the right. A line can be bare math, or math wrapped in words — both compute
 - Because `,` is a decimal point, multi-argument functions use `;` to separate
   arguments: `min(3;9;1)`.
 - The result mirrors your input's decimal style: `100,00 + 19%` reads back as
-  `119,00` (comma, two places).
+  `119,00` (comma, two places). A `$sum` line with no decimals of its own inherits
+  the style of the group above it — see [inline-variables.md](inline-variables.md#formatting).
 
 ## Operators
 
