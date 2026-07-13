@@ -1,0 +1,17 @@
+{
+  "help": {
+    "title": "Rechner — Hilfe",
+    "basics": {
+      "heading": "Grundlagen",
+      "body": "Links Rechnung tippen; Ergebnisse erscheinen live rechts, eines pro Zeile.\n\n- `,` und `.` sind beide das Dezimaltrennzeichen: `3,5 + 1,5` = `5`.\n- Wortoperatoren auf Deutsch und Englisch: `mal`/`times`, `plus`, `minus`, `durch`/`divided by`, `hoch`/`to the power of`, `modulo`/`mod`.\n- Symbole: `+ - * / ^ %`. `^` ist Potenz. Klammern und unäres Minus funktionieren wie erwartet.\n- Prozent: `100 + 19%` = `119`, `100 - 19%` = `81`, allein `19%` = `0,19`.\n- Funktionen & Konstanten: `sqrt`, `min`, `max`, Trigonometrie, Logarithmen, `pi`, `e`. Funktionen mit mehreren Argumenten nutzen `;`: `min(3;9;1)`.\n- Schrift vergrößern/verkleinern mit `Strg++` / `Strg+-`."
+    },
+    "commands": {
+      "heading": "Befehle",
+      "body": "Einen `/`-Befehl irgendwo in einer Zeile tippen und Enter drücken; er wirkt auf den Editor und liefert kein Ergebnis.\n\n- `/clear` — das ganze Dokument leeren.\n- `/copy` — jede Zeile als `Eingabe = Ergebnis` kopieren.\n- `/copy-last` — das letzte Ergebnis kopieren.\n- `/paste-last-result` — das letzte Ergebnis an der Cursorposition einfügen.\n- `/help` — dieses Hilfefenster öffnen.\n- `/exit` — die App beenden.\n- `/window-…` — Aussehen: `/window-theme`, `/window-opacity`, `/window-margin`, `/window-title`, `/window-highlighting` und die `/window-*-color`-Befehle. Alle bleiben über Neustarts erhalten.\n\nBeim Tippen zeigt ein Geist den gemeinsamen Präfix; mit Tab vervollständigen."
+    },
+    "variables": {
+      "heading": "Variablen",
+      "body": "Einmal zuweisen und darunter wiederverwenden:\n\n```\npreis = 20\npreis minus 5 mal 2   -> 10\n```\n\nInline-`$`-Variablen aggregieren die Ergebnisse darüber innerhalb der aktuellen Gruppe (eine Leerzeile beginnt eine neue Gruppe):\n\n```\nAngebot: 2000\nRabatt: $sum - 5%     -> 1900\n```\n\n`$sum` summiert jedes erfolgreiche Ergebnis darüber, Zuweisungen eingeschlossen. `$` tippen zum Autovervollständigen."
+    }
+  }
+}

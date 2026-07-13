@@ -12,6 +12,7 @@ they are not math and produce no result value.
 | `/copy`      | Copy every line as `input = result`, one per line.        |
 | `/copy-last` | Copy the value of the last result.                        |
 | `/paste-last-result` | Insert the last result at the cursor position.    |
+| `/help`      | Open a localized help window (basics, commands, variables). See [help.md](help.md). |
 | `/exit`      | Close the calculator (quit the app).                      |
 | `/window-opacity <n>` | Set window opacity to `n` percent (clamped 10–100). Persists. |
 | `/window-title` | Toggle the title bar (show / hide). Persists. Hidden bar still keeps native Aero Snap / Win+Arrow on Windows. |

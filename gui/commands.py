@@ -18,6 +18,7 @@ COMMANDS: list[str] = [
     "/copy",
     "/copy-last",
     "/exit",
+    "/help",
     "/paste-last-result",
     "/window-opacity",
     "/window-title",

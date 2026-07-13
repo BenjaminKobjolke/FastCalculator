@@ -40,6 +40,9 @@ natural-language operators in **English and German**.
 - **Window remembers size + position** across launches; if the saved spot is off
   every screen (monitor unplugged / resolution change), it re-centers on the
   primary screen instead of opening off-view.
+- **Built-in help** — `/help` opens a localized help window (English/German, from
+  the system locale) that stays open beside the notepad. See
+  [docs/help.md](docs/help.md).
 - **Safe by construction** — expressions are parsed with Python's `ast` and
   walked against a strict node whitelist. No `eval`/`exec`, no attribute access,
   no imports, no dunder tricks.

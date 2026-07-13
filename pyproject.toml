@@ -6,7 +6,11 @@ readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
     "pyside6",
+    "python-localization",
 ]
+
+[tool.uv.sources]
+python-localization = { path = "../python-localization" }
 
 [project.scripts]
 calculator = "main:main"

@@ -7,8 +7,6 @@ from PySide6.QtGui import (
     QCloseEvent,
     QFont,
     QGuiApplication,
-    QKeySequence,
-    QShortcut,
     QTextOption,
 )
 from PySide6.QtWidgets import (
@@ -23,7 +21,9 @@ from gui.command_edit import CommandEdit
 from gui.commands import build_copy_text, last_result_text
 from gui.document_evaluator import evaluate_document, format_result, inherited_styles
 from gui.font_scale import clamp_font_size
+from gui.font_shortcuts import install_font_shortcuts
 from gui.frameless_win import FramelessWindow
+from gui.help_window import HelpWindow
 from gui.highlighter import MathHighlighter
 from gui.syntax import CATEGORIES
 from gui.window_appearance import Appearance
@@ -59,6 +59,8 @@ class MainWindow(FramelessWindow):
         saved_size = QSettings().value("editor/font_point_size")
         font.setPointSize(clamp_font_size(int(saved_size)) if saved_size is not None else 12)
         self._font = font
+
+        self._help: HelpWindow | None = None
 
         self._input = CommandEdit()
         self._input.setFont(font)
@@ -112,10 +114,7 @@ class MainWindow(FramelessWindow):
     def _install_font_shortcuts(self) -> None:
         # Ctrl++ / Ctrl+= (same physical key with/without shift) and Alt+Up grow;
         # Ctrl+- and Alt+Down shrink.
-        for seq in ("Ctrl++", "Ctrl+=", "Alt+Up"):
-            QShortcut(QKeySequence(seq), self).activated.connect(lambda: self._adjust_font(1))
-        for seq in ("Ctrl+-", "Alt+Down"):
-            QShortcut(QKeySequence(seq), self).activated.connect(lambda: self._adjust_font(-1))
+        install_font_shortcuts(self, self._adjust_font)
 
     def _adjust_font(self, delta: int) -> None:
         size = clamp_font_size(self._font.pointSize() + delta)
@@ -144,6 +143,9 @@ class MainWindow(FramelessWindow):
             return
         if name == "/exit":
             self.close()
+            return
+        if name == "/help":
+            self._show_help()
             return
         if name.startswith("/window-opacity"):
             self._set_opacity(name.partition(" ")[2].strip())
@@ -237,6 +239,15 @@ class MainWindow(FramelessWindow):
         self._apply_margin(px)
         QSettings().setValue("window/margin", px)
 
+    def _show_help(self) -> None:
+        # Non-modal, single instance: reopening /help just raises the existing
+        # window (keeps its scroll/size) instead of stacking duplicates.
+        if self._help is None:
+            self._help = HelpWindow()
+        self._help.show()
+        self._help.raise_()
+        self._help.activateWindow()
+
     def _toggle_title(self) -> None:
         frameless = not self._frameless
         self.set_frameless(frameless)  # re-shows the window after the change
@@ -273,4 +284,7 @@ class MainWindow(FramelessWindow):
     def closeEvent(self, event: QCloseEvent) -> None:
         QSettings().setValue("window/geometry", self.saveGeometry())
         self._save_document()
+        # Help is a parentless top-level window; close it so the app can quit.
+        if self._help is not None:
+            self._help.close()
         super().closeEvent(event)
