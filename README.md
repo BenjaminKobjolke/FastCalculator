@@ -1,4 +1,4 @@
-# Calculator
+# FastCalculator
 
 A Numi-style desktop calculator. Type math in a notepad on the left; results
 appear live on the right, one per line. Unlike Numi, it treats `.` and `,`
@@ -114,7 +114,11 @@ start.bat          # launch the GUI
 tools\run_tests.bat              # unit tests
 tools\run_integration_tests.bat  # end-to-end tests
 update.bat                       # upgrade deps, ruff, mypy, tests
+tools\build.bat                  # PyInstaller onefile -> dist\FastCalculator.exe
 ```
+
+Releases (version bump, release notes, publish): see
+[docs/CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md).
 
 ## Layout
 

@@ -1,4 +1,4 @@
-# CLAUDE.md — Calculator
+# CLAUDE.md — FastCalculator
 
 Numi-style desktop calculator. `,` and `.` are both the decimal point; English +
 German word operators; live multi-line notepad (PySide6).
@@ -44,7 +44,13 @@ start.bat                        # run GUI
 tools\run_tests.bat              # unit tests
 tools\run_integration_tests.bat  # integration tests
 update.bat                       # deps upgrade + ruff + mypy + tests
+tools\build.bat                  # PyInstaller onefile -> dist\FastCalculator.exe
+tools\get_version.bat            # print version.txt
+tools\increment_version.bat      # bump patch in version.txt + pyproject.toml
 ```
+
+Release process (notes, translation, publish): `docs\CREATE_NEW_RELEASE.md`.
+`version.txt` is the version source of truth.
 
 ## Code Analysis
 
