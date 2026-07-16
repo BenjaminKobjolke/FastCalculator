@@ -32,6 +32,7 @@ MANIFEST
 *.manifest
 *.spec
 compile_settings.bat
+tools/publish_settings.ini
 claude-plans/
 
 # Code analysis (machine-specific config + generated results)
