@@ -4,9 +4,9 @@ Keeps a single module-level current language so the rest of the app calls a bare
 `t("help.title")`. Stays import-safe without a display, so the lookup logic is
 unit-testable. The window layer only renders what this returns.
 
-# ponytail: LOCALES_DIR resolves from the source tree layout; a PyInstaller
-# onefile build needs the locales/ folder added to the spec datas — wire that
-# when we actually cut a frozen build.
+LOCALES_DIR resolves from the source tree layout; frozen builds work because
+`tools\\build.bat` bundles locales/ via --add-data, which lands next to the
+extracted modules.
 """
 
 from __future__ import annotations
@@ -40,6 +40,11 @@ def set_language(lang: str) -> None:
     """Set the active language, clamped to a shipped locale (else English)."""
     global _current
     _current = lang if lang in _AVAILABLE else _FALLBACK
+
+
+def current_language() -> str:
+    """The active language code (already clamped to a shipped locale)."""
+    return _current
 
 
 def t(key: str) -> str:

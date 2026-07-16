@@ -15,7 +15,7 @@ def _reset_language() -> None:
 
 def test_markdown_has_title_and_all_headings() -> None:
     md = build_help_markdown()
-    assert "# Calculator — Help" in md
+    assert "# FastCalculator — Help" in md
     assert "## Basics" in md
     assert "## Commands" in md
     assert "## Variables" in md
@@ -25,8 +25,14 @@ def test_markdown_includes_body_text() -> None:
     assert "decimal point" in build_help_markdown()
 
 
+def test_markdown_title_carries_version() -> None:
+    from gui.app_version import read_version
+
+    assert f"v{read_version()}" in build_help_markdown()
+
+
 def test_markdown_follows_language() -> None:
     i18n.set_language("de")
     md = build_help_markdown()
-    assert "# Rechner — Hilfe" in md
+    assert "# FastCalculator — Hilfe" in md
     assert "## Grundlagen" in md

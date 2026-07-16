@@ -1,4 +1,5 @@
-"""Help window: renders the localized help markdown in a QTextBrowser.
+"""Markdown viewer window: renders localized markdown (help, release notes)
+in a QTextBrowser.
 
 A plain top-level QWidget — NOT a QDialog. On Windows a dialog uses a dialog
 frame (no maximize box) and is excluded from Aero Snap / Win+Arrow; a normal
@@ -14,6 +15,8 @@ caret (keyboard-navigable), so it feels like the notepad. Esc closes it.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import QTextBrowser, QVBoxLayout, QWidget
@@ -23,14 +26,16 @@ from gui.font_shortcuts import install_font_shortcuts
 from gui.help_content import build_help_markdown
 from gui.i18n import t
 from gui.i18n_keys import TK
+from gui.release_notes import build_release_notes_markdown
 
 
-class HelpWindow(QWidget):
-    """Resizable top-level help window that tracks the notepad's appearance."""
+class MarkdownWindow(QWidget):
+    """Resizable top-level markdown window that tracks the notepad's appearance."""
 
-    def __init__(self) -> None:
+    def __init__(self, title: str, build_markdown: Callable[[], str]) -> None:
         super().__init__()  # parentless: a fully independent, snappable window
-        self.setWindowTitle(t(TK.HELP_TITLE))
+        self._build_markdown = build_markdown
+        self.setWindowTitle(title)
         self.resize(560, 640)
 
         self._browser = QTextBrowser(self)
@@ -72,7 +77,7 @@ class HelpWindow(QWidget):
         self._browser.document().setDefaultStyleSheet(
             f"code, pre {{ font-family: Consolas; font-size: {pt}pt; }}"
         )
-        self._browser.setMarkdown(build_help_markdown())
+        self._browser.setMarkdown(self._build_markdown())
 
     def _apply_appearance(self) -> None:
         # Reuse the notepad's persisted appearance (same QSettings keys as
@@ -109,3 +114,13 @@ class HelpWindow(QWidget):
         self._font.setPointSize(size)
         self._render()  # re-render so code spans rescale with the body
         QSettings().setValue("editor/font_point_size", size)
+
+
+def create_help_window() -> MarkdownWindow:
+    """The /help window, in the active language."""
+    return MarkdownWindow(t(TK.HELP_TITLE), build_help_markdown)
+
+
+def create_release_notes_window() -> MarkdownWindow:
+    """The /release-notes window, in the active language."""
+    return MarkdownWindow(t(TK.RELEASE_NOTES_TITLE), build_release_notes_markdown)

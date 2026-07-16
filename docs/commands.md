@@ -13,6 +13,7 @@ they are not math and produce no result value.
 | `/copy-last` | Copy the value of the last result.                        |
 | `/paste-last-result` | Insert the last result at the cursor position.    |
 | `/help`      | Open a localized help window (basics, commands, variables). See [help.md](help.md). |
+| `/release-notes` | Open a window with localized release notes, newest version first. |
 | `/exit`      | Close the calculator (quit the app).                      |
 | `/window-opacity <n>` | Set window opacity to `n` percent (clamped 10–100). Persists. |
 | `/window-title` | Toggle the title bar (show / hide). Persists. Hidden bar still keeps native Aero Snap / Win+Arrow on Windows. |
@@ -139,6 +140,9 @@ value (`price = 20 = 20`).
 - `gui/main_window.py` — `_run_command` performs the side effects: clipboard
   writes (`/copy`, `/copy-last`) and inserting the last result at the cursor
   (`/paste-last-result`).
+- `gui/release_notes.py` — Qt-free markdown builder for `/release-notes`; reads
+  `release_notes/<version>/<lang>.json` (falls back to `en.json`), rendered in a
+  `MarkdownWindow` (`gui/help_window.py`), the same viewer `/help` uses.
 - `gui/frameless_win.py` — `FramelessWindow`, the base window that `/window-title`
   uses to hide the title bar. Instead of Qt's `FramelessWindowHint` (which strips
   the native `WS_CAPTION`/`WS_THICKFRAME` styles and kills Aero Snap / Win+Arrow),

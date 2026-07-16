@@ -20,6 +20,7 @@ COMMANDS: list[str] = [
     "/exit",
     "/help",
     "/paste-last-result",
+    "/release-notes",
     "/window-opacity",
     "/window-title",
     "/window-background-color",

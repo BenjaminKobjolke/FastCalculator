@@ -6,6 +6,7 @@ Qt so the layout logic is unit-testable; `gui/help_window.py` only renders it.
 
 from __future__ import annotations
 
+from gui.app_version import read_version
 from gui.i18n import t
 from gui.i18n_keys import TK
 
@@ -18,7 +19,7 @@ _SECTIONS = (
 
 def build_help_markdown() -> str:
     """Full help document as markdown, in the active language."""
-    parts = [f"# {t(TK.HELP_TITLE)}"]
+    parts = [f"# {t(TK.HELP_TITLE)} — v{read_version()}"]
     for heading_key, body_key in _SECTIONS:
         parts.append(f"## {t(heading_key)}\n\n{t(body_key)}")
     return "\n\n".join(parts)

@@ -1,8 +1,8 @@
 # Persistent settings
 
 The app stores a handful of values with `QSettings` (org `BenjaminKobjolke`,
-app `Calculator`), so they survive a restart. On Windows these live in the
-registry under `HKEY_CURRENT_USER\Software\BenjaminKobjolke\Calculator`.
+app `FastCalculator`), so they survive a restart. On Windows these live in the
+registry under `HKEY_CURRENT_USER\Software\BenjaminKobjolke\FastCalculator`.
 
 | Key | Meaning | Default | Read by | Written by |
 |-----|---------|---------|---------|-----------|

@@ -17,7 +17,7 @@ def main() -> int:
     AppLogger.get(__name__).info("starting calculator")
     app = QApplication(sys.argv)
     app.setOrganizationName("BenjaminKobjolke")
-    app.setApplicationName("Calculator")
+    app.setApplicationName("FastCalculator")
     i18n.set_language(QLocale.system().name().split("_")[0])
     window = MainWindow()
     window.show()

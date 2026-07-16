@@ -1,5 +1,5 @@
 [project]
-name = "calculator"
+name = "fastcalculator"
 version = "0.1.0"
 description = "Numi-style desktop calculator that treats ',' and '.' as the same decimal point and understands English/German word operators."
 readme = "README.md"
@@ -13,7 +13,7 @@ dependencies = [
 python-localization = { path = "../python-localization" }
 
 [project.scripts]
-calculator = "main:main"
+fastcalculator = "main:main"
 
 [dependency-groups]
 dev = [

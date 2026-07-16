@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from PySide6.QtCore import QSettings, Qt, QTimer
 from PySide6.QtGui import (
     QCloseEvent,
@@ -23,7 +25,7 @@ from gui.document_evaluator import evaluate_document, format_result, inherited_s
 from gui.font_scale import clamp_font_size
 from gui.font_shortcuts import install_font_shortcuts
 from gui.frameless_win import FramelessWindow
-from gui.help_window import HelpWindow
+from gui.help_window import MarkdownWindow, create_help_window, create_release_notes_window
 from gui.highlighter import MathHighlighter
 from gui.syntax import CATEGORIES
 from gui.window_appearance import Appearance
@@ -50,7 +52,7 @@ def clamp_margin(px: int) -> int:
 class MainWindow(FramelessWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Calculator")
+        self.setWindowTitle("FastCalculator")
         self.resize(640, 420)
         self._restore_window_chrome()
 
@@ -60,7 +62,8 @@ class MainWindow(FramelessWindow):
         font.setPointSize(clamp_font_size(int(saved_size)) if saved_size is not None else 12)
         self._font = font
 
-        self._help: HelpWindow | None = None
+        self._help: MarkdownWindow | None = None
+        self._notes: MarkdownWindow | None = None
 
         self._input = CommandEdit()
         self._input.setFont(font)
@@ -145,7 +148,10 @@ class MainWindow(FramelessWindow):
             self.close()
             return
         if name == "/help":
-            self._show_help()
+            self._help = self._show_markdown(self._help, create_help_window)
+            return
+        if name == "/release-notes":
+            self._notes = self._show_markdown(self._notes, create_release_notes_window)
             return
         if name.startswith("/window-opacity"):
             self._set_opacity(name.partition(" ")[2].strip())
@@ -239,14 +245,16 @@ class MainWindow(FramelessWindow):
         self._apply_margin(px)
         QSettings().setValue("window/margin", px)
 
-    def _show_help(self) -> None:
-        # Non-modal, single instance: reopening /help just raises the existing
-        # window (keeps its scroll/size) instead of stacking duplicates.
-        if self._help is None:
-            self._help = HelpWindow()
-        self._help.show()
-        self._help.raise_()
-        self._help.activateWindow()
+    def _show_markdown(
+        self, window: MarkdownWindow | None, factory: Callable[[], MarkdownWindow]
+    ) -> MarkdownWindow:
+        # Non-modal, single instance: reopening raises the existing window.
+        if window is None:
+            window = factory()
+        window.show()
+        window.raise_()
+        window.activateWindow()
+        return window
 
     def _toggle_title(self) -> None:
         frameless = not self._frameless
@@ -284,7 +292,8 @@ class MainWindow(FramelessWindow):
     def closeEvent(self, event: QCloseEvent) -> None:
         QSettings().setValue("window/geometry", self.saveGeometry())
         self._save_document()
-        # Help is a parentless top-level window; close it so the app can quit.
-        if self._help is not None:
-            self._help.close()
+        # Parentless top-level windows must close too, so the app can quit.
+        for extra in (self._help, self._notes):
+            if extra is not None:
+                extra.close()
         super().closeEvent(event)

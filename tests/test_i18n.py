@@ -14,12 +14,12 @@ def _reset_language() -> None:
 
 
 def test_t_returns_english_string() -> None:
-    assert i18n.t("help.title") == "Calculator — Help"
+    assert i18n.t("help.title") == "FastCalculator — Help"
 
 
 def test_set_language_switches_to_german() -> None:
     i18n.set_language("de")
-    assert i18n.t("help.title") == "Rechner — Hilfe"
+    assert i18n.t("help.title") == "FastCalculator — Hilfe"
 
 
 def test_unknown_key_returns_the_key() -> None:
@@ -34,7 +34,7 @@ def test_section_key_returns_the_key() -> None:
 
 def test_unknown_language_clamps_to_english() -> None:
     i18n.set_language("xx")
-    assert i18n.t("help.title") == "Calculator — Help"
+    assert i18n.t("help.title") == "FastCalculator — Help"
 
 
 def test_german_falls_back_to_english_for_missing_key() -> None:

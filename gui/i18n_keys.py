@@ -12,3 +12,6 @@ class TK:
     HELP_TITLE = "help.title"
     HELP_VARIABLES_BODY = "help.variables.body"
     HELP_VARIABLES_HEADING = "help.variables.heading"
+
+    # Release_Notes
+    RELEASE_NOTES_TITLE = "release_notes.title"

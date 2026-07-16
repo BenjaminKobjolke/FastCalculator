@@ -57,6 +57,11 @@ def test_suggest_exit() -> None:
     assert suggest("/e") == ["/exit"]
 
 
+def test_release_notes_command_suggests_and_parses() -> None:
+    assert suggest("/r") == ["/release-notes"]
+    assert parse_command("/release-notes") == "/release-notes"
+
+
 def test_suggest_help() -> None:
     assert suggest("/h") == ["/help"]
 
