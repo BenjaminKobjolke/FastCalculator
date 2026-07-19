@@ -15,7 +15,7 @@ from app_logger import AppLogger
 
 
 def main() -> int:
-    from PySide6.QtCore import QLocale
+    from PySide6.QtCore import QLocale, Qt
     from PySide6.QtWidgets import QApplication
 
     from gui import i18n
@@ -55,6 +55,11 @@ def main() -> int:
 
         if options.demo_width is not None and options.demo_height is not None:
             window.resize(options.demo_width, options.demo_height)
+        # No scrollbars in recordings: demo content is sized to fit the window, and
+        # a scrollbar would show as a stray vertical line in the capture.
+        for pane in (window._input, window._results):
+            pane.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            pane.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         script = localize_script(DEMOS[options.demo], dict(options.demo_texts))
         client = DemoClient(options.demo_port)
         window.show()

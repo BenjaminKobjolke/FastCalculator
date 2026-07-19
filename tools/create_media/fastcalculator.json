@@ -17,13 +17,70 @@
       "name": "basic-math",
       "fps": 10,
       "formats": ["gif", "mp4"],
-      "width": 640,
-      "height": 420,
+      "width": 520,
+      "height": 293,
       "app_settings": {
         "editor/font_point_size": 32,
         "window/margin": 20
       },
-      "languages": ["en", "de"]
+      "languages": ["en", "de"],
+      "crop": { "top": 8, "right": 3, "bottom": 3, "left": 3 }
+    },
+    {
+      "id": 2,
+      "name": "features",
+      "fps": 10,
+      "formats": ["gif", "mp4"],
+      "width": 520,
+      "height": 293,
+      "app_settings": {
+        "editor/font_point_size": 32,
+        "window/margin": 20,
+        "window/bg_color": "#2e3440",
+        "window/font_color": "#d8dee9",
+        "window/syntax_number": "#b48ead",
+        "window/syntax_operator": "#81a1c1",
+        "window/syntax_function": "#88c0d0",
+        "window/syntax_variable": "#a3be8c",
+        "window/syntax_inline": "#ebcb8b"
+      },
+      "languages": ["en", "de"],
+      "crop": { "top": 8, "right": 3, "bottom": 3, "left": 3 }
+    },
+    {
+      "id": 3,
+      "name": "basic-math-square",
+      "fps": 10,
+      "formats": ["gif", "mp4"],
+      "width": 460,
+      "height": 460,
+      "app_settings": {
+        "editor/font_point_size": 28,
+        "window/margin": 24
+      },
+      "languages": ["en", "de"],
+      "crop": { "top": 8, "right": 3, "bottom": 3, "left": 3 }
+    },
+    {
+      "id": 4,
+      "name": "features-square",
+      "fps": 10,
+      "formats": ["gif", "mp4"],
+      "width": 460,
+      "height": 460,
+      "app_settings": {
+        "editor/font_point_size": 28,
+        "window/margin": 24,
+        "window/bg_color": "#2e3440",
+        "window/font_color": "#d8dee9",
+        "window/syntax_number": "#b48ead",
+        "window/syntax_operator": "#81a1c1",
+        "window/syntax_function": "#88c0d0",
+        "window/syntax_variable": "#a3be8c",
+        "window/syntax_inline": "#ebcb8b"
+      },
+      "languages": ["en", "de"],
+      "crop": { "top": 8, "right": 3, "bottom": 3, "left": 3 }
     }
   ]
 }
