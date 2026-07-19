@@ -39,6 +39,9 @@ claude-plans/
 tools/analyze_code_config.bat
 code_analysis_results/
 
+# Generated demo media (recorded by tools/create_media/create_demos.bat)
+tools/create_media/output/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
