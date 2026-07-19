@@ -115,10 +115,30 @@ tools\run_tests.bat              # unit tests
 tools\run_integration_tests.bat  # end-to-end tests
 update.bat                       # upgrade deps, ruff, mypy, tests
 tools\build.bat                  # PyInstaller onefile -> dist\FastCalculator.exe
+tools\create_media\create_demos.bat  # record demos (en+de) -> tools\create_media\output\demos\<name>\<lang>\
 ```
 
 Releases (version bump, release notes, publish): see
 [docs/CREATE_NEW_RELEASE.md](docs/CREATE_NEW_RELEASE.md).
+
+### Automation demos
+
+`uv run python main.py --automation-demo 1` plays a scripted, recordable demo
+(animated typing, then exits). Used by the automated-application-screenshots
+tool to record GIF/MP4 demos and stills; the full contract (`--automation-demo-port`,
+`-width`, `-height`, socket events) is documented in that repo's
+`docs/AUTOMATION_INTERFACE.md`. Playback machinery comes from the
+`automated-screenshot-connector` path dependency
+(`../automated-application-screenshots-python-connector`); only the demo
+scripts live here (`demo/scripts.py`). Demo runs use a wiped temp settings
+namespace, so your real settings stay untouched.
+
+Demos record once per language (`--automation-demo-language` sets the UI
+language, overriding the OS locale). Typed demo text is localized through
+`{placeholder}`s in the scripts, filled from
+`tools/create_media/texts/<lang>.json` (passed as `--automation-demo-texts`).
+Adding a language: create `texts/<lang>.json`, add the code to `"languages"`
+in `tools/create_media/fastcalculator.json` — no code changes.
 
 ## Layout
 
@@ -131,6 +151,7 @@ engine/    pure evaluation library (stdlib only, no GUI, no third-party deps)
   inline.py      inline $-variable names ($sum, ...), data-only
   result.py      EvalResult typed return
 gui/       PySide6 window + Qt-free document evaluator
+demo/      automation-demo scripts (playback machinery: automated-screenshot-connector)
 main.py    entry point
 tests/     pytest unit + integration tests
 ```

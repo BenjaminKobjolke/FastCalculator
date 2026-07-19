@@ -7,10 +7,12 @@ requires-python = ">=3.11,<3.13"
 dependencies = [
     "pyside6",
     "python-localization",
+    "automated-screenshot-connector",
 ]
 
 [tool.uv.sources]
 python-localization = { path = "../python-localization" }
+automated-screenshot-connector = { path = "../automated-application-screenshots-python-connector" }
 
 [project.scripts]
 fastcalculator = "main:main"
@@ -40,4 +42,4 @@ testpaths = ["tests"]
 
 [tool.setuptools]
 py-modules = ["main", "app_logger"]
-packages = ["engine", "gui"]
+packages = ["engine", "gui", "demo"]

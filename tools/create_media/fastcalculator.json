@@ -1,0 +1,29 @@
+{
+  "process_name": "python.exe",
+  "title_substring": "FastCalculator",
+  "output_dir": "output",
+  "texts_dir": "texts",
+  "launch": {
+    "command": ["uv", "run", "python", "main.py",
+                "--automation-demo", "{demo_id}",
+                "--automation-demo-port", "{port}",
+                "--automation-demo-width", "{width}",
+                "--automation-demo-height", "{height}"],
+    "cwd": "../.."
+  },
+  "demos": [
+    {
+      "id": 1,
+      "name": "basic-math",
+      "fps": 10,
+      "formats": ["gif", "mp4"],
+      "width": 640,
+      "height": 420,
+      "app_settings": {
+        "editor/font_point_size": 32,
+        "window/margin": 20
+      },
+      "languages": ["en", "de"]
+    }
+  ]
+}
