@@ -13,13 +13,21 @@ from __future__ import annotations
 import re
 
 from engine.functions import CONSTANTS, FUNCTIONS
+from engine.units import UNITS
 from engine.words import WORD_OPERATORS
 
 # The user-facing color categories (also the QSettings/command suffixes).
 # `inline` tints `$`-variables ("$sum"), distinct from user `variable` names.
 CATEGORIES: tuple[str, ...] = ("number", "operator", "function", "variable", "inline")
 
-_NAMES = {name.lower() for name in FUNCTIONS} | {name.lower() for name in CONSTANTS}
+# Function/constant/unit names color as `function` — a single source of truth so
+# `km`, `sqrt`, `pi` all read as recognized words, not stray variables. Internal
+# pace names (leading "_") are excluded; users never type them.
+_NAMES = (
+    {name.lower() for name in FUNCTIONS}
+    | {name.lower() for name in CONSTANTS}
+    | {name.lower() for name in UNITS if not name.startswith("_")}
+)
 
 # Longest-first so a phrase ("divided by") wins over its parts ("over"/"by"),
 # matching the preprocessing regex in `engine/preprocess.py`.

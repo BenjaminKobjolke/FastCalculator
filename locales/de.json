@@ -12,6 +12,10 @@
     "variables": {
       "heading": "Variablen",
       "body": "Einmal zuweisen und darunter wiederverwenden:\n\n```\npreis = 20\npreis minus 5 mal 2   -> 10\n```\n\nInline-`$`-Variablen aggregieren die Ergebnisse darüber innerhalb der aktuellen Gruppe (eine Leerzeile beginnt eine neue Gruppe):\n\n```\nAngebot: 2000\nRabatt: $sum - 5%     -> 1900\n```\n\n`$sum` summiert jedes erfolgreiche Ergebnis darüber, Zuweisungen eingeschlossen. `$` tippen zum Autovervollständigen."
+    },
+    "running": {
+      "heading": "Laufen (Pace, Zeit, Distanz)",
+      "body": "Distanzen und Zeiten tragen ihre Einheiten, daher funktionieren Pace, Zielzeit und Geschwindigkeit einfach.\n\n- Distanzen: `km`, `mi`, `m`. Zeiten: `mm:ss` oder `h:mm:ss` tippen (`50:00`, `1:23:45`), oder `min`/`h`/`s` (`30 min`).\n- Pace = Zeit ÷ Distanz: `50:00 / 10 km` -> `5:00 /km`.\n- Zielzeit = Pace × Distanz: `4:30 min/km * 42.195 km` -> `3:09:53`.\n- Geschwindigkeit = Distanz ÷ Zeit: `10 km / 50:00` -> `12 km/h`.\n- Umrechnen mit `in`/`to`: `10 km in mi`, `5:00 /km in min/mi`, `12 km/h in mph`.\n- Kompatible Einheiten addieren: `5 mi + 3 km` -> `11,05 km`. `km mi m min h s` sind reservierte Namen."
     }
   },
   "release_notes": {

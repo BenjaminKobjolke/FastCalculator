@@ -12,6 +12,10 @@
     "variables": {
       "heading": "Variables",
       "body": "Assign once and reuse below:\n\n```\nprice = 20\nprice minus 5 mal 2   -> 10\n```\n\nInline `$`-variables aggregate the results above them within the current group (a blank line starts a new group):\n\n```\nAngebot: 2000\nRabatt: $sum - 5%     -> 1900\n```\n\n`$sum` totals every successful result above it, assignments included. Type `$` to autocomplete."
+    },
+    "running": {
+      "heading": "Running (pace, time, distance)",
+      "body": "Distances and times carry their units, so pace, finish time and speed just work.\n\n- Distances: `km`, `mi`, `m`. Times: type `mm:ss` or `h:mm:ss` (`50:00`, `1:23:45`), or `min`/`h`/`s` (`30 min`).\n- Pace = time ÷ distance: `50:00 / 10 km` -> `5:00 /km`.\n- Finish time = pace × distance: `4:30 min/km * 42.195 km` -> `3:09:53`.\n- Speed = distance ÷ time: `10 km / 50:00` -> `12 km/h`.\n- Convert with `in`/`to`: `10 km in mi`, `5:00 /km in min/mi`, `12 km/h in mph`.\n- Add compatible units: `5 mi + 3 km` -> `11.05 km`. Note `km mi m min h s` are reserved names."
     }
   },
   "release_notes": {

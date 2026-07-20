@@ -4,6 +4,10 @@ Security model: we parse with the stdlib `ast` (never eval/exec) and walk an
 explicit whitelist of node types. Anything outside the whitelist — attribute
 access, subscripts, lambdas, comprehensions, dunder tricks — is rejected before
 any value is produced. This is the boundary that makes running user text safe.
+
+Values flow as `Quantity` (see `units.py`): plain numbers are dimensionless
+quantities, unit words resolve like constants, and all arithmetic goes through
+`units.apply_binop`. Units never become strings, so the whitelist is unchanged.
 """
 
 from __future__ import annotations
@@ -14,6 +18,7 @@ from collections.abc import Callable
 
 from .errors import (
     EmptyLineError,
+    IncompatibleUnitsError,
     UnknownFunctionError,
     UnknownNameError,
     UnsafeExpressionError,
@@ -28,26 +33,19 @@ from .preprocess import (
     strip_unknown_words,
 )
 from .result import EvalResult
+from .units import (
+    DIMLESS,
+    TIME,
+    UNITS,
+    Quantity,
+    apply_binop,
+    convert,
+    dimensionless,
+    require_number,
+    unit_quantity,
+)
 
-Scope = dict[str, float]
-
-
-class _Percent(float):
-    """A number typed with a trailing '%'. Its float value is already p/100
-    (so 19% == 0.19), which makes '*' and '/' correct for free; '+' and '-'
-    get special handling in BinOp so "100+19%" means 100 + 19% of 100."""
-
-    __slots__ = ()
-
-
-_BINARY_OPS: dict[type[ast.operator], Callable[[float, float], float]] = {
-    ast.Add: operator.add,
-    ast.Sub: operator.sub,
-    ast.Mult: operator.mul,
-    ast.Div: operator.truediv,
-    ast.Mod: operator.mod,
-    ast.Pow: operator.pow,
-}
+Scope = dict[str, Quantity]
 
 _UNARY_OPS: dict[type[ast.unaryop], Callable[[float], float]] = {
     ast.USub: operator.neg,
@@ -73,19 +71,24 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
         sum_key = scope_key("sum")
         if sum_key in scope and _LEADING_OP_RE.match(expr):
             expr = f"{sum_key} {expr}"
-        known = {*scope, *CONSTANTS, *FUNCTIONS, "_pct"}
+        known = {*scope, *CONSTANTS, *FUNCTIONS, *UNITS, "_pct", "_time", "_to"}
         tree = ast.parse(strip_unknown_words(expr, known), mode="eval")
-        value = float(_eval_node(tree.body, scope))
+        value = _eval_node(tree.body, scope)
 
         if name is not None:
             scope[name] = value
-            return EvalResult.ok(value, assigned_name=name)
-        return EvalResult.ok(value)
+            return EvalResult.from_quantity(value, assigned_name=name)
+        return EvalResult.from_quantity(value)
     except EmptyLineError:
         return EvalResult.fail("empty")
     except ZeroDivisionError:
         return EvalResult.fail("division by zero")
-    except (UnknownNameError, UnknownFunctionError, UnsafeExpressionError) as exc:
+    except (
+        UnknownNameError,
+        UnknownFunctionError,
+        UnsafeExpressionError,
+        IncompatibleUnitsError,
+    ) as exc:
         return EvalResult.fail(str(exc))
     except SyntaxError:
         return EvalResult.fail("invalid expression")
@@ -93,33 +96,33 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
         return EvalResult.fail(str(exc))
 
 
-def _eval_node(node: ast.AST, scope: Scope) -> float:
+def _eval_node(node: ast.AST, scope: Scope) -> Quantity:
     if isinstance(node, ast.Constant):
         if isinstance(node.value, bool) or not isinstance(node.value, (int, float)):
             raise UnsafeExpressionError("only numbers are allowed")
-        return float(node.value)
+        return dimensionless(float(node.value))
 
     if isinstance(node, ast.BinOp):
-        op = _BINARY_OPS.get(type(node.op))
-        if op is None:
-            raise UnsafeExpressionError("unsupported operator")
         left = _eval_node(node.left, scope)
         right = _eval_node(node.right, scope)
-        if isinstance(right, _Percent) and isinstance(node.op, (ast.Add, ast.Sub)):
-            return op(left, left * float(right))
-        return op(left, right)
+        return apply_binop(type(node.op), left, right)
 
     if isinstance(node, ast.UnaryOp):
         unary = _UNARY_OPS.get(type(node.op))
         if unary is None:
             raise UnsafeExpressionError("unsupported operator")
-        return unary(_eval_node(node.operand, scope))
+        q = _eval_node(node.operand, scope)
+        return Quantity(unary(q.mag), q.dim, q.unit, q.percent)
 
     if isinstance(node, ast.Name):
         if node.id in scope:
-            return scope[node.id]
+            v = scope[node.id]
+            # The document layer injects a plain float ($sum); wrap it.
+            return v if isinstance(v, Quantity) else dimensionless(v)
         if node.id in CONSTANTS:
-            return CONSTANTS[node.id]
+            return dimensionless(CONSTANTS[node.id])
+        if node.id in UNITS:
+            return unit_quantity(UNITS[node.id])
         raise UnknownNameError(f"unknown name: {node.id}")
 
     if isinstance(node, ast.Call):
@@ -128,17 +131,33 @@ def _eval_node(node: ast.AST, scope: Scope) -> float:
     raise UnsafeExpressionError("unsupported expression")
 
 
-def _eval_call(node: ast.Call, scope: Scope) -> float:
+def _eval_call(node: ast.Call, scope: Scope) -> Quantity:
     if not isinstance(node.func, ast.Name):
         raise UnsafeExpressionError("unsupported call")
     if node.keywords:
         raise UnsafeExpressionError("keyword arguments are not allowed")
-    if node.func.id == "_pct":
+    name = node.func.id
+
+    if name == "_pct":
         if len(node.args) != 1:
             raise UnsafeExpressionError("percent takes one value")
-        return _Percent(_eval_node(node.args[0], scope) / 100.0)
-    func = FUNCTIONS.get(node.func.id)
+        return Quantity(_number_arg(node.args[0], scope) / 100.0, DIMLESS, percent=True)
+    if name == "_time":
+        if len(node.args) != 1:
+            raise UnsafeExpressionError("time takes one value")
+        return Quantity(_number_arg(node.args[0], scope), TIME)
+    if name == "_to":
+        if len(node.args) != 2:
+            raise UnsafeExpressionError("conversion takes two values")
+        return convert(_eval_node(node.args[0], scope), _eval_node(node.args[1], scope))
+
+    func = FUNCTIONS.get(name)
     if func is None:
-        raise UnknownFunctionError(f"unknown function: {node.func.id}")
-    args = [_eval_node(arg, scope) for arg in node.args]
-    return float(func(*args))
+        raise UnknownFunctionError(f"unknown function: {name}")
+    args = [require_number(_eval_node(arg, scope)) for arg in node.args]
+    return dimensionless(func(*args))
+
+
+def _number_arg(node: ast.AST, scope: Scope) -> float:
+    """Evaluate an argument that must be a plain number (percent/time literal)."""
+    return require_number(_eval_node(node, scope))

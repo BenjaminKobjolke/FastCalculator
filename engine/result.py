@@ -7,19 +7,28 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .units import Quantity, render
+
 
 @dataclass(frozen=True)
 class EvalResult:
     """Outcome of evaluating one line.
 
     `assigned_name` is set only when the line was an assignment ("x = ...");
-    it lets the GUI know a variable was defined.
+    it lets the GUI know a variable was defined. `kind`/`unit` describe a
+    unit-bearing result ("distance"/"km", "pace"/"/km", "time"/None, ...) so the
+    GUI can render it; both are None for a plain number, whose `value` is the
+    number itself exactly as before. `quantity` is the raw computed value, kept
+    so the document layer can carry units through the `$sum` running total.
     """
 
     success: bool
     value: float | None = None
     error: str | None = None
     assigned_name: str | None = None
+    kind: str | None = None
+    unit: str | None = None
+    quantity: Quantity | None = None
 
     @classmethod
     def ok(cls, value: float, assigned_name: str | None = None) -> EvalResult:
@@ -28,3 +37,17 @@ class EvalResult:
     @classmethod
     def fail(cls, message: str) -> EvalResult:
         return cls(success=False, error=message)
+
+    @classmethod
+    def from_quantity(cls, q: Quantity, assigned_name: str | None = None) -> EvalResult:
+        """Build a result from a computed quantity, splitting it into the display
+        magnitude plus its `kind`/`unit` labels (and keeping the quantity itself)."""
+        value, kind, unit = render(q)
+        return cls(
+            success=True,
+            value=value,
+            assigned_name=assigned_name,
+            kind=kind,
+            unit=unit,
+            quantity=q,
+        )

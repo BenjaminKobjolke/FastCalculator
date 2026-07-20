@@ -99,3 +99,53 @@ def test_strip_unknown_words_keeps_operands_and_calls() -> None:
     # followed by '(' -> a call, kept so unknown functions still error
     assert strip_unknown_words("foo(2)", set()) == "foo(2)"
     assert strip_unknown_words("sqrt(2)", {"sqrt"}) == "sqrt(2)"
+
+
+def test_time_literal_mm_ss() -> None:
+    assert normalize("4:30") == "_time(270)"
+    assert normalize("50:00") == "_time(3000)"
+    assert normalize("12:30") == "_time(750)"
+
+
+def test_time_literal_h_mm_ss() -> None:
+    assert normalize("1:23:45") == "_time(5025)"
+
+
+def test_unit_word_becomes_parenthesized_quantity() -> None:
+    assert normalize("10 km") == "(10 * km)"
+    assert normalize("42,195 km") == "(42.195 * km)"
+    assert normalize("5 miles") == "(5 * mi)"
+    assert normalize("30 km/h") == "(30 * kmh)"
+    assert normalize("400 m") == "(400 * m)"
+
+
+def test_durations_and_adjacency() -> None:
+    assert normalize("30 min") == "(30 * min)"
+    assert normalize("1 h 30 min") == "(1 * h) + (30 * min)"
+
+
+def test_unknown_unit_stays_bare_for_stripping() -> None:
+    # kg is not a known unit -> left bare so strip_unknown_words drops it later
+    assert normalize("5 kg") == "5 kg"
+
+
+def test_pace_suffix_is_division_by_unit() -> None:
+    assert normalize("50:00 / 10 km") == "_time(3000) / (10 * km)"
+    assert normalize("4:30 min/km") == "_time(270) / km"
+    assert normalize("5:00 /km") == "_time(300) / km"
+
+
+def test_speed_slash_is_ordinary_division() -> None:
+    assert normalize("10 km / 50:00") == "(10 * km) / _time(3000)"
+
+
+def test_conversion_wraps_in_to_call() -> None:
+    assert normalize("10 km in mi") == "_to((10 * km), mi)"
+    assert normalize("10 km to mi") == "_to((10 * km), mi)"
+    assert normalize("12 km/h in mph") == "_to((12 * kmh), mph)"
+    assert normalize("5:00 /km in min/mi") == "_to(_time(300) / km, _pace_mi)"
+
+
+def test_conversion_keyword_does_not_match_inside_min() -> None:
+    # the 'in' inside 'min' must never be read as the conversion keyword
+    assert normalize("min(1;2)") == "min(1,2)"

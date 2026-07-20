@@ -118,6 +118,39 @@ def test_output_mirrors_input_decimal_style() -> None:
     assert format_result(r, line) == "119"
 
 
+def test_running_results_format() -> None:
+    assert _formatted("10 km") == ["10 km"]
+    assert _formatted("50:00 / 10 km") == ["5:00 /km"]
+    assert _formatted("10 km / 50:00") == ["12 km/h"]
+    assert _formatted("1:23:45") == ["1:23:45"]
+    assert _formatted("30 min") == ["30:00"]
+    assert _formatted("4:30 min/km * 42.195 km") == ["3:09:53"]
+    assert _formatted("10 km in mi") == ["6.214 mi"]
+
+
+def test_units_flow_through_leading_operator() -> None:
+    # the reported case: "* 42 km" under a pace line = pace * distance = time
+    assert _formatted("3:22 / 1 km\n* 42 km") == ["3:22 /km", "2:21:24"]
+
+
+def test_bare_time_scaled_by_distance() -> None:
+    # a duration line then "* 42 km" multiplies the time by 42 -> finish time
+    assert _formatted("3:22\n* 42 km") == ["3:22", "2:21:24"]
+
+
+def test_homogeneous_unit_group_sums_with_unit() -> None:
+    assert _formatted("5 km\n3 km\n$sum") == ["5 km", "3 km", "8 km"]
+
+
+def test_leading_operator_scales_unit_total() -> None:
+    assert _formatted("5 km\n3 km\n* 2") == ["5 km", "3 km", "16 km"]
+
+
+def test_distance_keeps_input_decimal_separator() -> None:
+    # comma-locale input -> comma-formatted number, still with the unit suffix
+    assert _formatted("5,5 mi + 3 km") == ["11,85 km"]
+
+
 def _formatted(text: str) -> list[str]:
     """Render a whole document the way the GUI does: each result formatted with
     its own line and the inherited group decimal style."""

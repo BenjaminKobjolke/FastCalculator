@@ -1,8 +1,8 @@
-from engine import evaluate
+from engine import Scope, evaluate
 
 
 def test_assignment_stores_and_reports_name() -> None:
-    scope: dict[str, float] = {}
+    scope: Scope = {}
     r = evaluate("x = 10", scope)
     assert r.success
     assert r.assigned_name == "x"
@@ -11,7 +11,7 @@ def test_assignment_stores_and_reports_name() -> None:
 
 
 def test_variable_reuse_across_calls() -> None:
-    scope: dict[str, float] = {}
+    scope: Scope = {}
     evaluate("x = 10", scope)
     r = evaluate("x hoch 2", scope)
     assert r.success
@@ -19,7 +19,7 @@ def test_variable_reuse_across_calls() -> None:
 
 
 def test_assignment_with_expression_rhs() -> None:
-    scope: dict[str, float] = {}
+    scope: Scope = {}
     evaluate("a = 2 + 3", scope)
     evaluate("b = a * 4", scope)
     assert scope["a"] == 5
@@ -33,7 +33,7 @@ def test_unknown_variable_errors() -> None:
 
 
 def test_user_scope_shadows_constant() -> None:
-    scope: dict[str, float] = {}
+    scope: Scope = {}
     evaluate("e = 5", scope)
     r = evaluate("e + 1", scope)
     assert r.value == 6

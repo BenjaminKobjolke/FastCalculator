@@ -3,7 +3,7 @@
 Public API:
     evaluate(line, scope) -> EvalResult
     EvalResult
-    Scope  (type alias: dict[str, float])
+    Scope  (type alias: dict[str, Quantity])
 """
 
 from __future__ import annotations

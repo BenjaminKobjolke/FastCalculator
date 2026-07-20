@@ -9,6 +9,8 @@ class TK:
     HELP_BASICS_HEADING = "help.basics.heading"
     HELP_COMMANDS_BODY = "help.commands.body"
     HELP_COMMANDS_HEADING = "help.commands.heading"
+    HELP_RUNNING_BODY = "help.running.body"
+    HELP_RUNNING_HEADING = "help.running.heading"
     HELP_TITLE = "help.title"
     HELP_VARIABLES_BODY = "help.variables.body"
     HELP_VARIABLES_HEADING = "help.variables.heading"

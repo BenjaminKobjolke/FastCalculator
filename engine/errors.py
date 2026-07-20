@@ -25,3 +25,7 @@ class UnknownNameError(EngineError):
 
 class UnknownFunctionError(EngineError):
     """A function call referenced a name outside the whitelist."""
+
+
+class IncompatibleUnitsError(EngineError):
+    """An operation mixed quantities of incompatible dimensions (km + s)."""

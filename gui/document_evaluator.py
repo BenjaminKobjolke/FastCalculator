@@ -7,11 +7,14 @@ editing an earlier line correctly updates every line that depends on it.
 
 from __future__ import annotations
 
+import ast
 import re
 
 from engine import EvalResult, evaluate
+from engine.errors import IncompatibleUnitsError
 from engine.inline import scope_key
 from engine.preprocess import has_inline_var, starts_with_binary_op
+from engine.units import Quantity, apply_binop, dimensionless
 
 # The decimal style (separator, fraction digits) a line inherits from its group.
 Style = tuple[str, int | None]
@@ -27,19 +30,26 @@ def evaluate_document(text: str) -> list[EvalResult]:
 
     Also feeds the `$sum` inline variable: `_SUM_KEY` is injected before each
     line as the running total of the successful results *above* it in the current
-    group (a contiguous block of lines; a blank line starts a new group).
+    group (a contiguous block of lines; a blank line starts a new group). The
+    total is a `Quantity`, so units flow through `$sum` and leading-operator
+    continuations ("5 km" + "3 km" -> "8 km"; a pace line then "* 42 km" -> a
+    finish time). A dimension-incompatible result restarts the total from itself,
+    so mixing units never errors and plain-number groups behave exactly as before.
     """
-    scope: dict[str, float] = {}
+    scope: dict[str, Quantity] = {}
     results: list[EvalResult] = []
-    group_sum = 0.0
+    group_total: Quantity = dimensionless(0.0)
     for line in text.split("\n"):
         if not line.strip():
-            group_sum = 0.0
-        scope[_SUM_KEY] = group_sum
+            group_total = dimensionless(0.0)
+        scope[_SUM_KEY] = group_total
         result = evaluate(line, scope)
         results.append(result)
-        if result.success and result.value is not None:
-            group_sum += result.value
+        if result.success and result.quantity is not None:
+            try:
+                group_total = apply_binop(ast.Add, group_total, result.quantity)
+            except IncompatibleUnitsError:
+                group_total = result.quantity
     return results
 
 
@@ -84,6 +94,14 @@ def format_result(
     """
     if not result.success or result.value is None:
         return ""
+    # Unit-bearing results render from their kind; time/pace as clock text, the
+    # rest as a number with a unit suffix (keeping the input's decimal separator).
+    if result.kind == "time":
+        return _format_hms(result.value)
+    if result.kind == "pace":
+        return f"{_format_mmss(result.value)} {result.unit}"
+    if result.kind in ("distance", "speed"):
+        return f"{_format_quantity(result.value, line, inherited)} {result.unit}"
     sep, places = _input_decimal_style(line) if line else (".", None)
     if places is None and inherited is not None:
         sep, places = inherited
@@ -91,6 +109,30 @@ def format_result(
         return _format_number(result.value)
     text = f"{result.value:.{places}f}"
     return text.replace(".", sep)
+
+
+def _format_hms(seconds: float) -> str:
+    """Whole seconds as `h:mm:ss` (or `m:ss` when under an hour)."""
+    total = round(seconds)
+    hours, rem = divmod(total, 3600)
+    minutes, secs = divmod(rem, 60)
+    return f"{hours}:{minutes:02d}:{secs:02d}" if hours else f"{minutes}:{secs:02d}"
+
+
+def _format_mmss(seconds: float) -> str:
+    """Pace as `m:ss` (seconds per km/mi)."""
+    total = round(seconds)
+    minutes, secs = divmod(total, 60)
+    return f"{minutes}:{secs:02d}"
+
+
+def _format_quantity(value: float, line: str | None, inherited: Style | None) -> str:
+    """Numeric part of a distance/speed result: 4 significant figures, with the
+    input line's decimal separator (or the inherited group style)."""
+    sep, _ = _input_decimal_style(line) if line else (".", None)
+    if sep == "." and inherited is not None:
+        sep = inherited[0]
+    return f"{value:.4g}".replace(".", sep)
 
 
 def _input_decimal_style(line: str) -> tuple[str, int | None]:

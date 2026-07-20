@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from engine import evaluate
+from engine import Scope, evaluate
 
 
 def _val(expr: str) -> float:
@@ -38,7 +38,7 @@ def test_x_as_multiply_between_numbers() -> None:
 
 
 def test_x_stays_a_variable() -> None:
-    scope: dict[str, float] = {}
+    scope: Scope = {}
     assert evaluate("x = 10", scope).success
     assert evaluate("x hoch 2", scope).value == 100
 
@@ -80,7 +80,7 @@ def test_trailing_unit_text() -> None:
 
 
 def test_unit_text_keeps_scope_variables() -> None:
-    scope: dict[str, float] = {}
+    scope: Scope = {}
     assert evaluate("x = 5", scope).success
     assert evaluate("x + 3 dollars", scope).value == 8
 
