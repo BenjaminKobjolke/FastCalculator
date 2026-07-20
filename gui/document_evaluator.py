@@ -11,7 +11,7 @@ import re
 
 from engine import EvalResult, evaluate
 from engine.inline import scope_key
-from engine.preprocess import has_inline_var
+from engine.preprocess import has_inline_var, starts_with_binary_op
 
 # The decimal style (separator, fraction digits) a line inherits from its group.
 Style = tuple[str, int | None]
@@ -46,9 +46,10 @@ def evaluate_document(text: str) -> list[EvalResult]:
 def inherited_styles(lines: list[str]) -> list[Style | None]:
     """Per-line group decimal style to inherit, or None.
 
-    A line inherits its group's `(separator, place count)` only when it references
-    an inline `$`-variable and carries no decimals of its own — so `$sum - 35%`
-    under a `,00` group renders `,00` too. Mirrors the grouping in
+    A line inherits its group's `(separator, place count)` only when it carries
+    no decimals of its own and either references an inline `$`-variable or starts
+    with a binary operator (an implicit `$sum` continuation) — so `$sum - 35%`
+    and `- 500` under a `,00` group render `,00` too. Mirrors the grouping in
     `evaluate_document`: a blank line starts a new group, and only lines *above*
     the current one contribute the style.
     """
@@ -59,7 +60,8 @@ def inherited_styles(lines: list[str]) -> list[Style | None]:
         if not line.strip():
             group_sep, group_places = ".", None
         sep, places = _input_decimal_style(line)
-        if places is None and group_places is not None and has_inline_var(line):
+        inherits = has_inline_var(line) or starts_with_binary_op(line)
+        if places is None and group_places is not None and inherits:
             styles.append((group_sep, group_places))
         else:
             styles.append(None)

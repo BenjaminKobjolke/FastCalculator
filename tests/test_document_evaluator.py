@@ -62,6 +62,41 @@ def test_sum_percent_example() -> None:
     assert results[1].value == 1900
 
 
+def test_leading_operator_continues_running_total() -> None:
+    # The reported case: "- 4000" under "2000 plus 2000" means 4000 - 4000.
+    results = evaluate_document("2000 plus 2000\n- 4000")
+    assert results[0].value == 4000
+    assert results[1].value == 0
+
+
+def test_leading_multiply_uses_running_total() -> None:
+    # Leading "*" was a syntax error before; now it multiplies the sum.
+    results = evaluate_document("10\n20\n* 2")
+    assert results[2].value == 60
+
+
+def test_leading_operator_resets_after_blank_line() -> None:
+    # A blank line starts a new group -> sum is 0 -> "- 5" is just -5.
+    results = evaluate_document("10\n\n- 5")
+    assert results[2].value == -5
+
+
+def test_leading_operator_on_single_line_is_unary() -> None:
+    # No lines above -> sum is 0 -> "-5" stays -5.
+    results = evaluate_document("-5")
+    assert results[0].value == -5
+
+
+def test_leading_percent_applies_to_running_total() -> None:
+    results = evaluate_document("10\n+ 5%")
+    assert results[1].value == 10.5
+
+
+def test_leading_operator_inherits_group_decimal_style() -> None:
+    out = _formatted("2000,00\n- 500")
+    assert out == ["2000,00", "1500,00"]
+
+
 def test_format_number_trims_integers() -> None:
     results = evaluate_document("6 / 2\n9 / 2")
     assert format_result(results[0]) == "3"

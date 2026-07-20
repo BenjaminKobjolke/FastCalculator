@@ -19,7 +19,9 @@ from .errors import (
     UnsafeExpressionError,
 )
 from .functions import CONSTANTS, FUNCTIONS
+from .inline import scope_key
 from .preprocess import (
+    _LEADING_OP_RE,
     normalize,
     split_assignment,
     strip_label,
@@ -64,8 +66,15 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
             raise EmptyLineError("empty")
 
         name, raw_expr = split_assignment(strip_label(stripped))
+        expr = normalize(raw_expr)
+        # A line starting with a binary operator continues from the running
+        # total: "- 4000" -> "$sum - 4000". Only in document context, where the
+        # sum key is injected into scope; a bare engine call keeps unary math.
+        sum_key = scope_key("sum")
+        if sum_key in scope and _LEADING_OP_RE.match(expr):
+            expr = f"{sum_key} {expr}"
         known = {*scope, *CONSTANTS, *FUNCTIONS, "_pct"}
-        tree = ast.parse(strip_unknown_words(normalize(raw_expr), known), mode="eval")
+        tree = ast.parse(strip_unknown_words(expr, known), mode="eval")
         value = float(_eval_node(tree.body, scope))
 
         if name is not None:

@@ -53,6 +53,11 @@ _PERCENT_RE = re.compile(r"(\d+(?:\.\d+)?)\s*%(?!\s*[\w.(])")
 # Only defined names are rewritten; a stray "$foo" is left for ast.parse to
 # reject as an invalid expression.
 _DOLLAR_RE = re.compile(r"\$(" + "|".join(re.escape(n) for n in INLINE_VARS) + r")\b")
+# A line beginning with a binary operator continues from the running total
+# ("$sum"): "- 4000" means "$sum - 4000". `**` first so it wins over `*`. The
+# evaluator matches this against the *normalized* expr, so word operators and
+# `^` are already the symbols `+ - * / % **` by then.
+_LEADING_OP_RE = re.compile(r"^\s*(\*\*|[-+*/%])")
 
 
 def has_inline_var(line: str) -> bool:
@@ -62,6 +67,17 @@ def has_inline_var(line: str) -> bool:
     isn't a declared inline var reads as False.
     """
     return _DOLLAR_RE.search(line) is not None
+
+
+def starts_with_binary_op(line: str) -> bool:
+    """True if the line's expression begins with a binary operator ("- 4000").
+
+    Peels a `Label:` prefix and a `name =` assignment first, so `Total: - 5` and
+    `x = * 2` are recognized. Uses the same `_LEADING_OP_RE` the evaluator uses,
+    so the display side (decimal-style inheritance) can't drift from the math.
+    """
+    _, expr = split_assignment(strip_label(line))
+    return _LEADING_OP_RE.match(expr) is not None
 
 
 def strip_label(line: str) -> str:
