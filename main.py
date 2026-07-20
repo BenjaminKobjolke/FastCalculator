@@ -8,14 +8,18 @@ exits.
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 from automated_screenshot_connector import parse_demo_args
 
 from app_logger import AppLogger
 
+_ICON = Path(__file__).resolve().parent / "assets" / "icon.png"
+
 
 def main() -> int:
     from PySide6.QtCore import QLocale, Qt
+    from PySide6.QtGui import QIcon
     from PySide6.QtWidgets import QApplication
 
     from gui import i18n
@@ -37,6 +41,8 @@ def main() -> int:
     logger.info("starting calculator")
     app = QApplication(sys.argv)
     app.setOrganizationName("BenjaminKobjolke")
+    if _ICON.exists():
+        app.setWindowIcon(QIcon(str(_ICON)))
     if options.demo is not None:
         from automated_screenshot_connector.qt import prepare_demo_settings
 

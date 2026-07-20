@@ -12,7 +12,7 @@ if errorlevel 1 exit /b 1
 REM Release the file lock if an instance is running.
 taskkill /IM FastCalculator.exe /F >nul 2>&1
 
-set PYI_ARGS=--name FastCalculator --onefile --windowed --noconfirm --add-data "locales;locales" --add-data "release_notes;release_notes" --add-data "version.txt;." main.py
+set PYI_ARGS=--name FastCalculator --onefile --windowed --noconfirm --icon assets\icon.ico --add-data "assets;assets" --add-data "locales;locales" --add-data "release_notes;release_notes" --add-data "version.txt;." main.py
 
 if defined OUTPUT_PATH (
     uv run pyinstaller %PYI_ARGS% --distpath "%OUTPUT_PATH%"
