@@ -32,6 +32,22 @@ What counts toward the total:
 - The current line and everything below it are **excluded** ("above it").
 - Error / blank lines contribute nothing (a blank line also resets the group).
 
+## Units
+
+The running total is **unit-aware**, so `$sum` (and leading-operator lines like
+`* 2` or `- 5 km`) carry units through a group:
+
+```
+5 km
+3 km
+$sum             -> 8 km
+```
+
+A group of a single unit sums in that unit. Adding a **dimension-incompatible**
+result (e.g. a pace after a distance) is undefined — the total restarts from that
+line rather than erroring, and plain-number groups behave exactly as before. See
+[running.md](running.md).
+
 ## Formatting
 
 A `$`-variable line **inherits the decimal style of its group**. When the line
@@ -80,9 +96,11 @@ security boundary) is untouched.
   `ast.parse` to reject as an invalid expression. `has_inline_var()` (same regex)
   reports whether a line references a `$`-variable, used for the formatting rule.
 - `gui/document_evaluator.py` — `evaluate_document()` is the only layer that knows
-  line order. It keeps a per-group running sum, resets it on blank lines, and
-  writes it into `scope[_SUM_KEY]` **before** each `evaluate()` call, folding the
-  line's own result in afterward. `inherited_styles()` walks the same groups to
+  line order. It keeps a per-group running total **as a `Quantity`** (so units
+  flow through — [Units](#units)), resets it on blank lines, and writes it into
+  `scope[_SUM_KEY]` **before** each `evaluate()` call, folding the line's own
+  `result.quantity` in afterward (restarting on a dimension mismatch).
+  `inherited_styles()` walks the same groups to
   give each `$`-variable line the decimal style to inherit (see
   [Formatting](#formatting)); `format_result()` applies it when the line has no
   decimals of its own.

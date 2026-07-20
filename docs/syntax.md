@@ -107,6 +107,21 @@ Type `$` to autocomplete the available inline variables (Tab fills, same as
 `/`-commands). They get their own syntax color, too. Full reference:
 [inline-variables.md](inline-variables.md).
 
+## Running units (pace, time, distance, speed)
+
+Distances (`km`, `mi`, `m`) and times (`mm:ss`, `h:mm:ss`, or `min`/`h`/`s`)
+carry their unit through the math, so running calculations work directly:
+
+```
+50:00 / 10 km      -> 5:00 /km      (time ÷ distance = pace)
+10 km / 50:00      -> 12 km/h       (distance ÷ time = speed)
+3:22 * 42 km       -> 2:21:24       (a time × a distance-count = finish time)
+10 km in mi        -> 6.214 mi      (convert with in/to)
+```
+
+The unit words `km mi m min h s kmh mph` become **reserved names**. Full
+reference: [running.md](running.md).
+
 ## Labels and unit text
 
 Math can share a line with plain text — the text is ignored, the math computes.
@@ -121,17 +136,19 @@ Tax: 100 * 1,19       -> 119,00
 Sum: 3 + 4 + 5        -> 12
 ```
 
-The label must contain a letter, so a time-like `12:30` is **not** treated as a
-label (and produces no result — time math isn't supported).
+The label must contain a letter and its colon must not follow a digit, so a time
+literal like `12:30` (and the `50:00` in `10 km / 50:00`) is **not** read as a
+label — it stays a time. See [running.md](running.md).
 
 ### Trailing / unit text
 
-A word attached right after a value is treated as a unit and dropped:
+An **unknown** word attached right after a value is treated as noise and dropped
+(known running units like `km` are kept — see [running.md](running.md)):
 
 ```
 5 + 5 apples          -> 10
 5 kg + 5 kg           -> 10
-pi * 2 meters         -> 6.283185307
+3 * 4 widgets         -> 12
 budget = 100
 budget + 20 dollars   -> 120
 ```
@@ -139,14 +156,15 @@ budget + 20 dollars   -> 120
 Only a **single** word per value is dropped, and only when it directly follows a
 number, `)`, or `.`. A word in operand position stays — so `cost + 5` with an
 undefined `cost` still reports "unknown name" rather than silently computing.
-Multi-word units (`5 square meters`) drop only the last word.
+Multi-word units (`5 square feet`) drop only the last word.
 
 ## Lines that produce nothing
 
 These render blank (no result), by design:
 
 - Blank lines and pure text headers (`Shopping list`, `Notes:`).
-- Anything the parser can't turn into a number (`12:30`, `@#$`).
+- Anything the parser can't turn into a value (`@#$`). (A time like `12:30` now
+  *does* compute — see [running.md](running.md).)
 - Unknown names or functions (`foo + 1`, `bar(2)`).
 - Anything outside the whitelist (attribute access, lambdas, comprehensions) —
   these are rejected as a security measure, never executed.

@@ -30,6 +30,10 @@ natural-language operators in **English and German**.
   Rabatt: $sum - 5%   -> 1900
   ```
   Type `$` to autocomplete. See [docs/inline-variables.md](docs/inline-variables.md).
+- **Running units** — distances (`km`/`mi`/`m`) and times (`mm:ss`, `h:mm:ss`)
+  carry their unit, so pace, finish time and speed just work:
+  `50:00 / 10 km` = `5:00 /km`, `10 km / 50:00` = `12 km/h`, `10 km in mi` =
+  `6.214 mi`. See [docs/running.md](docs/running.md).
 - **Word operators (English + German)** — see table below.
 - **Functions & constants** — sqrt, trig, logs, rounding, min/max, `pi`, `e`.
 - **Syntax coloring** — numbers, operators, functions, variables, and inline

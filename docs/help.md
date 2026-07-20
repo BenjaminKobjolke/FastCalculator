@@ -1,8 +1,9 @@
 # Help window
 
-`/help` opens an in-app help window covering **basics**, **commands**, and
-**variables**. Run it like any slash command — type `/help` anywhere in a line
-and press Enter (see [commands.md](commands.md)).
+`/help` opens an in-app help window covering **basics**, **commands**,
+**variables**, and **running** (pace/time/distance — see [running.md](running.md)).
+Run it like any slash command — type `/help` anywhere in a line and press Enter
+(see [commands.md](commands.md)).
 
 ## Behaviour
 
