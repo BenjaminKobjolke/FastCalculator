@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nyhet: regning med enheter. Skriv inn avstander, tider, tempo og hastighet med enhetene deres (som «10 km / 50 min»), så regner kalkulatoren ut tempo eller hastighet, blander enheter og konverterer mellom dem."
+  ]
+}

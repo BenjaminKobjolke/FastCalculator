@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nieuw: rekenen met eenheden. Voer afstanden, tijden, tempo en snelheid in met hun eenheden (zoals '10 km / 50 min') en de rekenmachine berekent het tempo of de snelheid, combineert eenheden en zet ze naar elkaar om."
+  ]
+}

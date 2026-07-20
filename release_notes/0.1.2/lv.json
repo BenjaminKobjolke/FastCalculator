@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Jaunums: matemātika ar mērvienībām. Ievadiet attālumus, laikus, tempu un ātrumu ar to mērvienībām (piemēram, '10 km / 50 min'), un kalkulators aprēķinās tempu vai ātrumu, kombinēs dažādas mērvienības un konvertēs starp tām."
+  ]
+}

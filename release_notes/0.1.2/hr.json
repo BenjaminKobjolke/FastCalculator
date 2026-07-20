@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Novo: računanje s mjernim jedinicama. Upišite udaljenosti, vremena, tempo i brzinu s njihovim mjernim jedinicama (npr. '10 km / 50 min') i kalkulator će izračunati tempo ili brzinu, kombinirati mjerne jedinice i pretvarati ih između njih."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nou: calcule cu unități. Introdu distanțe, timp, ritm și viteză împreună cu unitățile lor (de exemplu „10 km / 50 min”), iar calculatorul determină ritmul sau viteza, combină unități și convertește între ele."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nyhed: beregning med enheder. Indtast afstande, tider, tempo og hastighed med deres enheder (som '10 km / 50 min'), og lommeregneren regner tempo eller hastighed ud, blander enheder og konverterer mellem dem."
+  ]
+}

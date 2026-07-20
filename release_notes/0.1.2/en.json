@@ -1,0 +1,7 @@
+{
+    "version": "0.1.2",
+    "date": "2026-07-20",
+    "notes": [
+        "New: running math with units. Type distances, times, pace and speed with their units (like '10 km / 50 min') and the calculator works out pace or speed, mixes units, and converts between them."
+    ]
+}

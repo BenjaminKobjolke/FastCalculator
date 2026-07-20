@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nuevo: cálculos con unidades. Introduce distancias, tiempos, ritmo y velocidad con sus unidades (por ejemplo, \"10 km / 50 min\") y la calculadora calcula el ritmo o la velocidad, mezcla unidades y convierte entre ellas."
+  ]
+}

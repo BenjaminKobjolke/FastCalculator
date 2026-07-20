@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nyhet: beräkna med enheter. Ange sträckor, tider, tempo och hastighet med deras enheter (t.ex. ”10 km / 50 min”) så räknar kalkylatorn ut tempo eller hastighet, blandar enheter och konverterar mellan dem."
+  ]
+}

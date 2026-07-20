@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Novinka: počítanie s jednotkami. Zadávajte vzdialenosti, časy, tempo a rýchlosť spolu s ich jednotkami (napr. „10 km / 50 min“) a kalkulačka vypočíta tempo alebo rýchlosť, kombinuje jednotky a prevádza medzi nimi."
+  ]
+}

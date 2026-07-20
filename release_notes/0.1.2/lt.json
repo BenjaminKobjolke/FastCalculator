@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nauja: skaičiavimai su matavimo vienetais. Įveskite atstumus, laiką, tempą ir greitį su jų vienetais (pvz., „10 km / 50 min“), o skaičiuotuvas apskaičiuos tempą arba greitį, derins skirtingus vienetus ir konvertuos juos tarpusavyje."
+  ]
+}

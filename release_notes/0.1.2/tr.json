@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Yeni: birimlerle matematik çalıştırma. Mesafe, süre, tempo ve hızı birimleriyle birlikte yazın (ör. '10 km / 50 dk') ve hesap makinesi tempoyu veya hızı hesaplar, birimleri karıştırır ve aralarında dönüşüm yapar."
+  ]
+}

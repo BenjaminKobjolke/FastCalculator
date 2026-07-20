@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nouveau : calculs avec unités. Saisissez des distances, des durées, l’allure et la vitesse avec leurs unités (comme « 10 km / 50 min ») et la calculatrice calcule l’allure ou la vitesse, combine différentes unités et convertit de l’une à l’autre."
+  ]
+}

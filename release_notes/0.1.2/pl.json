@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Nowość: obliczenia z jednostkami. Wpisuj dystanse, czasy, tempo i prędkość wraz z ich jednostkami (np. „10 km / 50 min”), a kalkulator wyliczy tempo lub prędkość, miesza jednostki i przelicza je między sobą."
+  ]
+}

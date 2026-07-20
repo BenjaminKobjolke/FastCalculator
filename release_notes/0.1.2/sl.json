@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Novo: računanje z merskimi enotami. Vnašajte razdalje, čase, tempo in hitrost z njihovimi enotami (npr. '10 km / 50 min') in kalkulator izračuna tempo ali hitrost, kombinira enote ter jih pretvarja med seboj."
+  ]
+}

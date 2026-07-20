@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Novità: calcoli con unità di misura. Inserisci distanze, tempi, passo e velocità con le loro unità (ad esempio \"10 km / 50 min\") e la calcolatrice calcola il passo o la velocità, combina unità diverse e converte tra di esse."
+  ]
+}

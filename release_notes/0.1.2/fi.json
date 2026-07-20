@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Uutta: yksiköillä laskeminen. Kirjoita matkat, ajat, vauhti ja nopeus yksiköineen (esim. \"10 km / 50 min\"), niin laskin laskee vauhdin tai nopeuden, yhdistelee yksiköitä ja muuntaa niitä keskenään."
+  ]
+}

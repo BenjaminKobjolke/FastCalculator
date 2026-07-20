@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Újdonság: mértékegységekkel végzett számítások. Írj be távolságot, időt, tempót és sebességet a mértékegységeikkel (például „10 km / 50 perc”), és a számológép kiszámolja a tempót vagy a sebességet, kezeli a vegyes mértékegységeket, és átvált közöttük."
+  ]
+}

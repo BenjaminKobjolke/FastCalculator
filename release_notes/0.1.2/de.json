@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Neu: Mathematik mit Einheiten. Gib Distanzen, Zeiten, Pace und Geschwindigkeit mit ihren Einheiten ein (z. B. „10 km / 50 min“), und der Rechner berechnet Pace oder Geschwindigkeit, mischt Einheiten und rechnet zwischen ihnen um."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.2",
+  "date": "2026-07-20",
+  "notes": [
+    "Mới: tính toán với đơn vị. Nhập quãng đường, thời gian, pace và tốc độ kèm theo đơn vị (như '10 km / 50 min') và máy tính sẽ tính ra pace hoặc tốc độ, trộn các đơn vị và chuyển đổi giữa chúng."
+  ]
+}
