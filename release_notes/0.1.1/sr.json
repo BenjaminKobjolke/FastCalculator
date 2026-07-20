@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Novo: započnite red operatorom da biste nastavili od ukupnog iznosa iznad. Unesite \"- 4000\" ili \"* 2\" u zasebnom redu i koristi tekući zbir prethodnih redova."
+  ]
+}

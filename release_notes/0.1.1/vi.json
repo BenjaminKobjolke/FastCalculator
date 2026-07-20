@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Mới: bắt đầu một dòng bằng một toán tử để tiếp tục từ tổng ở phía trên. Nhập '- 4000' hoặc '* 2' trên một dòng riêng và nó sẽ dùng tổng cộng dồn của các dòng trước đó."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Novità: inizia una riga con un operatore per continuare dal totale sopra. Digita \"- 4000\" o \"* 2\" su una riga a sé e userà la somma cumulativa delle righe precedenti."
+  ]
+}

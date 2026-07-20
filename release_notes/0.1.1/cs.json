@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Novinka: začněte řádek operátorem a pokračujte od celkové hodnoty výše. Napište „- 4000“ nebo „* 2“ na samostatný řádek a použije se průběžný součet řádků před ním."
+  ]
+}

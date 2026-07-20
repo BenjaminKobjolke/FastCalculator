@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Nowość: rozpocznij linię od operatora, aby kontynuować od sumy powyżej. Wpisz \"- 4000\" lub \"* 2\" w osobnej linii, a użyje sumy narastającej z wcześniejszych linii."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Új: kezdj egy sort egy operátorral, hogy a fenti összegből folytasd. Írd be a saját sorába, hogy „- 4000” vagy „* 2”, és a korábbi sorok futó összegét fogja használni."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Nyhet: börja en rad med en operator för att fortsätta från totalsumman ovan. Skriv \"- 4000\" eller \"* 2\" på en egen rad så använder den den löpande summan av raderna före den."
+  ]
+}

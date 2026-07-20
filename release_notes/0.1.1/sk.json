@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Nové: začnite riadok operátorom, aby ste pokračovali z celkového súčtu vyššie. Napíšte „- 4000“ alebo „* 2“ na samostatný riadok a použije sa priebežný súčet riadkov pred ním."
+  ]
+}

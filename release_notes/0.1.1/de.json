@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Neu: Beginne eine Zeile mit einem Operator, um vom Gesamtbetrag darüber fortzufahren. Gib „- 4000“ oder „* 2“ in einer eigenen Zeile ein, und es verwendet die laufende Summe der vorherigen Zeilen."
+  ]
+}

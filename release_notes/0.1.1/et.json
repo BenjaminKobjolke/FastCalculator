@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Uus: alusta rida operaatoriga, et jätkata ülaltoodud kogusummast. Kirjuta omaette reale „- 4000” või „* 2” ja see kasutab jooksvalt eelnevate ridade summat."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+    "version": "0.1.1",
+    "date": "2026-07-20",
+    "notes": [
+        "New: start a line with an operator to continue from the total above. Type '- 4000' or '* 2' on its own line and it uses the running sum of the lines before it."
+    ]
+}

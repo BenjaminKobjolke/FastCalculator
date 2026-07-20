@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Nyt: start en linje med en operator for at fortsætte fra totalen ovenfor. Skriv '- 4000' eller '* 2' på sin egen linje, så bruger den den løbende sum af linjerne før den."
+  ]
+}

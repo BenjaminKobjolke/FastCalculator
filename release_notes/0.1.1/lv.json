@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Jauns: sāciet rindu ar operatoru, lai turpinātu no kopsummas augstāk. Ierakstiet \"- 4000\" vai \"* 2\" atsevišķā rindā, un tas izmantos iepriekšējo rindu starpsummu."
+  ]
+}

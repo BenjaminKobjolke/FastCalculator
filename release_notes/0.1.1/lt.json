@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Nauja: pradėkite eilutę operatoriumi, kad tęstumėte nuo aukščiau esančios sumos. Įveskite „- 4000“ arba „* 2“ atskiroje eilutėje, ir bus naudojama iki tol esančių eilučių kaupiamoji suma."
+  ]
+}

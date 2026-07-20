@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Nou: începe o linie cu un operator pentru a continua de la totalul de mai sus. Tastează „- 4000” sau „* 2” pe propria linie și va folosi suma cumulată a liniilor de dinainte."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Uutta: aloita rivi operaattorilla jatkaaksesi yllä olevasta summasta. Kirjoita \"- 4000\" tai \"* 2\" omalle rivilleen, niin se käyttää sitä edeltävien rivien juoksevaa summaa."
+  ]
+}

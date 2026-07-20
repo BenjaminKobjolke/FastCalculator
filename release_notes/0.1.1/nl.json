@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Nieuw: begin een regel met een operator om verder te gaan vanaf het totaal erboven. Typ '- 4000' of '* 2' op een eigen regel en het gebruikt de lopende som van de regels ervoor."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "date": "2026-07-20",
+  "notes": [
+    "Yeni: Yukarıdaki toplamdan devam etmek için bir satıra bir operatörle başlayın. Tek başına bir satıra '- 4000' veya '* 2' yazın; önceki satırların ara toplamını kullanır."
+  ]
+}
