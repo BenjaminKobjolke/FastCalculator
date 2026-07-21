@@ -15,6 +15,7 @@ they are not math and produce no result value.
 | `/help`      | Open a localized help window (basics, commands, variables). See [help.md](help.md). |
 | `/release-notes` | Open a window with localized release notes, newest version first. |
 | `/exit`      | Close the calculator (quit the app).                      |
+| `/round <n\|off>` | Cap displayed results at `n` decimals (rounds, never pads: `3.14159` → `3,14`, `5` stays `5`). `off` restores full precision. Persists. |
 | `/window-opacity <n>` | Set window opacity to `n` percent (clamped 10–100). Persists. |
 | `/window-title` | Toggle the title bar (show / hide). Persists. Hidden bar still keeps native Aero Snap / Win+Arrow on Windows. |
 | `/window-background-color <hex>` | Set the pane background, e.g. `#282a36`. Persists. |
@@ -30,12 +31,13 @@ they are not math and produce no result value.
 
 ## Value commands
 
-`/window-opacity`, `/window-margin`, `/window-background-color`,
+`/round`, `/window-opacity`, `/window-margin`, `/window-background-color`,
 `/window-font-color`, `/window-theme`, and the four `/window-*-color` syntax
-commands take a value. Pass it inline (`/window-opacity 80`,
+commands take a value. Pass it inline (`/round 2`, `/window-opacity 80`,
 `/window-theme dracula`, `/window-number-color #ffb86c`) — or run the command
-**with no value** and an input box appears: a number box for opacity and margin, a
-hex text box for the colors, and a dropdown of theme names for `/window-theme`.
+**with no value** and an input box appears: a number box for round, opacity and
+margin, a hex text box for the colors, and a dropdown of theme names for
+`/window-theme`.
 
 Preset themes: `dracula`, `nord`, `monokai`, `solarized-dark`, `solarized-light`.
 Each preset sets a full palette — background, font color, and the four syntax

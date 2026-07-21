@@ -21,6 +21,7 @@ COMMANDS: list[str] = [
     "/help",
     "/paste-last-result",
     "/release-notes",
+    "/round",
     "/window-opacity",
     "/window-title",
     "/window-background-color",
@@ -110,6 +111,7 @@ def build_copy_text(
     lines: list[str],
     results: list[EvalResult],
     styles: list[Style | None] | None = None,
+    max_decimals: int | None = None,
 ) -> str:
     """Render non-empty, successful lines as `input = result`, newline-joined."""
     pairs = []
@@ -122,7 +124,7 @@ def build_copy_text(
         if result.assigned_name is not None:
             pairs.append(text)
         else:
-            pairs.append(f"{text} = {format_result(result, line, style)}")
+            pairs.append(f"{text} = {format_result(result, line, style, max_decimals)}")
     return "\n".join(pairs)
 
 
@@ -130,10 +132,11 @@ def last_result_text(
     lines: list[str],
     results: list[EvalResult],
     styles: list[Style | None] | None = None,
+    max_decimals: int | None = None,
 ) -> str:
     """Formatted value of the last successful result, or `""` if none."""
     triples = list(zip(lines, results, _styles_for(lines, styles), strict=False))
     for line, result, style in reversed(triples):
         if result.success and result.value is not None:
-            return format_result(result, line, style)
+            return format_result(result, line, style, max_decimals)
     return ""

@@ -7,7 +7,7 @@
     },
     "commands": {
       "heading": "Commands",
-      "body": "Type a `/`-command anywhere in a line and press Enter; it acts on the editor and produces no result.\n\n- `/clear` — clear the whole document.\n- `/copy` — copy every line as `input = result`.\n- `/copy-last` — copy the last result.\n- `/paste-last-result` — insert the last result at the cursor.\n- `/help` — open this help window.\n- `/release-notes` — open the release notes.\n- `/exit` — quit the app.\n- `/window-…` — appearance: `/window-theme`, `/window-opacity`, `/window-margin`, `/window-title`, `/window-highlighting`, and the `/window-*-color` commands. All persist across restarts.\n\nAs you type, a ghost shows the shared prefix; press Tab to complete."
+      "body": "Type a `/`-command anywhere in a line and press Enter; it acts on the editor and produces no result.\n\n- `/clear` — clear the whole document.\n- `/copy` — copy every line as `input = result`.\n- `/copy-last` — copy the last result.\n- `/paste-last-result` — insert the last result at the cursor.\n- `/help` — open this help window.\n- `/release-notes` — open the release notes.\n- `/exit` — quit the app.\n- `/round <n|off>` — cap results at `n` decimals (rounds, never pads); `off` restores full precision. Persists.\n- `/window-…` — appearance: `/window-theme`, `/window-opacity`, `/window-margin`, `/window-title`, `/window-highlighting`, and the `/window-*-color` commands. All persist across restarts.\n\nAs you type, a ghost shows the shared prefix; press Tab to complete."
     },
     "variables": {
       "heading": "Variables",

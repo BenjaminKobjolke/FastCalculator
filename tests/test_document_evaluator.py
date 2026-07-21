@@ -118,6 +118,34 @@ def test_output_mirrors_input_decimal_style() -> None:
     assert format_result(r, line) == "119"
 
 
+def test_max_decimals_caps_long_fractions() -> None:
+    r = evaluate_document("10/3")[0]
+    assert format_result(r, "10/3", max_decimals=2) == "3.33"
+
+
+def test_max_decimals_trims_instead_of_padding() -> None:
+    # cap, don't pad: whole/short results keep their natural width
+    assert format_result(evaluate_document("5+5")[0], "5+5", max_decimals=2) == "10"
+    assert format_result(evaluate_document("5/2")[0], "5/2", max_decimals=2) == "2.5"
+
+
+def test_max_decimals_zero_rounds_to_integer() -> None:
+    r = evaluate_document("10/3")[0]
+    assert format_result(r, "10/3", max_decimals=0) == "3"
+
+
+def test_max_decimals_caps_input_style_keeps_separator() -> None:
+    line = "100,00 + 19%"
+    r = evaluate_document(line)[0]
+    assert format_result(r, line, max_decimals=1) == "119,0"
+
+
+def test_max_decimals_never_extends_input_style() -> None:
+    line = "1,5 * 3"
+    r = evaluate_document(line)[0]
+    assert format_result(r, line, max_decimals=3) == "4,5"
+
+
 def test_running_results_format() -> None:
     assert _formatted("10 km") == ["10 km"]
     assert _formatted("50:00 / 10 km") == ["5:00 /km"]

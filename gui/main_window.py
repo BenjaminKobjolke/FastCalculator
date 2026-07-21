@@ -8,6 +8,7 @@ from PySide6.QtCore import QSettings, Qt, QTimer
 from PySide6.QtGui import (
     QCloseEvent,
     QFont,
+    QFontMetrics,
     QGuiApplication,
     QTextOption,
 )
@@ -22,31 +23,17 @@ from app_logger import AppLogger
 from gui.command_edit import CommandEdit
 from gui.commands import build_copy_text, last_result_text
 from gui.document_evaluator import evaluate_document, format_result, inherited_styles
-from gui.font_scale import clamp_font_size
+from gui.font_scale import clamp_font_size, results_width
 from gui.font_shortcuts import install_font_shortcuts
 from gui.frameless_win import FramelessWindow
 from gui.help_window import MarkdownWindow, create_help_window, create_release_notes_window
 from gui.highlighter import MathHighlighter
 from gui.syntax import CATEGORIES
 from gui.window_appearance import Appearance
+from gui.window_limits import MAX_OPACITY, MIN_OPACITY, clamp_opacity
+from gui.window_prefs import EditorPrefs
 
 _log = AppLogger.get(__name__)
-
-MIN_OPACITY = 10  # never 0: a fully invisible frameless window is unrecoverable
-MAX_OPACITY = 100
-
-DEFAULT_MARGIN = 8
-MAX_MARGIN = 200
-
-
-def clamp_opacity(percent: int) -> int:
-    """Keep window opacity within a visible, recoverable range (percent)."""
-    return max(MIN_OPACITY, min(MAX_OPACITY, percent))
-
-
-def clamp_margin(px: int) -> int:
-    """Keep the editor margin within sane pixel bounds."""
-    return max(0, min(MAX_MARGIN, px))
 
 
 class MainWindow(FramelessWindow):
@@ -82,7 +69,6 @@ class MainWindow(FramelessWindow):
         self._results.setFont(font)
         self._results.setReadOnly(True)
         self._results.setFrameStyle(0)
-        self._results.setFixedWidth(180)
         self._results.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self._results.document().setDefaultTextOption(QTextOption(Qt.AlignmentFlag.AlignRight))
 
@@ -97,7 +83,15 @@ class MainWindow(FramelessWindow):
         self._highlighter = MathHighlighter(self._input.document())
         self._appearance = Appearance(self, self._highlighter)
         self._appearance.restore_colors()
-        self._restore_margin()
+        self._prefs = EditorPrefs(
+            self,
+            (self._input.document(), self._results.document()),
+            self._update_results_width,
+            self._recalculate,
+        )
+        self._prefs.restore_margin()
+        self._prefs.restore_round()
+        self._update_results_width()
 
         self._input.textChanged.connect(self._recalculate)
 
@@ -110,14 +104,9 @@ class MainWindow(FramelessWindow):
         self._input.textChanged.connect(self._save_timer.start)
 
         self._recalculate()  # populate results for restored text
-        self._install_font_shortcuts()
+        install_font_shortcuts(self, self._adjust_font)
         self._sync_scrollbars()
         self._restore_geometry()
-
-    def _install_font_shortcuts(self) -> None:
-        # Ctrl++ / Ctrl+= (same physical key with/without shift) and Alt+Up grow;
-        # Ctrl+- and Alt+Down shrink.
-        install_font_shortcuts(self, self._adjust_font)
 
     def _adjust_font(self, delta: int) -> None:
         size = clamp_font_size(self._font.pointSize() + delta)
@@ -126,7 +115,14 @@ class MainWindow(FramelessWindow):
         self._font.setPointSize(size)
         self._input.setFont(self._font)
         self._results.setFont(self._font)
+        self._update_results_width()
         QSettings().setValue("editor/font_point_size", size)
+
+    def _update_results_width(self) -> None:
+        # Pane width must track font + margin, or zoomed-in results get clipped.
+        char_w = QFontMetrics(self._font).horizontalAdvance("0")
+        margin = round(self._results.document().documentMargin())
+        self._results.setFixedWidth(results_width(char_w, margin))
 
     def _recalculate(self) -> None:
         lines = self._input.toPlainText().split("\n")
@@ -134,7 +130,7 @@ class MainWindow(FramelessWindow):
         styles = inherited_styles(lines)
         self._results.setPlainText(
             "\n".join(
-                format_result(r, line, style)
+                format_result(r, line, style, self._prefs.round_decimals)
                 for line, r, style in zip(lines, results, styles, strict=False)
             )
         )
@@ -169,7 +165,10 @@ class MainWindow(FramelessWindow):
             self._appearance.set_theme(name.partition(" ")[2].strip())
             return
         if name.startswith("/window-margin"):
-            self._set_margin(name.partition(" ")[2].strip())
+            self._prefs.set_margin(name.partition(" ")[2].strip())
+            return
+        if name.startswith("/round"):
+            self._prefs.set_round(name.partition(" ")[2].strip())
             return
         if name.startswith("/window-highlighting"):
             self._appearance.set_highlighting(name.partition(" ")[2].strip())
@@ -184,12 +183,14 @@ class MainWindow(FramelessWindow):
         results = evaluate_document("\n".join(lines))
         styles = inherited_styles(lines)
         if name == "/paste-last-result":
-            self._input.textCursor().insertText(last_result_text(lines, results, styles))
+            self._input.textCursor().insertText(
+                last_result_text(lines, results, styles, self._prefs.round_decimals)
+            )
             return
         if name == "/copy":
-            text = build_copy_text(lines, results, styles)
+            text = build_copy_text(lines, results, styles, self._prefs.round_decimals)
         else:  # /copy-last
-            text = last_result_text(lines, results, styles)
+            text = last_result_text(lines, results, styles, self._prefs.round_decimals)
         QGuiApplication.clipboard().setText(text)
 
     # --- window chrome (opacity, title bar) --------------------------------
@@ -218,32 +219,6 @@ class MainWindow(FramelessWindow):
         percent = clamp_opacity(int(arg))
         self.setWindowOpacity(percent / 100)
         QSettings().setValue("window/opacity", percent)
-
-    # --- editor margin -----------------------------------------------------
-
-    def _restore_margin(self) -> None:
-        saved = QSettings().value("window/margin")
-        self._apply_margin(clamp_margin(int(saved)) if saved is not None else DEFAULT_MARGIN)
-
-    def _apply_margin(self, px: int) -> None:
-        self._input.document().setDocumentMargin(px)
-        self._results.document().setDocumentMargin(px)
-
-    def _set_margin(self, arg: str) -> None:
-        if not arg:
-            current = round(self._input.document().documentMargin())
-            value, ok = QInputDialog.getInt(
-                self, "Editor margin", "Margin (px):", current, 0, MAX_MARGIN
-            )
-            if not ok:
-                return
-            arg = str(value)
-        if not arg.isdigit():
-            _log.info("ignored /window-margin with non-numeric arg %r", arg)
-            return
-        px = clamp_margin(int(arg))
-        self._apply_margin(px)
-        QSettings().setValue("window/margin", px)
 
     def _show_markdown(
         self, window: MarkdownWindow | None, factory: Callable[[], MarkdownWindow]

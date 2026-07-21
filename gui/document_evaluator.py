@@ -82,7 +82,10 @@ def inherited_styles(lines: list[str]) -> list[Style | None]:
 
 
 def format_result(
-    result: EvalResult, line: str | None = None, inherited: Style | None = None
+    result: EvalResult,
+    line: str | None = None,
+    inherited: Style | None = None,
+    max_decimals: int | None = None,
 ) -> str:
     """Render a result as the short text shown in the results pane.
 
@@ -90,7 +93,8 @@ def format_result(
     When `line` has explicit decimals ("100,00"), the output mirrors its decimal
     separator and place count so "100,00 + 19%" reads back as "119,00". When the
     line has none of its own, `inherited` (the group's style, for `$sum` lines)
-    is used instead.
+    is used instead. `max_decimals` (the persisted `/round` setting) caps the
+    fraction digits of plain numbers — it rounds, never pads.
     """
     if not result.success or result.value is None:
         return ""
@@ -105,8 +109,12 @@ def format_result(
     sep, places = _input_decimal_style(line) if line else (".", None)
     if places is None and inherited is not None:
         sep, places = inherited
+    if places is not None and max_decimals is not None:
+        places = min(places, max_decimals)
     if places is None:
-        return _format_number(result.value)
+        if max_decimals is None:
+            return _format_number(result.value)
+        return _format_capped(result.value, max_decimals)
     text = f"{result.value:.{places}f}"
     return text.replace(".", sep)
 
@@ -141,6 +149,15 @@ def _input_decimal_style(line: str) -> tuple[str, int | None]:
     if not matches:
         return ".", None
     return matches[0][0], max(len(frac) for _, frac in matches)
+
+
+def _format_capped(value: float, max_decimals: int) -> str:
+    """Round to at most `max_decimals` fraction digits, trimming trailing zeros
+    (cap, don't pad: 3.14159 -> "3.14", 5.0 -> "5", 2.5 -> "2.5")."""
+    text = f"{value:.{max_decimals}f}"
+    if "." in text:
+        text = text.rstrip("0").rstrip(".")
+    return "0" if text == "-0" else text
 
 
 def _format_number(value: float) -> str:
