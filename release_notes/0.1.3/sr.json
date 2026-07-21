@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Novo: /round komanda. Ograničite koliko decimala se prikazuje i kopira u rezultatima (npr. /round 2), ili /round off za punu preciznost. Vaš izbor se pamti.",
+    "Novo: aplikacija sada ima sopstvenu ikonu.",
+    "Ispravljeno: rezultati ostaju u potpunosti vidljivi pri korišćenju velikog uvećanog fonta."
+  ]
+}

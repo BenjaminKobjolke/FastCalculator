@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nouveau : commande /round. Limitez le nombre de décimales affichées et copiées dans les résultats (par ex. /round 2), ou /round off pour une précision totale. Votre choix est mémorisé.",
+    "Nouveau : l’application a désormais sa propre icône.",
+    "Corrigé : les résultats restent entièrement visibles lors de l’utilisation d’une grande taille de police avec zoom."
+  ]
+}

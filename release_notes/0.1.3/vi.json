@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Mới: lệnh /round. Giới hạn số chữ số thập phân khi hiển thị và sao chép kết quả (ví dụ /round 2), hoặc dùng /round off để hiển thị độ chính xác đầy đủ. Lựa chọn của bạn sẽ được ghi nhớ.",
+    "Mới: ứng dụng giờ đã có biểu tượng riêng.",
+    "Đã sửa: kết quả vẫn hiển thị đầy đủ khi dùng phông chữ lớn (đã phóng to)."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nytt: kommandot /round. Begränsa hur många decimaler resultaten visar och kopierar (t.ex. /round 2), eller /round off för full precision. Ditt val koms ihåg.",
+    "Nytt: appen har nu en egen ikon.",
+    "Åtgärdat: resultaten förblir helt synliga när du använder en stor, zoomad teckenstorlek."
+  ]
+}

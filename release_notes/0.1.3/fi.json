@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Uutta: /round-komento. Voit rajoittaa, montako desimaalia tuloksissa näytetään ja kopioidaan (esim. /round 2), tai käyttää /round off täyden tarkkuuden saamiseksi. Valintasi muistetaan.",
+    "Uutta: sovelluksella on nyt oma kuvakkeensa.",
+    "Korjattu: tulokset pysyvät kokonaan näkyvissä, kun käytössä on suuri, zoomattu fontti."
+  ]
+}

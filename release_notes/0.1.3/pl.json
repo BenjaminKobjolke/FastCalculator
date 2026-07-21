@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nowość: komenda /round. Ustaw, ile miejsc po przecinku mają pokazywać i kopiować wyniki (np. /round 2), albo /round off, aby uzyskać pełną precyzję. Twój wybór jest zapamiętywany.",
+    "Nowość: aplikacja ma teraz własną ikonę.",
+    "Poprawka: wyniki pozostają w pełni widoczne podczas używania dużej, powiększonej czcionki."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nou: comanda /round. Limitează câte zecimale afișează și copiază rezultatele (de ex. /round 2) sau /round off pentru precizie completă. Alegerea ta este memorată.",
+    "Nou: aplicația are acum propria pictogramă.",
+    "Remediat: rezultatele rămân complet vizibile când folosești un font mare, mărit."
+  ]
+}

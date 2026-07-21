@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Neu: /round-Befehl. Lege fest, wie viele Dezimalstellen Ergebnisse anzeigen und beim Kopieren verwenden (z. B. /round 2), oder /round off für volle Präzision. Deine Auswahl wird gespeichert.",
+    "Neu: Die App hat jetzt ein eigenes Symbol.",
+    "Behoben: Ergebnisse bleiben vollständig sichtbar, auch wenn eine große, vergrößerte Schrift verwendet wird."
+  ]
+}

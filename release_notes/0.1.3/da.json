@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nyhed: /round-kommando. Begræns hvor mange decimaler der vises og kopieres i resultater (fx /round 2), eller /round off for fuld præcision. Dit valg bliver husket.",
+    "Nyhed: Appen har nu sit eget ikon.",
+    "Rettet: Resultater forbliver fuldt synlige ved brug af en stor, forstørret skrifttype."
+  ]
+}

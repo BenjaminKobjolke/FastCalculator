@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Yeni: /round komutu. Sonuçların gösterdiği ve kopyaladığı ondalık basamak sayısını sınırla (ör. /round 2) veya tam hassasiyet için /round off kullan. Seçimin hatırlanır.",
+    "Yeni: uygulamanın artık kendi simgesi var.",
+    "Düzeltildi: büyük, yakınlaştırılmış bir yazı tipi kullanıldığında sonuçlar tamamen görünür kalır."
+  ]
+}

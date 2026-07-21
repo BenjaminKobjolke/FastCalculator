@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nyhet: /round-kommandoen. Begrens hvor mange desimaler resultater viser og kopierer (som /round 2), eller /round off for full presisjon. Valget ditt huskes.",
+    "Nyhet: appen har nå sitt eget ikon.",
+    "Fikset: resultater forblir fullt synlige når du bruker en stor, zoomet skrift."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nieuw: /round-commando. Stel in hoeveel decimalen resultaten tonen en kopiëren (zoals /round 2), of /round off voor volledige precisie. Je keuze wordt onthouden.",
+    "Nieuw: de app heeft nu een eigen pictogram.",
+    "Opgelost: resultaten blijven volledig zichtbaar bij gebruik van een groot, ingezoomd lettertype."
+  ]
+}

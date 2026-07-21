@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Jauns: /round komanda. Iestatiet, cik zīmes aiz komata rādīt un kopēt rezultātos (piemēram, /round 2), vai /round off pilnai precizitātei. Jūsu izvēle tiek saglabāta.",
+    "Jauns: lietotnei tagad ir sava ikona.",
+    "Labots: izmantojot lielu pietuvinātu fontu, rezultāti paliek pilnībā redzami."
+  ]
+}

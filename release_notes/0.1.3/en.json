@@ -1,0 +1,9 @@
+{
+    "version": "0.1.3",
+    "date": "2026-07-21",
+    "notes": [
+        "New: /round command. Cap how many decimals results show and copy (like /round 2), or /round off for full precision. Your choice is remembered.",
+        "New: the app now has its own icon.",
+        "Fixed: results stay fully visible when using a large zoomed font."
+    ]
+}

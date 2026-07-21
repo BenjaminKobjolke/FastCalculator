@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Novo: comando /round. Limita quantas casas decimais os resultados mostram e copiam (como /round 2) ou /round off para precisão total. A sua escolha fica guardada.",
+    "Novo: a aplicação agora tem o seu próprio ícone.",
+    "Corrigido: os resultados mantêm-se totalmente visíveis ao usar um tipo de letra grande com zoom."
+  ]
+}

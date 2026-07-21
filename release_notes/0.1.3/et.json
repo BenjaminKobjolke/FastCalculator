@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Uus: käsk /round. Piira, mitu kümnendkohta tulemused näitavad ja kopeeritakse (nt /round 2), või kasuta täieliku täpsuse jaoks /round off. Sinu valik jäetakse meelde.",
+    "Uus: rakendusel on nüüd oma ikoon.",
+    "Parandatud: tulemused jäävad suurendatud suure fondi kasutamisel täielikult nähtavaks."
+  ]
+}

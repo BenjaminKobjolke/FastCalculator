@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Új: /round parancs. Korlátozhatod, hány tizedesjegyet mutassanak és másoljanak az eredmények (pl. /round 2), vagy /round off a teljes pontossághoz. A választásodat megjegyzi.",
+    "Új: az alkalmazásnak most már saját ikonja van.",
+    "Javítva: az eredmények teljesen láthatóak maradnak nagy, felnagyított betűméret használatakor is."
+  ]
+}

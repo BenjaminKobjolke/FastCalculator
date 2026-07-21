@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nové: príkaz /round. Nastavte, koľko desatinných miest sa zobrazí a skopíruje vo výsledkoch (napr. /round 2), alebo /round off pre plnú presnosť. Vaša voľba sa zapamätá.",
+    "Nové: aplikácia má teraz vlastnú ikonu.",
+    "Opravené: výsledky zostávajú úplne viditeľné aj pri použití veľkého priblíženého písma."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nově: příkaz /round. Omezte, kolik desetinných míst se ve výsledcích zobrazuje a kopíruje (např. /round 2), nebo použijte /round off pro plnou přesnost. Vaše volba se zapamatuje.",
+    "Nově: aplikace má nyní vlastní ikonu.",
+    "Opraveno: výsledky zůstávají plně viditelné při použití velkého zvětšeného písma."
+  ]
+}

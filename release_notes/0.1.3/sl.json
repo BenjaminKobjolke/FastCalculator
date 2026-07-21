@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Novo: ukaz /round. Omejite, koliko decimalnih mest se prikaže in kopira v rezultatih (npr. /round 2) ali uporabite /round off za polno natančnost. Vaša izbira se shrani.",
+    "Novo: aplikacija ima zdaj svojo ikono.",
+    "Popravljeno: rezultati ostanejo v celoti vidni pri uporabi velike, povečane pisave."
+  ]
+}

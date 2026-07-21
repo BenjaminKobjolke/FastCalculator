@@ -1,0 +1,9 @@
+{
+  "version": "0.1.3",
+  "date": "2026-07-21",
+  "notes": [
+    "Nauja: komanda /round. Apribokite, kiek dešimtainių skaitmenų rodomi ir kopijuojami rezultatuose (pvz., /round 2), arba naudokite /round off, kad būtų rodoma visa tikslumo reikšmė. Jūsų pasirinkimas įsimenamas.",
+    "Nauja: programa dabar turi savo piktogramą.",
+    "Pataisyta: naudojant didelį padidintą šriftą, rezultatai išlieka visiškai matomi."
+  ]
+}
