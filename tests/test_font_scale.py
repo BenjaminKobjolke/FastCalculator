@@ -1,7 +1,7 @@
 from gui.font_scale import (
     MAX_POINT_SIZE,
     MIN_POINT_SIZE,
-    RESULT_CHARS,
+    MIN_RESULT_CHARS,
     clamp_font_size,
     results_width,
 )
@@ -20,12 +20,16 @@ def test_clamp_ceiling() -> None:
 
 
 def test_results_width_chars_plus_margins() -> None:
-    assert results_width(10, 8) == 10 * RESULT_CHARS + 16
+    assert results_width(10, 8, 12) == 10 * 12 + 16
 
 
 def test_results_width_zero_margin() -> None:
-    assert results_width(10, 0) == 10 * RESULT_CHARS
+    assert results_width(10, 0, 12) == 120
+
+
+def test_results_width_clamps_to_minimum() -> None:
+    assert results_width(10, 8, 0) == 10 * MIN_RESULT_CHARS + 16
 
 
 def test_results_width_grows_with_char_width() -> None:
-    assert results_width(20, 8) > results_width(10, 8)
+    assert results_width(20, 8, 12) > results_width(10, 8, 12)

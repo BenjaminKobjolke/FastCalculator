@@ -55,6 +55,8 @@ class MainWindow(FramelessWindow):
         self._input = CommandEdit()
         self._input.setFont(font)
         self._input.setFrameStyle(0)
+        # No wrapping: a wrapped input row has no matching row in the results pane.
+        self._input.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         self._input.command_entered.connect(self._run_command)
 
         saved_text = str(QSettings().value("document/text", "", type=str))
@@ -70,7 +72,9 @@ class MainWindow(FramelessWindow):
         self._results.setReadOnly(True)
         self._results.setFrameStyle(0)
         self._results.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self._results.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         self._results.document().setDefaultTextOption(QTextOption(Qt.AlignmentFlag.AlignRight))
+        self._result_chars = 0
 
         container = QWidget()
         layout = QHBoxLayout(container)
@@ -119,21 +123,24 @@ class MainWindow(FramelessWindow):
         QSettings().setValue("editor/font_point_size", size)
 
     def _update_results_width(self) -> None:
-        # Pane width must track font + margin, or zoomed-in results get clipped.
+        # Pane width must track font + margin + content, or results get clipped.
         char_w = QFontMetrics(self._font).horizontalAdvance("0")
         margin = round(self._results.document().documentMargin())
-        self._results.setFixedWidth(results_width(char_w, margin))
+        self._results.setFixedWidth(results_width(char_w, margin, self._result_chars))
 
     def _recalculate(self) -> None:
         lines = self._input.toPlainText().split("\n")
         results = evaluate_document("\n".join(lines))
         styles = inherited_styles(lines)
-        self._results.setPlainText(
-            "\n".join(
-                format_result(r, line, style, self._prefs.round_decimals)
-                for line, r, style in zip(lines, results, styles, strict=False)
-            )
-        )
+        result_lines = [
+            format_result(r, line, style, self._prefs.round_decimals)
+            for line, r, style in zip(lines, results, styles, strict=False)
+        ]
+        self._results.setPlainText("\n".join(result_lines))
+        widest = max((len(s) for s in result_lines), default=0)
+        if widest != self._result_chars:
+            self._result_chars = widest
+            self._update_results_width()
 
     def _run_command(self, name: str) -> None:
         _log.info("ran %s", name)
