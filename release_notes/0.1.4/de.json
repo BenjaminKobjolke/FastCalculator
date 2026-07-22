@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Neu: Vergleiche. Stelle Fragen wie 5 == 5, Preis != 20 oder 5 km == 5000 m und erhalte wahr/falsch. Auch als Wörter: equals / ist gleich (Antworten auf Deutsch: wahr/falsch).",
+    "Verbessert: Der Ergebnisbereich passt seine Größe jetzt automatisch an den Inhalt an."
+  ]
+}

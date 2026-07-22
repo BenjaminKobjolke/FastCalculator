@@ -1,0 +1,8 @@
+{
+    "version": "0.1.4",
+    "date": "2026-07-22",
+    "notes": [
+        "New: comparisons. Ask questions like 5 == 5, price != 20 or 5 km == 5000 m and get true/false. Also as words: equals / ist gleich (answers in German: wahr/falsch).",
+        "Improved: the results pane now sizes itself to fit its content."
+    ]
+}

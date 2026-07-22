@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "新增：比较。可以提问如 5 == 5、price != 20 或 5 km == 5000 m，并得到 true/false。也支持用文字：equals / ist gleich（德语回答：wahr/falsch）。",
+    "改进：结果面板现在会自动调整大小以适配其内容。"
+  ]
+}

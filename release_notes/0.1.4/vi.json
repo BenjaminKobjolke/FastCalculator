@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Mới: so sánh. Hãy đặt các câu hỏi như 5 == 5, giá != 20 hoặc 5 km == 5000 m và nhận true/false. Cũng có thể dùng dạng chữ: equals / ist gleich (câu trả lời bằng tiếng Đức: wahr/falsch).",
+    "Cải tiến: khung kết quả giờ tự điều chỉnh kích thước để vừa với nội dung."
+  ]
+}

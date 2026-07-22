@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Nieuw: vergelijkingen. Stel vragen zoals 5 == 5, prijs != 20 of 5 km == 5000 m en krijg waar/onwaar. Ook als woorden: equals / ist gleich (antwoorden in het Duits: wahr/falsch).",
+    "Verbeterd: het resultatenpaneel past nu automatisch zijn grootte aan om bij de inhoud te passen."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Novinka: porovnávání. Ptejte se na otázky jako 5 == 5, cena != 20 nebo 5 km == 5000 m a získejte true/false. Také slovně: equals / ist gleich (odpovědi v němčině: wahr/falsch).",
+    "Vylepšení: panel s výsledky se nyní automaticky přizpůsobí velikosti svého obsahu."
+  ]
+}

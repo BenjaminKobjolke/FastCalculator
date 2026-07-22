@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Nytt: jämförelser. Ställ frågor som 5 == 5, price != 20 eller 5 km == 5000 m och få sant/falskt. Även som ord: equals / ist gleich (svar på tyska: wahr/falsch).",
+    "Förbättrat: resultatpanelen anpassar nu sin storlek efter innehållet."
+  ]
+}

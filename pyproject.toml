@@ -1,6 +1,6 @@
 [project]
 name = "fastcalculator"
-version = "0.1.3"
+version = "0.1.4"
 description = "Numi-style desktop calculator that treats ',' and '.' as the same decimal point and understands English/German word operators."
 readme = "README.md"
 requires-python = ">=3.11,<3.13"

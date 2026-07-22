@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Novo: usporedbe. Postavljajte pitanja poput 5 == 5, price != 20 ili 5 km == 5000 m i dobit ćete true/false. Također i kao riječi: equals / ist gleich (odgovori na njemačkom: wahr/falsch).",
+    "Poboljšano: okno s rezultatima sada se automatski prilagođava veličini svog sadržaja."
+  ]
+}

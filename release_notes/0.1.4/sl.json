@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Novo: primerjave. Postavljajte vprašanja, kot so 5 == 5, cena != 20 ali 5 km == 5000 m, in dobite true/false. Tudi kot besede: equals / ist gleich (odgovori v nemščini: wahr/falsch).",
+    "Izboljšano: podokno z rezultati se zdaj samodejno prilagodi velikosti svoje vsebine."
+  ]
+}

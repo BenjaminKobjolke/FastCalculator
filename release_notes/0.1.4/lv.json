@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Jauns: salīdzinājumi. Uzdodiet jautājumus, piemēram, 5 == 5, price != 20 vai 5 km == 5000 m, un saņemiet true/false. Arī kā vārdi: equals / ist gleich (atbildes vāciski: wahr/falsch).",
+    "Uzlabots: rezultātu rūts tagad automātiski pielāgojas, lai atbilstu tās saturam."
+  ]
+}

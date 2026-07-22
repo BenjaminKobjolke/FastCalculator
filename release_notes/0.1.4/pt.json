@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Novo: comparações. Faça perguntas como 5 == 5, preço != 20 ou 5 km == 5000 m e obtenha verdadeiro/falso. Também em palavras: igual a / ist gleich (respostas em alemão: wahr/falsch).",
+    "Melhorado: o painel de resultados agora ajusta seu tamanho para caber no conteúdo."
+  ]
+}

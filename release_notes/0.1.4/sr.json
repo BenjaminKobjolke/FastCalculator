@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Novo: poređenja. Postavljajte pitanja kao 5 == 5, cena != 20 ili 5 km == 5000 m i dobijte tačno/netačno. Takođe i kao reči: jednako / ist gleich (odgovori na nemačkom: wahr/falsch).",
+    "Poboljšano: panel sa rezultatima sada automatski menja veličinu da bi se prilagodio svom sadržaju."
+  ]
+}

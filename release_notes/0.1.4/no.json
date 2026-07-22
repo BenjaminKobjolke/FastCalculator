@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Nyhet: sammenligninger. Still spørsmål som 5 == 5, pris != 20 eller 5 km == 5000 m og få sant/usant. Også som ord: er lik / ist gleich (svar på tysk: wahr/falsch).",
+    "Forbedret: resultatpanelet tilpasser nå størrelsen sin til innholdet."
+  ]
+}

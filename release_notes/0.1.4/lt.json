@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Nauja: palyginimai. Užduokite klausimus, pvz., 5 == 5, price != 20 arba 5 km == 5000 m, ir gaukite true/false. Taip pat žodžiais: equals / ist gleich (atsakymai vokiečių kalba: wahr/falsch).",
+    "Patobulinta: rezultatų sritis dabar automatiškai prisitaiko prie turinio."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Nou: comparații. Pune întrebări precum 5 == 5, preț != 20 sau 5 km == 5000 m și vei primi adevărat/fals. Și sub formă de cuvinte: egal cu / ist gleich (răspunsuri în germană: wahr/falsch).",
+    "Îmbunătățit: panoul de rezultate își ajustează acum dimensiunea pentru a se potrivi conținutului."
+  ]
+}

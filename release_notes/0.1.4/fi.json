@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Uutta: vertailut. Kysy kysymyksiä kuten 5 == 5, price != 20 tai 5 km == 5000 m ja saat vastaukseksi true/false. Myös sanoina: equals / ist gleich (vastaukset saksaksi: wahr/falsch).",
+    "Parannettu: tulosruutu mukauttaa nyt kokonsa sisällön mukaan."
+  ]
+}

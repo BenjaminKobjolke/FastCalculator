@@ -1,0 +1,8 @@
+{
+  "version": "0.1.4",
+  "date": "2026-07-22",
+  "notes": [
+    "Yeni: karşılaştırmalar. 5 == 5, fiyat != 20 veya 5 km == 5000 m gibi sorular sorun ve true/false yanıtı alın. Ayrıca kelime olarak da: equals / ist gleich (Almanca yanıtlar: wahr/falsch).",
+    "İyileştirildi: sonuçlar bölmesi artık içeriğine uyacak şekilde kendini boyutlandırıyor."
+  ]
+}
