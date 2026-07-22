@@ -4,6 +4,7 @@ from engine.preprocess import (
     split_assignment,
     strip_label,
     strip_unknown_words,
+    uses_german_comparison,
 )
 
 
@@ -144,6 +145,25 @@ def test_conversion_wraps_in_to_call() -> None:
     assert normalize("10 km to mi") == "_to((10 * km), mi)"
     assert normalize("12 km/h in mph") == "_to((12 * kmh), mph)"
     assert normalize("5:00 /km in min/mi") == "_to(_time(300) / km, _pace_mi)"
+
+
+def test_comparison_word_operators() -> None:
+    assert normalize("5 equals 5") == "5 == 5"
+    assert normalize("5 ist gleich 5") == "5 == 5"
+    assert normalize("5 IST GLEICH 5") == "5 == 5"
+
+
+def test_split_assignment_keeps_comparison_rhs() -> None:
+    assert split_assignment("a == b") == (None, "a == b")
+    # "x = a == b" splits as an assignment; the evaluator rejects it later.
+    assert split_assignment("x = a == b") == ("x", "a == b")
+
+
+def test_uses_german_comparison() -> None:
+    assert uses_german_comparison("helena ist gleich benni") is True
+    assert uses_german_comparison("5 Ist Gleich 3") is True
+    assert uses_german_comparison("a == b") is False
+    assert uses_german_comparison("5 equals 5") is False
 
 
 def test_conversion_keyword_does_not_match_inside_min() -> None:

@@ -219,3 +219,19 @@ def test_non_inline_line_does_not_inherit_group_style() -> None:
     # Only "$"-var lines inherit; a plain expression keeps its own formatting.
     out = _formatted("100,00\n5 * 3")
     assert out[1] == "15"
+
+
+def test_bool_result_formats_as_text() -> None:
+    results = evaluate_document("5 == 5\n5 ist gleich 3")
+    # Bool text is verbatim: decimal styling and /round caps never touch it.
+    assert format_result(results[0], "5 == 5", max_decimals=2) == "true"
+    assert format_result(results[1], "5 ist gleich 3") == "falsch"
+
+
+def test_bool_line_is_transparent_to_sum() -> None:
+    results = evaluate_document("5\n3\n5 == 5\n$sum")
+    assert results[3].value == 8
+
+
+def test_bool_line_does_not_restart_unit_group() -> None:
+    assert _formatted("5 km\n3 km\n2 == 2\n$sum") == ["5 km", "3 km", "true", "8 km"]

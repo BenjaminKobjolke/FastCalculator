@@ -26,6 +26,10 @@ on the right. A line can be bare math, or math wrapped in words — both compute
 | `^` | power | `2 ^ 8` | `256` |
 | `( )` | grouping | `(2 + 3) * 4` | `20` |
 | `-` prefix | negative | `-(3 + 4)` | `-7` |
+| `==` `!=` `<` `>` `<=` `>=` | comparison (true/false) | `5 == 5` | `true` |
+
+Comparisons are unit-aware (`5 km == 5000 m` → `true`) and never assign — a
+single `=` stays assignment. Full reference: [comparisons.md](comparisons.md).
 
 ### Percent
 
@@ -51,6 +55,10 @@ Type the operator as a word instead of a symbol. Case-insensitive.
 | `divided by`, `geteilt durch`, `durch`, `over` | `/` |
 | `to the power of`, `hoch` | `^` |
 | `modulo`, `mod` | `%` |
+| `equals`, `ist gleich` | `==` |
+
+A comparison via `ist gleich` answers in German (`wahr`/`falsch`); every other
+form answers `true`/`false`. See [comparisons.md](comparisons.md).
 
 Examples: `5 times 5` → `25`, `10 divided by 2` → `5`, `2 hoch 3` → `8`,
 `5 mal 5` → `25`.

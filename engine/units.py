@@ -14,6 +14,9 @@ whitelist walker (the security boundary) is unchanged.
 from __future__ import annotations
 
 import ast
+import math
+import operator
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from .errors import IncompatibleUnitsError, UnsafeExpressionError
@@ -179,6 +182,33 @@ def apply_binop(op: type[ast.operator], left: Quantity, right: Quantity) -> Quan
         _require_dimless(left, right)
         return dimensionless(left.mag % right.mag)
     raise UnsafeExpressionError("unsupported operator")
+
+
+_COMPARERS: dict[type[ast.cmpop], Callable[[float, float], bool]] = {
+    ast.Lt: operator.lt,
+    ast.Gt: operator.gt,
+    ast.LtE: operator.le,
+    ast.GtE: operator.ge,
+}
+
+
+def compare(op: type[ast.cmpop], left: Quantity, right: Quantity) -> bool:
+    """One comparison over same-dimension quantities ("5 km == 5000 m").
+
+    Magnitudes are canonical, so no conversion is needed. Equality tolerates
+    float noise via `isclose` (0.1 + 0.2 == 0.3 is true). The percent flag is
+    deliberately ignored — comparisons never apply the Numi "+19%" rule, which
+    is why this does not reuse `apply_binop(Sub)`.
+    """
+    if left.dim != right.dim:
+        raise IncompatibleUnitsError("incompatible units")
+    if op is ast.Eq or op is ast.NotEq:
+        eq = math.isclose(left.mag, right.mag, rel_tol=1e-9, abs_tol=1e-12)
+        return eq if op is ast.Eq else not eq
+    fn = _COMPARERS.get(op)
+    if fn is None:
+        raise UnsafeExpressionError("unsupported comparison")
+    return fn(left.mag, right.mag)
 
 
 def convert(q: Quantity, target: Quantity) -> Quantity:

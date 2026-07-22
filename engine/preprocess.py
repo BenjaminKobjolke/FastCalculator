@@ -64,6 +64,9 @@ _PERCENT_RE = re.compile(r"(\d+(?:\.\d+)?)\s*%(?!\s*[\w.(])")
 # Only defined names are rewritten; a stray "$foo" is left for ast.parse to
 # reject as an invalid expression.
 _DOLLAR_RE = re.compile(r"\$(" + "|".join(re.escape(n) for n in INLINE_VARS) + r")\b")
+# The German comparison phrase, checked on the *raw* line so the evaluator can
+# localize a true/false result before word rewriting erases the language.
+_GERMAN_COMPARE_RE = re.compile(r"\bist\s+gleich\b", re.IGNORECASE)
 # A line beginning with a binary operator continues from the running total
 # ("$sum"): "- 4000" means "$sum - 4000". `**` first so it wins over `*`. The
 # evaluator matches this against the *normalized* expr, so word operators and
@@ -174,6 +177,12 @@ def has_inline_var(line: str) -> bool:
     isn't a declared inline var reads as False.
     """
     return _DOLLAR_RE.search(line) is not None
+
+
+def uses_german_comparison(line: str) -> bool:
+    """True if the raw line compares via the German phrase ("ist gleich"),
+    so its true/false result renders as "wahr"/"falsch"."""
+    return _GERMAN_COMPARE_RE.search(line) is not None
 
 
 def starts_with_binary_op(line: str) -> bool:

@@ -58,6 +58,14 @@ def test_last_result_text_honors_max_decimals() -> None:
     assert last_result_text(["10/3"], [EvalResult.ok(10 / 3)], max_decimals=2) == "3.33"
 
 
+def test_build_copy_text_renders_bool_text() -> None:
+    assert build_copy_text(["5 == 5"], [EvalResult.from_bool(True, "true")]) == "5 == 5 = true"
+
+
+def test_last_result_text_renders_bool_text() -> None:
+    assert last_result_text(["5 ist gleich 5"], [EvalResult.from_bool(True, "wahr")]) == "wahr"
+
+
 def test_build_copy_text_honors_max_decimals() -> None:
     lines = ["10/3"]
     results = [EvalResult.ok(10 / 3)]

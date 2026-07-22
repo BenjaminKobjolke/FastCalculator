@@ -98,6 +98,9 @@ def format_result(
     """
     if not result.success or result.value is None:
         return ""
+    # Comparison results carry their localized word; never decimal-styled.
+    if result.kind == "bool":
+        return result.text or ""
     # Unit-bearing results render from their kind; time/pace as clock text, the
     # rest as a number with a unit suffix (keeping the input's decimal separator).
     if result.kind == "time":

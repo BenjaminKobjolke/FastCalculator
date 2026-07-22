@@ -23,6 +23,10 @@ natural-language operators in **English and German**.
   price = 20
   price minus 5 mal 2   -> 10
   ```
+- **Comparisons** — `==` `!=` `<` `>` `<=` `>=` (and the words `equals` /
+  `ist gleich`) answer `true`/`false` — in German (`wahr`/`falsch`) when the
+  German phrase is used. Unit-aware: `5 km == 5000 m` → `true`. A single `=`
+  stays assignment. See [docs/comparisons.md](docs/comparisons.md).
 - **Inline `$`-variables** — `$sum` totals the results above it (within the
   current group; a blank line starts a new group):
   ```
@@ -61,6 +65,7 @@ natural-language operators in **English and German**.
 | `/`    | `divided by`, `over`         | `geteilt durch`, `durch`|
 | `^`    | `to the power of`            | `hoch`                  |
 | `%`    | `modulo`, `mod`              | `modulo`, `mod`         |
+| `==`   | `equals`                     | `ist gleich`            |
 
 Words are case-insensitive. Longest phrase wins (`divided by` beats `over`).
 Parentheses and unary minus work as expected: `-(2 + 3) * 4`.

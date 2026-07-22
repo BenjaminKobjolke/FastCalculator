@@ -17,6 +17,7 @@ from engine.units import (
     UNITS,
     Quantity,
     apply_binop,
+    compare,
     convert,
     dimensionless,
     render,
@@ -144,3 +145,35 @@ def test_convert_rejects_cross_dimension() -> None:
 
 def test_render_dimensionless_has_no_unit() -> None:
     assert render(dimensionless(42)) == (42.0, None, None)
+
+
+def test_compare_equality_and_ordering() -> None:
+    assert compare(ast.Eq, dimensionless(5), dimensionless(5)) is True
+    assert compare(ast.Eq, dimensionless(5), dimensionless(3)) is False
+    assert compare(ast.NotEq, dimensionless(5), dimensionless(3)) is True
+    assert compare(ast.Lt, dimensionless(3), dimensionless(5)) is True
+    assert compare(ast.Gt, dimensionless(3), dimensionless(5)) is False
+    assert compare(ast.LtE, dimensionless(5), dimensionless(5)) is True
+    assert compare(ast.GtE, dimensionless(4), dimensionless(5)) is False
+
+
+def test_compare_equality_tolerates_float_noise() -> None:
+    assert compare(ast.Eq, dimensionless(0.1 + 0.2), dimensionless(0.3)) is True
+    assert compare(ast.NotEq, dimensionless(0.1 + 0.2), dimensionless(0.3)) is False
+
+
+def test_compare_is_unit_aware() -> None:
+    five_km = apply_binop(ast.Mult, dimensionless(5), unit_quantity(UNITS["km"]))
+    five_thousand_m = apply_binop(ast.Mult, dimensionless(5000), unit_quantity(UNITS["m"]))
+    assert compare(ast.Eq, five_km, five_thousand_m) is True
+    assert compare(ast.Lt, five_km, five_thousand_m) is False
+
+
+def test_compare_incompatible_dimensions_raises() -> None:
+    with pytest.raises(IncompatibleUnitsError):
+        compare(ast.Eq, unit_quantity(UNITS["km"]), dimensionless(5))
+
+
+def test_compare_rejects_unsupported_ops() -> None:
+    with pytest.raises(UnsafeExpressionError):
+        compare(ast.Is, dimensionless(1), dimensionless(1))

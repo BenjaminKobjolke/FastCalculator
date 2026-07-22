@@ -31,6 +31,7 @@ from .preprocess import (
     split_assignment,
     strip_label,
     strip_unknown_words,
+    uses_german_comparison,
 )
 from .result import EvalResult
 from .units import (
@@ -39,11 +40,13 @@ from .units import (
     UNITS,
     Quantity,
     apply_binop,
+    compare,
     convert,
     dimensionless,
     require_number,
     unit_quantity,
 )
+from .words import BOOL_TEXT
 
 Scope = dict[str, Quantity]
 
@@ -73,6 +76,10 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
             expr = f"{sum_key} {expr}"
         known = {*scope, *CONSTANTS, *FUNCTIONS, *UNITS, "_pct", "_time", "_to"}
         tree = ast.parse(strip_unknown_words(expr, known), mode="eval")
+        if isinstance(tree.body, ast.Compare):
+            if name is not None:
+                raise UnsafeExpressionError("cannot assign a comparison")
+            return _eval_compare(tree.body, scope, uses_german_comparison(stripped))
         value = _eval_node(tree.body, scope)
 
         if name is not None:
@@ -94,6 +101,21 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
         return EvalResult.fail("invalid expression")
     except (ValueError, TypeError, OverflowError) as exc:
         return EvalResult.fail(str(exc))
+
+
+def _eval_compare(node: ast.Compare, scope: Scope, german: bool) -> EvalResult:
+    """A top-level comparison ("a == b") -> localized true/false result.
+
+    Only handled here, never in `_eval_node`, so a Compare nested inside
+    arithmetic or a call stays outside the whitelist and is rejected.
+    """
+    if len(node.ops) != 1:
+        raise UnsafeExpressionError("chained comparisons are not supported")
+    left = _eval_node(node.left, scope)
+    right = _eval_node(node.comparators[0], scope)
+    truth = compare(type(node.ops[0]), left, right)
+    true_text, false_text = BOOL_TEXT["de" if german else "en"]
+    return EvalResult.from_bool(truth, true_text if truth else false_text)
 
 
 def _eval_node(node: ast.AST, scope: Scope) -> Quantity:

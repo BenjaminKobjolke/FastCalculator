@@ -28,7 +28,18 @@ WORD_OPERATORS: dict[str, str] = {
     # power
     "to the power of": "^",
     "hoch": "^",
+    # compare (equality; other comparisons are symbol-only: != < > <= >=)
+    "equals": "==",
+    "ist gleich": "==",
     # modulo
     "modulo": "%",
     "mod": "%",
+}
+
+# Localized true/false words for comparison results. The evaluator picks the
+# language from the input line ("ist gleich" -> German), see `preprocess.
+# uses_german_comparison`.
+BOOL_TEXT: dict[str, tuple[str, str]] = {
+    "en": ("true", "false"),
+    "de": ("wahr", "falsch"),
 }

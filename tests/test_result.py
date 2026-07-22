@@ -20,3 +20,18 @@ def test_fail_sets_error_and_no_value() -> None:
     assert r.success is False
     assert r.error == "boom"
     assert r.value is None
+
+
+def test_from_bool_true() -> None:
+    r = EvalResult.from_bool(True, "true")
+    assert r.success is True
+    assert r.value == 1.0
+    assert r.kind == "bool"
+    assert r.text == "true"
+    assert r.quantity is None
+
+
+def test_from_bool_false() -> None:
+    r = EvalResult.from_bool(False, "falsch")
+    assert r.value == 0.0
+    assert r.text == "falsch"

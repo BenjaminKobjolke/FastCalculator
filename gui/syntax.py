@@ -44,7 +44,7 @@ _TOKEN_RE = re.compile(
     r"|(?P<number>\d+(?:[.,]\d+)?%?)"
     r"|(?P<inline>\$[A-Za-z_]\w*)"
     r"|(?P<ident>[A-Za-z_]\w*)"
-    r"|(?P<symop>[-+*/^%=])",
+    r"|(?P<symop>[-+*/^%=<>!])",
     re.IGNORECASE,
 )
 

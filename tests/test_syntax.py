@@ -80,3 +80,22 @@ def test_dollar_variable_in_expression() -> None:
         ("-", "operator"),
         ("5%", "number"),
     ]
+
+
+def test_comparison_symbols_are_operators() -> None:
+    assert _cats("5 < 3") == [("5", "number"), ("<", "operator"), ("3", "number")]
+    assert _cats("5 != 3") == [
+        ("5", "number"),
+        ("!", "operator"),
+        ("=", "operator"),
+        ("3", "number"),
+    ]
+
+
+def test_comparison_words_are_operators() -> None:
+    assert _cats("5 equals 5") == [("5", "number"), ("equals", "operator"), ("5", "number")]
+    assert _cats("5 ist gleich 5") == [
+        ("5", "number"),
+        ("ist gleich", "operator"),
+        ("5", "number"),
+    ]

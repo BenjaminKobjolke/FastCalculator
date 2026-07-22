@@ -130,8 +130,86 @@ def test_unknown_function() -> None:
         "lambda: 1",
         "().__class__.__bases__",
         "e.real",
+        "(1 == 1) + 1",  # Compare nested in arithmetic
+        "1 < 2 < 3",  # chained comparison
+        "pi is e",  # identity op
+        "-(1 == 1)",  # Compare under unary op
+        "sqrt(1 == 1)",  # Compare as call argument
     ],
 )
 def test_security_rejections(expr: str) -> None:
     r = evaluate(expr, {})
     assert not r.success
+
+
+def _bool_text(expr: str, scope: Scope | None = None) -> str:
+    r = evaluate(expr, scope if scope is not None else {})
+    assert r.success, r.error
+    assert r.kind == "bool"
+    assert r.text is not None
+    return r.text
+
+
+def test_comparison_operators() -> None:
+    assert _bool_text("5 == 5") == "true"
+    assert _bool_text("5 == 3") == "false"
+    assert _bool_text("5 != 3") == "true"
+    assert _bool_text("3 < 5") == "true"
+    assert _bool_text("3 > 5") == "false"
+    assert _bool_text("5 <= 5") == "true"
+    assert _bool_text("4 >= 5") == "false"
+
+
+def test_comparison_of_variables() -> None:
+    scope: Scope = {}
+    assert evaluate("helena = 3000", scope).success
+    assert evaluate("benni = 3000", scope).success
+    assert _bool_text("helena == benni", scope) == "true"
+
+
+def test_single_equals_still_assigns() -> None:
+    scope: Scope = {}
+    assert evaluate("helena = 5", scope).success
+    assert evaluate("benni = 7", scope).success
+    r = evaluate("helena = benni", scope)
+    assert r.success and r.assigned_name == "helena" and r.value == 7
+
+
+def test_comparison_word_operators() -> None:
+    assert _bool_text("5 equals 5") == "true"
+    assert _bool_text("5 ist gleich 5") == "wahr"
+    assert _bool_text("5 ist gleich 3") == "falsch"
+
+
+def test_comparison_is_unit_aware() -> None:
+    assert _bool_text("5 km == 5000 m") == "true"
+    assert _bool_text("50:00 == 50 min") == "true"
+    assert _bool_text("19% == 0,19") == "true"
+
+
+def test_comparison_float_tolerance() -> None:
+    assert _bool_text("0,1 + 0,2 == 0,3") == "true"
+
+
+def test_comparison_incompatible_units_fails() -> None:
+    r = evaluate("5 km == 5", {})
+    assert not r.success
+    assert r.error is not None and "incompatible units" in r.error
+
+
+def test_comparison_unknown_name_fails() -> None:
+    r = evaluate("helena == 5", {})
+    assert not r.success
+    assert r.error is not None and "unknown name" in r.error
+
+
+def test_cannot_assign_a_comparison() -> None:
+    r = evaluate("x = 5 == 5", {})
+    assert not r.success
+    assert r.error is not None and "cannot assign a comparison" in r.error
+
+
+def test_chained_comparison_rejected() -> None:
+    r = evaluate("1 < 2 < 3", {})
+    assert not r.success
+    assert r.error is not None and "chained" in r.error
