@@ -72,7 +72,8 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
         # total: "- 4000" -> "$sum - 4000". Only in document context, where the
         # sum key is injected into scope; a bare engine call keeps unary math.
         sum_key = scope_key("sum")
-        if sum_key in scope and _LEADING_OP_RE.match(expr):
+        continued = sum_key in scope and _LEADING_OP_RE.match(expr) is not None
+        if continued:
             expr = f"{sum_key} {expr}"
         known = {*scope, *CONSTANTS, *FUNCTIONS, *UNITS, "_pct", "_time", "_to"}
         tree = ast.parse(strip_unknown_words(expr, known), mode="eval")
@@ -84,8 +85,8 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
 
         if name is not None:
             scope[name] = value
-            return EvalResult.from_quantity(value, assigned_name=name)
-        return EvalResult.from_quantity(value)
+            return EvalResult.from_quantity(value, assigned_name=name, continued=continued)
+        return EvalResult.from_quantity(value, continued=continued)
     except EmptyLineError:
         return EvalResult.fail("empty")
     except ZeroDivisionError:

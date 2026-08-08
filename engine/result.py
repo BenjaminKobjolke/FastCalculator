@@ -21,7 +21,11 @@ class EvalResult:
     number itself exactly as before. `quantity` is the raw computed value, kept
     so the document layer can carry units through the `$sum` running total.
     A comparison result has `kind` "bool" and its localized word in `text`;
-    `quantity` stays None so it never feeds the `$sum` total.
+    `quantity` stays None so it never feeds the `$sum` total. `continued` is
+    True when the line was a leading-operator continuation ("$sum OP x") —
+    the document layer uses it to replace the running total with this
+    result instead of adding to it (adding would double-count the sum
+    already folded into `quantity`).
     """
 
     success: bool
@@ -32,6 +36,7 @@ class EvalResult:
     unit: str | None = None
     quantity: Quantity | None = None
     text: str | None = None
+    continued: bool = False
 
     @classmethod
     def ok(cls, value: float, assigned_name: str | None = None) -> EvalResult:
@@ -48,7 +53,12 @@ class EvalResult:
         return cls(success=True, value=1.0 if truth else 0.0, kind="bool", text=text)
 
     @classmethod
-    def from_quantity(cls, q: Quantity, assigned_name: str | None = None) -> EvalResult:
+    def from_quantity(
+        cls,
+        q: Quantity,
+        assigned_name: str | None = None,
+        continued: bool = False,
+    ) -> EvalResult:
         """Build a result from a computed quantity, splitting it into the display
         magnitude plus its `kind`/`unit` labels (and keeping the quantity itself)."""
         value, kind, unit = render(q)
@@ -59,4 +69,5 @@ class EvalResult:
             kind=kind,
             unit=unit,
             quantity=q,
+            continued=continued,
         )

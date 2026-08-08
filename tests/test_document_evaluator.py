@@ -97,6 +97,27 @@ def test_leading_operator_inherits_group_decimal_style() -> None:
     assert out == ["2000,00", "1500,00"]
 
 
+def test_leading_operator_continuation_replaces_running_total() -> None:
+    # The reported case: "*3" should continue from the shown "0", not
+    # double-count the pre-subtraction total (100 * 3 = 300 is wrong).
+    results = evaluate_document("100\n-100\n*3")
+    assert [r.value for r in results] == [100, 0, 0]
+
+
+def test_continuation_result_feeds_later_sum() -> None:
+    # A leading-operator line's result (not the pre-continuation total) is
+    # what a later "$sum" sees.
+    results = evaluate_document("2000 plus 2000\n- 4000\n$sum")
+    assert results[2].value == 0
+
+
+def test_leading_word_operator_continuation_replaces_running_total() -> None:
+    # Word operators ("mal") normalize to "*" before the leading-op check;
+    # the continuation flag must fire for them too, not just symbol operators.
+    results = evaluate_document("10\n20\nmal 2")
+    assert [r.value for r in results] == [10, 20, 60]
+
+
 def test_format_number_trims_integers() -> None:
     results = evaluate_document("6 / 2\n9 / 2")
     assert format_result(results[0]) == "3"

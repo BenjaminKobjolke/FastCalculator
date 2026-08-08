@@ -35,6 +35,12 @@ def evaluate_document(text: str) -> list[EvalResult]:
     continuations ("5 km" + "3 km" -> "8 km"; a pace line then "* 42 km" -> a
     finish time). A dimension-incompatible result restarts the total from itself,
     so mixing units never errors and plain-number groups behave exactly as before.
+
+    A leading-operator line ("- 100", "* 3") already folds the running total
+    into its own result (the engine rewrote it to "$sum - 100"), so its result
+    *replaces* the total rather than adding to it — adding would double-count
+    the sum already inside `result.quantity`. `result.continued` (set by the
+    engine) is what tells the two cases apart.
     """
     scope: dict[str, Quantity] = {}
     results: list[EvalResult] = []
@@ -46,10 +52,13 @@ def evaluate_document(text: str) -> list[EvalResult]:
         result = evaluate(line, scope)
         results.append(result)
         if result.success and result.quantity is not None:
-            try:
-                group_total = apply_binop(ast.Add, group_total, result.quantity)
-            except IncompatibleUnitsError:
+            if result.continued:
                 group_total = result.quantity
+            else:
+                try:
+                    group_total = apply_binop(ast.Add, group_total, result.quantity)
+                except IncompatibleUnitsError:
+                    group_total = result.quantity
     return results
 
 
