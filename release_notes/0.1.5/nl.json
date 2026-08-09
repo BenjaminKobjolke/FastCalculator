@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Opgelost: vervolg-berekeningen houden nu de lopende totalen correct bij in plaats van vervolgwaarden dubbel te tellen."
+  ]
+}

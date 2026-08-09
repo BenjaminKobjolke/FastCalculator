@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Rettet: oppfølgingsberegninger holder nå løpende summer nøyaktige i stedet for å telle videreføringsverdier to ganger."
+  ]
+}

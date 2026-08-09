@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Remediat: calculele de urmărire păstrează acum totalurile cumulative corecte, în loc să numere de două ori valorile de continuare."
+  ]
+}

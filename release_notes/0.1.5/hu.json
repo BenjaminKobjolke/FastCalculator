@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Javítva: az utánkövető számítások mostantól pontosan tartják a futó összesítéseket, a folytatási értékeket pedig nem számolják kétszer."
+  ]
+}

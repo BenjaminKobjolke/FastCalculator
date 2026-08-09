@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Pataisyta: tolesni skaičiavimai dabar išlaiko tikslias kaupiamąsias sumas, užuot dvigubai skaičiavę tęstinumo reikšmes."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Labots: turpmāko aprēķinu laikā tagad tiek saglabātas precīzas uzkrātās kopsummas, nevis turpinājuma vērtības tiek saskaitītas divreiz."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Korjattu: jatkolaskelmat pitävät nyt juoksevat summat oikein sen sijaan, että jatkoarvot laskettaisiin kahdesti."
+  ]
+}

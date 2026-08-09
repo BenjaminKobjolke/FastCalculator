@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Corrigé : les calculs de suivi conservent désormais des totaux cumulés exacts au lieu de compter deux fois les valeurs de continuation."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Corretto: i calcoli di follow-up ora mantengono accurati i totali progressivi invece di contare due volte i valori di continuazione."
+  ]
+}

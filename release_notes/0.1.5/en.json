@@ -1,0 +1,7 @@
+{
+    "version": "0.1.5",
+    "date": "2026-08-08",
+    "notes": [
+        "Fixed: follow-up calculations now keep running totals accurate instead of counting continuation values twice."
+    ]
+}

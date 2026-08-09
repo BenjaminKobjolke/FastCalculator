@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Rettet: opfølgningsberegninger holder nu løbende summer korrekte i stedet for at tælle fortsættelsesværdier to gange."
+  ]
+}

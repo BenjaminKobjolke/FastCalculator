@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Ispravljeno: naknadni proračuni sada održavaju tačnost tekućih zbirnih vrednosti umesto da dvaput računaju vrednosti nastavka."
+  ]
+}

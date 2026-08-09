@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Fixat: uppföljningsberäkningar behåller nu löpande totalsummor korrekta i stället för att räkna fortsättningsvärden två gånger."
+  ]
+}

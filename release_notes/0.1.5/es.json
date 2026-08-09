@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Corregido: los cálculos de seguimiento ahora mantienen los totales acumulados correctos en lugar de contar los valores de continuación dos veces."
+  ]
+}

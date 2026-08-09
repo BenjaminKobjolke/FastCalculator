@@ -1,0 +1,7 @@
+{
+  "version": "0.1.5",
+  "date": "2026-08-08",
+  "notes": [
+    "Đã sửa: các phép tính theo dõi tiếp theo giờ đây giữ tổng lũy kế chính xác thay vì tính các giá trị tiếp diễn hai lần."
+  ]
+}
