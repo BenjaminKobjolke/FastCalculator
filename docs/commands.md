@@ -8,11 +8,13 @@ they are not math and produce no result value.
 
 | Command      | What it does                                              |
 |--------------|-----------------------------------------------------------|
+| `/about`     | Show app version and website.                             |
 | `/clear`     | Clear the whole document.                                 |
 | `/copy`      | Copy every line as `input = result`, one per line.        |
 | `/copy-last` | Copy the value of the last result.                        |
 | `/paste-last-result` | Insert the last result at the cursor position.    |
 | `/help`      | Open a localized help window (basics, commands, variables). See [help.md](help.md). |
+| `/info`      | Show app version and website.                             |
 | `/release-notes` | Open a window with localized release notes, newest version first. |
 | `/exit`      | Close the calculator (quit the app).                      |
 | `/round <n\|off>` | Cap displayed results at `n` decimals (rounds, never pads: `3.14159` → `3,14`, `5` stays `5`). `off` restores full precision. Persists. |

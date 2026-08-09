@@ -259,3 +259,23 @@ def test_parse_command_exact_copy() -> None:
 
 def test_parse_command_non_command_line() -> None:
     assert parse_command("5 mal 5") is None
+
+
+def test_suggest_info() -> None:
+    assert "/info" in suggest("/i")
+
+
+def test_suggest_info_narrowed() -> None:
+    assert suggest("/in") == ["/info"]
+
+
+def test_suggest_about() -> None:
+    assert suggest("/a") == ["/about"]
+
+
+def test_parse_command_info() -> None:
+    assert parse_command("/info") == "/info"
+
+
+def test_parse_command_about() -> None:
+    assert parse_command("/about") == "/about"

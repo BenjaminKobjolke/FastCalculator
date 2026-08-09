@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 from app_logger import AppLogger
+from gui.app_version import read_version
 from gui.command_edit import CommandEdit
 from gui.commands import build_copy_text, last_result_text
 from gui.document_evaluator import evaluate_document, format_result, inherited_styles
@@ -51,6 +52,7 @@ class MainWindow(FramelessWindow):
 
         self._help: MarkdownWindow | None = None
         self._notes: MarkdownWindow | None = None
+        self._about: MarkdownWindow | None = None
 
         self._input = CommandEdit()
         self._input.setFont(font)
@@ -155,6 +157,9 @@ class MainWindow(FramelessWindow):
             return
         if name == "/release-notes":
             self._notes = self._show_markdown(self._notes, create_release_notes_window)
+            return
+        if name in ("/about", "/info"):
+            self._about = self._show_markdown(self._about, _create_about_window)
             return
         if name.startswith("/window-opacity"):
             self._set_opacity(name.partition(" ")[2].strip())
@@ -275,7 +280,14 @@ class MainWindow(FramelessWindow):
         QSettings().setValue("window/geometry", self.saveGeometry())
         self._save_document()
         # Parentless top-level windows must close too, so the app can quit.
-        for extra in (self._help, self._notes):
+        for extra in (self._help, self._notes, self._about):
             if extra is not None:
                 extra.close()
         super().closeEvent(event)
+
+
+def _create_about_window() -> MarkdownWindow:
+    """The /about or /info window — simple version display."""
+    version = read_version()
+    body = f"# FastCalculator\n\nv{version}\nwww.workflow-tools.com"
+    return MarkdownWindow("About FastCalculator", lambda: body)

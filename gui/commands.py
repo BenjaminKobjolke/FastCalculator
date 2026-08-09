@@ -14,11 +14,13 @@ from engine.inline import INLINE_VARS
 from gui.document_evaluator import Style, format_result
 
 COMMANDS: list[str] = [
+    "/about",
     "/clear",
     "/copy",
     "/copy-last",
     "/exit",
     "/help",
+    "/info",
     "/paste-last-result",
     "/release-notes",
     "/round",
