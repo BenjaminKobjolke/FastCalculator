@@ -1,0 +1,7 @@
+{
+  "version": "0.1.6",
+  "date": "2026-08-09",
+  "notes": [
+    "Nouveau : les commandes /about et /info affichent la version de l’application et le site web."
+  ]
+}

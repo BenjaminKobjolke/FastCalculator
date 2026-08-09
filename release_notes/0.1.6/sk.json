@@ -1,0 +1,7 @@
+{
+  "version": "0.1.6",
+  "date": "2026-08-09",
+  "notes": [
+    "Novinka: príkazy /about a /info zobrazujú verziu aplikácie a webovú stránku."
+  ]
+}

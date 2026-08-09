@@ -11,5 +11,5 @@ if not exist "%EXE%" (
 )
 
 cd /d D:\GIT\BenjaminKobjolke\release-tool
-call uv run python -m release_tool "%EXE%" "%~dp0publish_settings.ini" --previous-version 0.1.4 --verbose
+call uv run python -m release_tool "%EXE%" "%~dp0publish_settings.ini" --previous-version 0.1.5 --verbose
 cd /d "%~dp0"
