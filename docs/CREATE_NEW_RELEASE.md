@@ -4,6 +4,26 @@ Version source of truth is `version.txt` in the repo root. The `tools\`
 scripts read and bump it; `pyproject.toml`'s `version` line is kept in sync
 automatically by the increment/decrement scripts.
 
+## One-command release (recommended)
+
+```
+tools\release_create.bat            # full release: notes, bump, translate, build, publish, commit, tag
+tools\release_create.bat --internal # internal test build: skip notes, tag as INTERNAL
+tools\release_create.bat --dry-run  # preview every step without changing anything
+```
+
+This runs the whole flow below via `release-tool create` in **semver** mode
+(each release bumps the patch: `0.1.6` → `0.1.7`), configured by
+`tools/release_create.ini`. After the build it **asks two questions**: whether to
+run publish, and whether to commit + tag + push — decline either.
+
+The previous (online) version for the publish backup is recorded automatically to
+the gitignored `tools/previous_version.txt`; `publish_release.bat` reads it, so
+`--previous-version` is never hand-edited (whether publish runs from
+`release_create.bat` or you run `publish_release.bat` yourself later).
+
+The manual steps below remain the reference for what happens under the hood.
+
 ## Steps
 
 1. **Check the current version**
@@ -66,8 +86,10 @@ automatically by the increment/decrement scripts.
 
 6. **Publish**
 
-   - Edit `tools\publish_release.bat`: set `--previous-version` to the version
-     you are replacing (the one currently online).
+   - `--previous-version` (the version currently online, for backup naming) is
+     read from `tools\previous_version.txt` (written by `release_create.bat`).
+     Pass an explicit arg to override: `tools\publish_release.bat 0.1.6` (empty →
+     timestamped backup).
    - The exe is picked up automatically: `%OUTPUT_PATH%\FastCalculator.exe`
      when `tools\compile_settings.bat` sets one, else `dist\FastCalculator.exe`.
    - Requires a local `tools\publish_settings.ini` (gitignored) — copy
