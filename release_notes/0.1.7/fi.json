@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Uutta: Tyhjät rivit näyttävät nyt automaattiset summat laskelmaryhmille.",
+    "Parannettu: Mukautetut yksikkömerkinnät, kuten Watti, kg ja EUR, pysyvät nyt näkyvissä tuloksissa ja ryhmäsummissa."
+  ]
+}

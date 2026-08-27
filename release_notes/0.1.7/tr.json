@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Yeni: Boş satırlar artık hesaplama grupları için otomatik toplamları gösteriyor.",
+    "İyileştirildi: Watt, kg ve EUR gibi özel birim etiketleri artık sonuçlarda ve grup toplamlarında görünür kalıyor."
+  ]
+}

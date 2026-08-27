@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Novinka: Prázdne riadky teraz zobrazujú automatické súčty pre skupiny výpočtov.",
+    "Vylepšenie: Vlastné označenia jednotiek ako Watt, kg a EUR teraz zostávajú viditeľné vo výsledkoch aj v súčtoch skupín."
+  ]
+}

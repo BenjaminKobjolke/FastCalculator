@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Ny: Tomme linjer viser nå automatiske summer for grupper av beregninger.",
+    "Forbedret: Tilpassede enhetsnavn som watt, kg og EUR forblir nå synlige i resultater og gruppesummer."
+  ]
+}

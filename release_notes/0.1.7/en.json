@@ -1,0 +1,8 @@
+{
+    "version": "0.1.7",
+    "date": "2026-08-27",
+    "notes": [
+        "New: Blank lines now show automatic totals for groups of calculations.",
+        "Improved: Custom unit labels like Watt, kg, and EUR now stay visible in results and group totals."
+    ]
+}

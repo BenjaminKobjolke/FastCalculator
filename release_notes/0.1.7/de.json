@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Neu: Leere Zeilen zeigen jetzt automatische Summen für Gruppen von Berechnungen an.",
+    "Verbessert: Benutzerdefinierte Einheitenbezeichnungen wie Watt, kg und EUR bleiben jetzt in Ergebnissen und Gruppensummen sichtbar."
+  ]
+}

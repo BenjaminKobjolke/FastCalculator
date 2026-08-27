@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Nyhed: Tomme linjer viser nu automatisk totalsummer for grupper af beregninger.",
+    "Forbedret: Brugerdefinerede enhedsetiketter som watt, kg og EUR forbliver nu synlige i resultater og gruppetotaler."
+  ]
+}

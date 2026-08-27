@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Novo: Prazni redovi sada prikazuju automatske zbirove za grupe proračuna.",
+    "Poboljšano: Prilagođene oznake jedinica kao što su vat, kg i EUR sada ostaju vidljive u rezultatima i zbirovima grupa."
+  ]
+}

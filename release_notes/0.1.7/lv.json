@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Jaunums: Tukšās rindas tagad automātiski parāda kopsummas aprēķinu grupām.",
+    "Uzlabojums: Pielāgotie mērvienību apzīmējumi, piemēram, vats, kg un EUR, tagad paliek redzami rezultātos un grupu kopsummās."
+  ]
+}

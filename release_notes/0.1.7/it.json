@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Novità: Le righe vuote ora mostrano i totali automatici per i gruppi di calcoli.",
+    "Miglioramento: Le etichette personalizzate delle unità come Watt, kg ed EUR ora restano visibili nei risultati e nei totali di gruppo."
+  ]
+}

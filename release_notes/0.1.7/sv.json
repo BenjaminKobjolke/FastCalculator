@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Nyhet: Tomma rader visar nu automatiska totalsummor för beräkningsgrupper.",
+    "Förbättring: Anpassade enhetsbeteckningar som Watt, kg och EUR syns nu även i resultat och grupptotaler."
+  ]
+}

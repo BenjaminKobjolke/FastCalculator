@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Novo: Prazne vrstice zdaj prikazujejo samodejne vsote za skupine izračunov.",
+    "Izboljšano: Oznake enot po meri, kot so vat, kg in EUR, zdaj ostanejo vidne v rezultatih in skupinskih vsotah."
+  ]
+}

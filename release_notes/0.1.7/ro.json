@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Nou: Liniile goale afișează acum totaluri calculate automat pentru grupuri de calcule.",
+    "Îmbunătățit: Etichetele personalizate ale unităților, precum Watt, kg și EUR, rămân acum vizibile în rezultate și în totalurile grupurilor."
+  ]
+}

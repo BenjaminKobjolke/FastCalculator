@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Nouveau : Les lignes vides affichent désormais des totaux automatiques pour les groupes de calculs.",
+    "Amélioration : Les libellés d’unités personnalisés comme Watt, kg et EUR restent désormais visibles dans les résultats et les totaux de groupe."
+  ]
+}

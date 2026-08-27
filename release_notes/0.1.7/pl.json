@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Nowość: Puste wiersze pokazują teraz automatyczne sumy dla grup obliczeń.",
+    "Ulepszenie: Niestandardowe etykiety jednostek, takie jak Watt, kg i EUR, pozostają teraz widoczne w wynikach oraz w sumach grup."
+  ]
+}

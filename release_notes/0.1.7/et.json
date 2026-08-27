@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Uus: Tühjad read kuvavad nüüd automaatsed summad arvutuste rühmade jaoks.",
+    "Täiustatud: Kohandatud ühikusildid, nagu Watt, kg ja EUR, jäävad nüüd tulemuste ja rühma summade juures nähtavaks."
+  ]
+}

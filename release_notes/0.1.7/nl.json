@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Nieuw: Lege regels tonen nu automatisch totalen voor groepen berekeningen.",
+    "Verbeterd: Aangepaste eenheidslabels zoals Watt, kg en EUR blijven nu zichtbaar in resultaten en groepstotalen."
+  ]
+}

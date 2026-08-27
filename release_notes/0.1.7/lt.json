@@ -1,0 +1,8 @@
+{
+  "version": "0.1.7",
+  "date": "2026-08-27",
+  "notes": [
+    "Nauja: Tuščiose eilutėse dabar automatiškai rodomos sumos skaičiavimų grupėms.",
+    "Patobulinta: Pasirinktinės vienetų žymos, tokios kaip W, kg ir EUR, dabar išlieka matomos rezultatuose ir grupių sumose."
+  ]
+}
