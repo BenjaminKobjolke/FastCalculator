@@ -24,6 +24,10 @@ _INPUT_DECIMAL_RE = re.compile(r"\d+([.,])(\d+)")
 
 _SUM_KEY = scope_key("sum")
 
+# A group needs at least this many contributing lines before its total is worth
+# showing — otherwise a lone line would just echo itself one row down.
+_MIN_TOTAL_LINES = 2
+
 
 def evaluate_document(text: str) -> list[EvalResult]:
     """Return one EvalResult per line of `text`, sharing a fresh variable scope.
@@ -41,17 +45,27 @@ def evaluate_document(text: str) -> list[EvalResult]:
     *replaces* the total rather than adding to it — adding would double-count
     the sum already inside `result.quantity`. `result.continued` (set by the
     engine) is what tells the two cases apart.
+
+    The blank line that closes a group carries that group's total as its own
+    result, so a block of numbers totals itself without anyone typing `$sum`.
     """
     scope: dict[str, Quantity] = {}
     results: list[EvalResult] = []
     group_total: Quantity = dimensionless(0.0)
+    contributing = 0
+    labels: set[str] = set()
     for line in text.split("\n"):
         if not line.strip():
-            group_total = dimensionless(0.0)
+            results.append(_group_total_result(group_total, contributing, labels))
+            group_total, contributing, labels = dimensionless(0.0), 0, set()
+            continue
         scope[_SUM_KEY] = group_total
         result = evaluate(line, scope)
         results.append(result)
         if result.success and result.quantity is not None:
+            contributing += 1
+            if result.kind is None and result.unit is not None:
+                labels.add(result.unit)
             if result.continued:
                 group_total = result.quantity
             else:
@@ -60,6 +74,20 @@ def evaluate_document(text: str) -> list[EvalResult]:
                 except IncompatibleUnitsError:
                     group_total = result.quantity
     return results
+
+
+def _group_total_result(total: Quantity, contributing: int, labels: set[str]) -> EvalResult:
+    """The result shown on the blank line that closes a group.
+
+    Blank (`fail("empty")`, the pre-existing behavior) unless the group had
+    enough contributing lines for a total to say anything new — which also keeps
+    a run of blank lines from repeating the same number. The display-only unit
+    label rides along only when every contributing line agreed on one.
+    """
+    if contributing < _MIN_TOTAL_LINES:
+        return EvalResult.fail("empty")
+    label = next(iter(labels)) if len(labels) == 1 else None
+    return EvalResult.from_quantity(total, unit_label=label)
 
 
 def inherited_styles(lines: list[str]) -> list[Style | None]:
@@ -76,14 +104,17 @@ def inherited_styles(lines: list[str]) -> list[Style | None]:
     group_sep = "."
     group_places: int | None = None
     for line in lines:
-        if not line.strip():
-            group_sep, group_places = ".", None
         sep, places = _input_decimal_style(line)
-        inherits = has_inline_var(line) or starts_with_binary_op(line)
+        # The blank line closing a group shows that group's total, so it
+        # inherits the style — checked before the reset, or the style is gone.
+        blank = not line.strip()
+        inherits = blank or has_inline_var(line) or starts_with_binary_op(line)
         if places is None and group_places is not None and inherits:
             styles.append((group_sep, group_places))
         else:
             styles.append(None)
+        if blank:
+            group_sep, group_places = ".", None
         if places is not None:
             group_places = max(group_places or 0, places)
             group_sep = sep
@@ -125,10 +156,13 @@ def format_result(
         places = min(places, max_decimals)
     if places is None:
         if max_decimals is None:
-            return _format_number(result.value)
-        return _format_capped(result.value, max_decimals)
-    text = f"{result.value:.{places}f}"
-    return text.replace(".", sep)
+            number = _format_number(result.value)
+        else:
+            number = _format_capped(result.value, max_decimals)
+    else:
+        number = f"{result.value:.{places}f}".replace(".", sep)
+    # A plain number with a unit carries a display-only label ("60 Watt").
+    return f"{number} {result.unit}" if result.unit is not None else number
 
 
 def _format_hms(seconds: float) -> str:

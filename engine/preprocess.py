@@ -21,12 +21,14 @@ Pipeline (strict order):
 These string rewrites live in `normalize()`. `strip_unknown_words` runs after
 `normalize()` (word-operators already gone) to drop *unknown* unit words like the
 "apples" in "5 + 5 apples" — known running units (km, mi, ...) are quantities by
-then, so they survive.
+then, so they survive. It reports what it dropped, so a line can still be
+*labelled* with a word that carries no math ("60 Watt" -> 60, labelled "Watt").
 """
 
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 from .inline import INLINE_VARS, scope_key
 from .words import WORD_OPERATORS
@@ -206,7 +208,20 @@ def strip_label(line: str) -> str:
     return match.group(1) if match else line
 
 
-def strip_unknown_words(expr: str, known: set[str]) -> str:
+@dataclass(frozen=True)
+class StrippedExpr:
+    """Result of `strip_unknown_words`: the cleaned expression plus the words
+    it removed, in the order they appeared.
+
+    The dropped words carry no math — they are the raw material for the
+    display-only unit label ("60 Watt" -> 60, labelled "Watt").
+    """
+
+    expr: str
+    dropped: tuple[str, ...]
+
+
+def strip_unknown_words(expr: str, known: set[str]) -> StrippedExpr:
     """Drop unit words like "apples" in "5 + 5 apples", keeping the math.
 
     A bare identifier is removed only when it is (a) not a known name (scope
@@ -216,6 +231,7 @@ def strip_unknown_words(expr: str, known: set[str]) -> str:
     expression ("foo + 1", which stays so the walker still flags it).
     """
     # ponytail: single unit word per value; "5 square meters" drops only "meters".
+    dropped: list[str] = []
 
     def repl(match: re.Match[str]) -> str:
         name = match.group(0)
@@ -223,10 +239,11 @@ def strip_unknown_words(expr: str, known: set[str]) -> str:
             return name
         before = expr[: match.start()].rstrip()
         if before and before[-1] in "0123456789.)":
+            dropped.append(name)
             return ""
         return name
 
-    return _IDENT_RE.sub(repl, expr)
+    return StrippedExpr(_IDENT_RE.sub(repl, expr), tuple(dropped))
 
 
 def split_assignment(line: str) -> tuple[str | None, str]:

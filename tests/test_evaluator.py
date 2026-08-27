@@ -213,3 +213,30 @@ def test_chained_comparison_rejected() -> None:
     r = evaluate("1 < 2 < 3", {})
     assert not r.success
     assert r.error is not None and "chained" in r.error
+
+
+def test_unknown_unit_word_becomes_a_display_label() -> None:
+    r = evaluate("60 Watt", {})
+    assert r.value == 60 and r.kind is None and r.unit == "Watt"
+
+
+def test_repeated_unknown_unit_word_survives_arithmetic() -> None:
+    r = evaluate("5 kg + 5 kg", {})
+    assert r.value == 10 and r.unit == "kg"
+
+
+def test_mixed_unknown_words_carry_no_label() -> None:
+    r = evaluate("1 apple + 2 orange", {})
+    assert r.value == 3 and r.unit is None
+
+
+def test_real_unit_wins_over_dropped_word() -> None:
+    r = evaluate("2 * 5 km apples", {})
+    assert r.kind == "distance" and r.unit == "km"
+
+
+def test_assignment_keeps_its_label() -> None:
+    scope: Scope = {}
+    r = evaluate("pc = 100 Watt", scope)
+    assert r.assigned_name == "pc" and r.unit == "Watt"
+    assert scope["pc"] == 100

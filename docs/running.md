@@ -128,8 +128,10 @@ Because units resolve like constants, these words are **reserved** and cannot be
 used as variable names: `km mi m min h s kmh mph`. `min` still works as the
 `min(…)` function — the reservation only affects it as a bare name.
 
-Unknown trailing words (`kg`, `apples`, `dollars`) are **not** units and are
-dropped as before, so `5 kg + 5 kg` = `10`.
+Unknown trailing words (`kg`, `apples`, `dollars`) are **not** units: they are
+dropped from the math and kept only as a display label, so `5 kg + 5 kg` = `10 kg`
+— a plain number that happens to print `kg`, with no dimension and no conversion.
+See [syntax.md](syntax.md).
 
 ## Under the hood
 

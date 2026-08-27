@@ -1,3 +1,5 @@
+import pytest
+
 from gui.document_evaluator import (
     evaluate_document,
     format_result,
@@ -214,8 +216,9 @@ def _formatted(text: str) -> list[str]:
 
 def test_inline_line_inherits_group_decimal_style() -> None:
     # The reported bug: "$sum" line drops the ",00" the group above established.
+    # "Euro" survives as a display-only label; the $sum line has none of its own.
     out = _formatted("Angebot: 2000,00 Euro\nDiscount: $sum - 35%")
-    assert out == ["2000,00", "1300,00"]
+    assert out == ["2000,00 Euro", "1300,00"]
 
 
 def test_inline_line_without_group_decimals_stays_integer() -> None:
@@ -256,3 +259,41 @@ def test_bool_line_is_transparent_to_sum() -> None:
 
 def test_bool_line_does_not_restart_unit_group() -> None:
     assert _formatted("5 km\n3 km\n2 == 2\n$sum") == ["5 km", "3 km", "true", "8 km"]
+
+
+def test_blank_line_shows_the_group_total_with_its_unit() -> None:
+    text = "Monitor: 60 Watt\nPC: 100 Watt\nLED: 150 Watt\n"
+    results = evaluate_document(text)
+    lines = text.split("\n")
+    assert [format_result(r, line) for r, line in zip(results, lines, strict=True)] == [
+        "60 Watt",
+        "100 Watt",
+        "150 Watt",
+        "310 Watt",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        # mixed labels -> the total carries none
+        ("2 apples\n3 oranges\n", ["2 apples", "3 oranges", "5"]),
+        # one contributing line -> no total, or the blank would echo it
+        ("2 + 2\n", ["4", ""]),
+        # a run of blanks shows the total once
+        ("10\n20\n\n\n", ["10", "20", "30", "", ""]),
+        # a continuation already folded the total in; adding again would double it
+        ("10000\n- 4000\n", ["10000", "6000", "6000"]),
+        # each group totals on its own
+        ("10\n20\n\n1\n2\n", ["10", "20", "30", "1", "2", "3"]),
+        # the total inherits the group's decimal style
+        ("100,00\n50,00\n", ["100,00", "50,00", "150,00"]),
+        # an explicit "$sum" line holds the total too -> 1300, never 3300
+        (
+            "Angebot: 2000,00 Euro\nRabatt: $sum - 35%\n",
+            ["2000,00 Euro", "1300,00", "1300,00 Euro"],
+        ),
+    ],
+)
+def test_blank_line_group_totals(text: str, expected: list[str]) -> None:
+    assert _formatted(text) == expected

@@ -59,9 +59,9 @@ def test_running_lines(line: str, value: float, kind: str, unit: str | None) -> 
 
 
 def test_unknown_units_still_dimensionless() -> None:
-    # kg is not a running unit -> stripped, plain number, no kind/unit
+    # kg is not a running unit -> stripped from the math, kept only as a label
     r = evaluate("5 kg + 5 kg", {})
-    assert r.value == 10 and r.kind is None and r.unit is None
+    assert r.value == 10 and r.kind is None and r.unit == "kg"
 
 
 def test_incompatible_units_error() -> None:

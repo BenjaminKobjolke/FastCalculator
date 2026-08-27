@@ -150,16 +150,24 @@ label — it stays a time. See [running.md](running.md).
 
 ### Trailing / unit text
 
-An **unknown** word attached right after a value is treated as noise and dropped
-(known running units like `km` are kept — see [running.md](running.md)):
+An **unknown** word attached right after a value is dropped from the math, but
+kept as a **display label** on the result (known running units like `km` are real
+units — see [running.md](running.md)):
 
 ```
-5 + 5 apples          -> 10
-5 kg + 5 kg           -> 10
-3 * 4 widgets         -> 12
+5 + 5 apples          -> 10 apples
+5 kg + 5 kg           -> 10 kg
+3 * 4 widgets         -> 12 widgets
+60 Watt               -> 60 Watt
 budget = 100
-budget + 20 dollars   -> 120
+budget + 20 dollars   -> 120 dollars
 ```
+
+The label is display-only: no dimension, no conversion, no `in <unit>`. It
+appears only when the line dropped **one distinct** word — `1 apple + 2 orange`
+is just `3`. A real unit always wins over a label. Group totals carry the label
+when every line in the group agreed on one (see
+[inline-variables.md](inline-variables.md)).
 
 Only a **single** word per value is dropped, and only when it directly follows a
 number, `)`, or `.`. A word in operand position stays — so `cost + 5` with an

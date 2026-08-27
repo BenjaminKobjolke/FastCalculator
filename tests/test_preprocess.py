@@ -89,17 +89,24 @@ def test_strip_label_leaves_plain_and_numeric() -> None:
 
 
 def test_strip_unknown_words_drops_units_attached_to_values() -> None:
-    assert strip_unknown_words("5 + 5 apples", set()) == "5 + 5 "
-    assert strip_unknown_words("5 kg + 5 kg", set()) == "5  + 5 "
-    assert strip_unknown_words("pi * 2 meters", {"pi"}) == "pi * 2 "
+    assert strip_unknown_words("5 + 5 apples", set()).expr == "5 + 5 "
+    assert strip_unknown_words("5 kg + 5 kg", set()).expr == "5  + 5 "
+    assert strip_unknown_words("pi * 2 meters", {"pi"}).expr == "pi * 2 "
+
+
+def test_strip_unknown_words_reports_what_it_dropped() -> None:
+    assert strip_unknown_words("5 + 5 apples", set()).dropped == ("apples",)
+    assert strip_unknown_words("5 kg + 5 kg", set()).dropped == ("kg", "kg")
+    assert strip_unknown_words("2 + 2", set()).dropped == ()
 
 
 def test_strip_unknown_words_keeps_operands_and_calls() -> None:
     # operand-position word stays -> the walker still reports "unknown name"
-    assert strip_unknown_words("foo + 1", set()) == "foo + 1"
+    assert strip_unknown_words("foo + 1", set()).expr == "foo + 1"
     # followed by '(' -> a call, kept so unknown functions still error
-    assert strip_unknown_words("foo(2)", set()) == "foo(2)"
-    assert strip_unknown_words("sqrt(2)", {"sqrt"}) == "sqrt(2)"
+    assert strip_unknown_words("foo(2)", set()).expr == "foo(2)"
+    assert strip_unknown_words("sqrt(2)", {"sqrt"}).expr == "sqrt(2)"
+    assert strip_unknown_words("foo + 1", set()).dropped == ()
 
 
 def test_time_literal_mm_ss() -> None:

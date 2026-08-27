@@ -72,11 +72,17 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
         # total: "- 4000" -> "$sum - 4000". Only in document context, where the
         # sum key is injected into scope; a bare engine call keeps unary math.
         sum_key = scope_key("sum")
-        continued = sum_key in scope and _LEADING_OP_RE.match(expr) is not None
-        if continued:
+        in_document = sum_key in scope
+        if in_document and _LEADING_OP_RE.match(expr) is not None:
             expr = f"{sum_key} {expr}"
+        # `continued` means "the running total is already folded into this
+        # result", so the document layer replaces the total instead of adding to
+        # it. True for both spellings: the implicit "- 4000" and an explicit
+        # "$sum - 35%" — adding either back would count the total twice.
+        continued = in_document and sum_key in expr
         known = {*scope, *CONSTANTS, *FUNCTIONS, *UNITS, "_pct", "_time", "_to"}
-        tree = ast.parse(strip_unknown_words(expr, known), mode="eval")
+        stripped_expr = strip_unknown_words(expr, known)
+        tree = ast.parse(stripped_expr.expr, mode="eval")
         if isinstance(tree.body, ast.Compare):
             if name is not None:
                 raise UnsafeExpressionError("cannot assign a comparison")
@@ -85,8 +91,12 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
 
         if name is not None:
             scope[name] = value
-            return EvalResult.from_quantity(value, assigned_name=name, continued=continued)
-        return EvalResult.from_quantity(value, continued=continued)
+        return EvalResult.from_quantity(
+            value,
+            assigned_name=name,
+            continued=continued,
+            unit_label=_unit_label(stripped_expr.dropped),
+        )
     except EmptyLineError:
         return EvalResult.fail("empty")
     except ZeroDivisionError:
@@ -102,6 +112,17 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
         return EvalResult.fail("invalid expression")
     except (ValueError, TypeError, OverflowError) as exc:
         return EvalResult.fail(str(exc))
+
+
+def _unit_label(dropped: tuple[str, ...]) -> str | None:
+    """The display-only unit word for a line, or None.
+
+    Only a single distinct dropped word is a unit ("5 kg + 5 kg" -> "kg");
+    mixed words ("1 apple + 2 orange") describe no shared quantity, so the
+    result stays unlabelled rather than picking one arbitrarily.
+    """
+    distinct = set(dropped)
+    return dropped[0] if len(distinct) == 1 else None
 
 
 def _eval_compare(node: ast.Compare, scope: Scope, german: bool) -> EvalResult:

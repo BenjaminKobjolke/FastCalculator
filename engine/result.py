@@ -18,8 +18,11 @@ class EvalResult:
     it lets the GUI know a variable was defined. `kind`/`unit` describe a
     unit-bearing result ("distance"/"km", "pace"/"/km", "time"/None, ...) so the
     GUI can render it; both are None for a plain number, whose `value` is the
-    number itself exactly as before. `quantity` is the raw computed value, kept
-    so the document layer can carry units through the `$sum` running total.
+    number itself exactly as before. A plain number may still carry a `unit`
+    with `kind` None: that is a display-only label recovered from an unknown
+    unit word ("60 Watt"), carrying no dimension and no conversion.
+    `quantity` is the raw computed value, kept so the document layer can carry
+    units through the `$sum` running total.
     A comparison result has `kind` "bool" and its localized word in `text`;
     `quantity` stays None so it never feeds the `$sum` total. `continued` is
     True when the line was a leading-operator continuation ("$sum OP x") —
@@ -58,16 +61,22 @@ class EvalResult:
         q: Quantity,
         assigned_name: str | None = None,
         continued: bool = False,
+        unit_label: str | None = None,
     ) -> EvalResult:
         """Build a result from a computed quantity, splitting it into the display
-        magnitude plus its `kind`/`unit` labels (and keeping the quantity itself)."""
+        magnitude plus its `kind`/`unit` labels (and keeping the quantity itself).
+
+        `unit_label` is the display-only word recovered from an unknown unit
+        ("Watt"). A real unit always wins, so it applies only when the quantity
+        rendered none of its own.
+        """
         value, kind, unit = render(q)
         return cls(
             success=True,
             value=value,
             assigned_name=assigned_name,
             kind=kind,
-            unit=unit,
+            unit=unit if unit is not None else unit_label,
             quantity=q,
             continued=continued,
         )

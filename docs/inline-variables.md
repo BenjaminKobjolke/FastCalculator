@@ -24,6 +24,26 @@ Posten: 20
 $sum                  -> 30     (blank line above reset the total)
 ```
 
+### Automatic group total
+
+The **blank line that closes a group shows that group's total** — no `$sum`
+needed. It appears only when the group had **two or more** contributing lines,
+so a lone line never echoes itself and a run of blank lines shows the number
+once:
+
+```
+Monitor: 60 Watt      -> 60 Watt
+PC: 100 Watt          -> 100 Watt
+LED: 150 Watt         -> 150 Watt
+                      -> 310 Watt   (the blank line carries the total)
+```
+
+`$sum` is still there for using the total **inside** an expression
+(`$sum - 5%`); the blank-line total is the read-only version of the same number.
+Because it is a real result, `/copy-last` and `/paste-last-result` pick it up
+when the document ends with a blank line. `/copy` skips blank lines, so its
+`input = result` listing is unchanged.
+
 What counts toward the total:
 
 - **Every successful result above** in the group — bare expressions and labeled
@@ -31,6 +51,9 @@ What counts toward the total:
 - **Assignments count too**: `price = 20` contributes `20`.
 - The current line and everything below it are **excluded** ("above it").
 - Error / blank lines contribute nothing (a blank line also resets the group).
+- A line that **already holds the total replaces it instead of adding to it** —
+  both a leading-operator line (`- 4000`) and an explicit `$sum - 35%`. Adding
+  either back would count the same money twice.
 
 ## Units
 
@@ -55,14 +78,15 @@ carries no decimals of its own, it borrows the separator and place-count of the
 lines above it, so a `,00` group keeps `,00` down through its total:
 
 ```
-Angebot: 2000,00 Euro     -> 2000,00
+Angebot: 2000,00 Euro     -> 2000,00 Euro
 Discount: $sum - 35%      -> 1300,00   (inherits ",00" from the group)
 ```
 
 Rules:
 
 - Only lines that **reference a `$`-variable** inherit — a plain `5 * 3` is not
-  reformatted by a `,00` group.
+  reformatted by a `,00` group. The blank line carrying a group total inherits
+  too, so a `,00` group totals `,00`.
 - A line with **its own decimals wins**: `$sum + 1,5` uses one place, not the
   group's two.
 - A group with **no decimals stays integer**: `$sum` over `10` / `20` is `30`.
@@ -100,7 +124,8 @@ security boundary) is untouched.
   flow through — [Units](#units)), resets it on blank lines, and writes it into
   `scope[_SUM_KEY]` **before** each `evaluate()` call, folding the line's own
   `result.quantity` in afterward (restarting on a dimension mismatch).
-  `inherited_styles()` walks the same groups to
+  `_group_total_result()` turns that total into the blank line's own result
+  (`_MIN_TOTAL_LINES` is the two-line guard). `inherited_styles()` walks the same groups to
   give each `$`-variable line the decimal style to inherit (see
   [Formatting](#formatting)); `format_result()` applies it when the line has no
   decimals of its own.

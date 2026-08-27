@@ -11,8 +11,8 @@ they are not math and produce no result value.
 | `/about`     | Show app version and website.                             |
 | `/clear`     | Clear the whole document.                                 |
 | `/copy`      | Copy every line as `input = result`, one per line.        |
-| `/copy-last` | Copy the value of the last result.                        |
-| `/paste-last-result` | Insert the last result at the cursor position.    |
+| `/copy-last` | Copy the value of the last result — a group total on a trailing blank line counts. |
+| `/paste-last-result` | Insert the last result at the cursor position (a group total included). |
 | `/help`      | Open a localized help window (basics, commands, variables). See [help.md](help.md). |
 | `/info`      | Show app version and website.                             |
 | `/release-notes` | Open a window with localized release notes, newest version first. |

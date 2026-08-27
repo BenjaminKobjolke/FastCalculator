@@ -34,6 +34,18 @@ natural-language operators in **English and German**.
   Rabatt: $sum - 5%   -> 1900
   ```
   Type `$` to autocomplete. See [docs/inline-variables.md](docs/inline-variables.md).
+- **Automatic group totals** — the blank line that closes a block carries that
+  block's total, so nothing needs typing. Unknown unit words (`Watt`, `kg`,
+  `EUR`) are dropped from the math but kept as a label on the result:
+  ```
+  Monitor: 60 Watt    -> 60 Watt
+  PC: 100 Watt        -> 100 Watt
+  LED: 150 Watt       -> 150 Watt
+                      -> 310 Watt
+  ```
+  Needs two or more lines, so a lone line never echoes itself. See
+  [docs/inline-variables.md](docs/inline-variables.md) and
+  [docs/syntax.md](docs/syntax.md).
 - **Running units** — distances (`km`/`mi`/`m`) and times (`mm:ss`, `h:mm:ss`)
   carry their unit, so pace, finish time and speed just work:
   `50:00 / 10 km` = `5:00 /km`, `10 km / 50:00` = `12 km/h`, `10 km in mi` =
