@@ -38,7 +38,7 @@ wheels = [
 
 [[package]]
 name = "automated-screenshot-connector"
-version = "0.6.0"
+version = "0.7.0"
 source = { directory = "../automated-application-screenshots-python-connector" }
 
 [package.metadata]

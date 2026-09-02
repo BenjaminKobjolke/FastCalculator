@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from engine import EvalResult
 from gui.commands import build_copy_text, last_result_text
+from gui.document_evaluator import Style
 
 
 def test_build_copy_text_pairs_non_empty_success_lines() -> None:
@@ -41,7 +42,7 @@ def test_build_copy_text_applies_inherited_style() -> None:
     # A "$sum" line inherits the group's ",00" so the clipboard matches the pane.
     lines = ["Angebot: 2000,00", "Discount: $sum - 35%"]
     results = [EvalResult.ok(2000), EvalResult.ok(1300)]
-    styles: list[tuple[str, int | None] | None] = [None, (",", 2)]
+    styles: list[Style | None] = [None, Style(",", 2, grouped=False)]
     assert build_copy_text(lines, results, styles) == (
         "Angebot: 2000,00 = 2000,00\nDiscount: $sum - 35% = 1300,00"
     )
@@ -50,7 +51,7 @@ def test_build_copy_text_applies_inherited_style() -> None:
 def test_last_result_text_applies_inherited_style() -> None:
     lines = ["Angebot: 2000,00", "Discount: $sum - 35%"]
     results = [EvalResult.ok(2000), EvalResult.ok(1300)]
-    styles: list[tuple[str, int | None] | None] = [None, (",", 2)]
+    styles: list[Style | None] = [None, Style(",", 2, grouped=False)]
     assert last_result_text(lines, results, styles) == "1300,00"
 
 

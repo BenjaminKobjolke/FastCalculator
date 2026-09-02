@@ -9,18 +9,31 @@ from __future__ import annotations
 
 import ast
 import re
+from typing import NamedTuple
 
 from engine import EvalResult, evaluate
 from engine.errors import IncompatibleUnitsError
 from engine.inline import scope_key
+from engine.numbers import grouping_separator, strip_grouping
 from engine.preprocess import has_inline_var, starts_with_binary_op
 from engine.units import Quantity, apply_binop, dimensionless
 
-# The decimal style (separator, fraction digits) a line inherits from its group.
-Style = tuple[str, int | None]
+
+class Style(NamedTuple):
+    """How a line writes numbers, so its result can be written the same way."""
+
+    sep: str
+    places: int | None
+    grouped: bool
+
+
+# What a line with no numbers of its own implies: plain, ungrouped, "." decimals.
+_PLAIN_STYLE = Style(".", None, False)
 
 # A decimal number in the raw input: capture the separator and the fraction.
 _INPUT_DECIMAL_RE = re.compile(r"\d+([.,])(\d+)")
+# Every position in an integer part that a thousands separator goes in front of.
+_THOUSANDS_RE = re.compile(r"(?<=\d)(?=(?:\d{3})+$)")
 
 _SUM_KEY = scope_key("sum")
 
@@ -101,23 +114,21 @@ def inherited_styles(lines: list[str]) -> list[Style | None]:
     the current one contribute the style.
     """
     styles: list[Style | None] = []
-    group_sep = "."
-    group_places: int | None = None
+    group = _PLAIN_STYLE
     for line in lines:
-        sep, places = _input_decimal_style(line)
+        style = _input_decimal_style(line)
         # The blank line closing a group shows that group's total, so it
         # inherits the style — checked before the reset, or the style is gone.
         blank = not line.strip()
         inherits = blank or has_inline_var(line) or starts_with_binary_op(line)
-        if places is None and group_places is not None and inherits:
-            styles.append((group_sep, group_places))
+        if style.places is None and group.places is not None and inherits:
+            styles.append(group)
         else:
             styles.append(None)
         if blank:
-            group_sep, group_places = ".", None
-        if places is not None:
-            group_places = max(group_places or 0, places)
-            group_sep = sep
+            group = _PLAIN_STYLE
+        if style.places is not None:
+            group = Style(style.sep, max(group.places or 0, style.places), style.grouped)
     return styles
 
 
@@ -149,9 +160,10 @@ def format_result(
         return f"{_format_mmss(result.value)} {result.unit}"
     if result.kind in ("distance", "speed"):
         return f"{_format_quantity(result.value, line, inherited)} {result.unit}"
-    sep, places = _input_decimal_style(line) if line else (".", None)
-    if places is None and inherited is not None:
-        sep, places = inherited
+    style = _input_decimal_style(line) if line else _PLAIN_STYLE
+    if style.places is None and inherited is not None:
+        style = inherited
+    places = style.places
     if places is not None and max_decimals is not None:
         places = min(places, max_decimals)
     if places is None:
@@ -160,7 +172,8 @@ def format_result(
         else:
             number = _format_capped(result.value, max_decimals)
     else:
-        number = f"{result.value:.{places}f}".replace(".", sep)
+        number = f"{result.value:.{places}f}".replace(".", style.sep)
+    number = _grouped(number, style)
     # A plain number with a unit carries a display-only label ("60 Watt").
     return f"{number} {result.unit}" if result.unit is not None else number
 
@@ -183,18 +196,40 @@ def _format_mmss(seconds: float) -> str:
 def _format_quantity(value: float, line: str | None, inherited: Style | None) -> str:
     """Numeric part of a distance/speed result: 4 significant figures, with the
     input line's decimal separator (or the inherited group style)."""
-    sep, _ = _input_decimal_style(line) if line else (".", None)
-    if sep == "." and inherited is not None:
-        sep = inherited[0]
-    return f"{value:.4g}".replace(".", sep)
+    style = _input_decimal_style(line) if line else _PLAIN_STYLE
+    if style.sep == "." and inherited is not None:
+        style = inherited
+    return _grouped(f"{value:.4g}".replace(".", style.sep), style)
 
 
-def _input_decimal_style(line: str) -> tuple[str, int | None]:
-    """(separator, max fraction digits) from the input, or (".", None) if none."""
-    matches = _INPUT_DECIMAL_RE.findall(line)
-    if not matches:
-        return ".", None
-    return matches[0][0], max(len(frac) for _, frac in matches)
+def _input_decimal_style(line: str) -> Style:
+    """The decimal separator, fraction length and grouping the input line used.
+
+    A grouped number is read through `strip_grouping` first, so its group digits
+    ("34.234,89" -> "234") are not mistaken for a three-place fraction. Its
+    decimal separator is the one grouping did *not* use.
+    """
+    group_sep = grouping_separator(line)
+    if group_sep is None:
+        matches = _INPUT_DECIMAL_RE.findall(line)
+        if not matches:
+            return _PLAIN_STYLE
+        return Style(matches[0][0], max(len(frac) for _, frac in matches), False)
+    matches = _INPUT_DECIMAL_RE.findall(strip_grouping(line))
+    places = max((len(frac) for _, frac in matches), default=None)
+    return Style("," if group_sep == "." else ".", places, True)
+
+
+def _grouped(number: str, style: Style) -> str:
+    """Add thousands separators to an already-formatted number, if the style asks.
+
+    The group separator is whichever of `.`/`,` the decimal point is not.
+    """
+    if not style.grouped or "e" in number:
+        return number
+    head, _, fraction = number.partition(style.sep)
+    head = _THOUSANDS_RE.sub("." if style.sep == "," else ",", head)
+    return f"{head}{style.sep}{fraction}" if fraction else head
 
 
 def _format_capped(value: float, max_decimals: int) -> str:

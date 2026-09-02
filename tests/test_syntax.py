@@ -99,3 +99,11 @@ def test_comparison_words_are_operators() -> None:
         ("ist gleich", "operator"),
         ("5", "number"),
     ]
+
+
+def test_grouped_number_is_one_token() -> None:
+    assert _cats("34.234,89 + 19%") == [
+        ("34.234,89", "number"),
+        ("+", "operator"),
+        ("19%", "number"),
+    ]

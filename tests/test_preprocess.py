@@ -176,3 +176,22 @@ def test_uses_german_comparison() -> None:
 def test_conversion_keyword_does_not_match_inside_min() -> None:
     # the 'in' inside 'min' must never be read as the conversion keyword
     assert normalize("min(1;2)") == "min(1,2)"
+
+
+def test_german_grouped_amount_with_percent() -> None:
+    assert normalize("34.234,89 + 19%") == "34234.89 + _pct(19)"
+
+
+def test_english_grouped_amount() -> None:
+    assert normalize("34,234.89 * 2") == "34234.89 * 2"
+
+
+def test_single_group_stays_ambiguous() -> None:
+    # "1.000" could be one thousand or 1.0; the decimal reading is kept.
+    assert normalize("1.000") == "1.000"
+    assert normalize("1,000") == "1.000"
+
+
+def test_grouping_runs_before_semicolon_rewrite() -> None:
+    # If grouping ran after ';' -> ',', this would collapse into one number.
+    assert normalize("min(1;234;567)") == "min(1,234,567)"

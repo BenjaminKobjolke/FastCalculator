@@ -297,3 +297,24 @@ def test_blank_line_shows_the_group_total_with_its_unit() -> None:
 )
 def test_blank_line_group_totals(text: str, expected: list[str]) -> None:
     assert _formatted(text) == expected
+
+
+def test_output_mirrors_input_thousands_grouping() -> None:
+    line = "34.234,89 + 19%"
+    r = evaluate_document(line)[0]
+    assert format_result(r, line) == "40.739,52"
+
+    line = "34,234.89 + 19%"
+    r = evaluate_document(line)[0]
+    assert format_result(r, line) == "40,739.52"
+
+
+def test_ungrouped_input_stays_ungrouped() -> None:
+    line = "20000,00 + 19%"
+    r = evaluate_document(line)[0]
+    assert format_result(r, line) == "23800,00"
+
+
+def test_continuation_line_inherits_grouping() -> None:
+    # The continuation has no decimals of its own, so it inherits ",00" *and* the grouping.
+    assert _formatted("34.234,89\n- 234") == ["34.234,89", "34.000,89"]

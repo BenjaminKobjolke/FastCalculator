@@ -38,10 +38,11 @@ _WORD_ALT = "|".join(
 # One ordered scan. Word operators are tried before identifiers so "mal" is an
 # operator, while `\b` anchors keep "malaria" a plain identifier. A number's
 # trailing "%" (postfix percent, "19%") is part of the number; a lone "%"
-# (modulo) falls through to the symbol operators.
+# (modulo) falls through to the symbol operators. Repeated separator groups keep
+# a written-out amount ("34.234,89") one token instead of two.
 _TOKEN_RE = re.compile(
     r"(?P<operator>\b(?:" + _WORD_ALT + r")\b)"
-    r"|(?P<number>\d+(?:[.,]\d+)?%?)"
+    r"|(?P<number>\d+(?:[.,]\d+)*%?)"
     r"|(?P<inline>\$[A-Za-z_]\w*)"
     r"|(?P<ident>[A-Za-z_]\w*)"
     r"|(?P<symop>[-+*/^%=<>!])",

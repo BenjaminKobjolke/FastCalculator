@@ -240,3 +240,12 @@ def test_assignment_keeps_its_label() -> None:
     r = evaluate("pc = 100 Watt", scope)
     assert r.assigned_name == "pc" and r.unit == "Watt"
     assert scope["pc"] == 100
+
+
+def test_grouped_thousands() -> None:
+    assert _val("34.234,89 + 19%") == pytest.approx(40739.52)
+    assert _val("34,234.89 * 2") == pytest.approx(68469.78)
+    assert _val("1.234.567 + 1") == 1234568
+    assert _val("1,234,567 + 1") == 1234568
+    assert _val("1.000") == 1.0  # single group stays a decimal
+    assert _val("10 % 3") == 1  # bare modulo still works

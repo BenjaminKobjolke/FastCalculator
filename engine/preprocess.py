@@ -3,20 +3,22 @@
 Pipeline (strict order):
   0. peel a leading "Label:" prefix so "Price: 5 + 5" still computes
   1. split off a leading "name =" assignment (single '=', not '==')
-  2. comma-decimal normalize: a comma between two digits becomes '.'
+  2. thousands grouping: "34.234,89" / "34,234.89" -> "34234.89" (only when
+     unambiguous — see engine/numbers.py; "1.000" stays the decimal 1.0)
+  3. comma-decimal normalize: a comma between two digits becomes '.'
      (both ',' and '.' mean decimal point — the whole point of this app)
-  3. conversion: "<expr> in|to <unit>" -> "_to(<expr>, <Name>)" (captured first,
+  4. conversion: "<expr> in|to <unit>" -> "_to(<expr>, <Name>)" (captured first,
      before the unit/pace steps can mangle the target)
-  4. time literals: "mm:ss" / "h:mm:ss" -> "_time(<seconds>)"
-  5. postfix percent: "19%" -> "_pct(19)"
-  6. 'x' between two numbers becomes '*' ("10 x 10"); a lone 'x' stays a variable
-  7. ';' -> ',' so multi-arg functions like min(1;2) reach ast as min(1,2)
-  8. pace suffix: "min/km" / "/km" -> "/ km" (division by a unit distance)
-  9. adjacency: "1 h 30 min" -> "1 h + 30 min" (before units are parenthesized)
-  10. unit words: "10 km" -> "(10 * km)" (known units only; parenthesized so
+  5. time literals: "mm:ss" / "h:mm:ss" -> "_time(<seconds>)"
+  6. postfix percent: "19%" -> "_pct(19)"
+  7. 'x' between two numbers becomes '*' ("10 x 10"); a lone 'x' stays a variable
+  8. ';' -> ',' so multi-arg functions like min(1;2) reach ast as min(1,2)
+  9. pace suffix: "min/km" / "/km" -> "/ km" (division by a unit distance)
+  10. adjacency: "1 h 30 min" -> "1 h + 30 min" (before units are parenthesized)
+  11. unit words: "10 km" -> "(10 * km)" (known units only; parenthesized so
       "50:00 / 10 km" stays time / (10*km))
-  11. word operators -> symbols (English + German), longest phrase first
-  12. '^' -> '**' because Python ast reads '^' as bitwise XOR
+  12. word operators -> symbols (English + German), longest phrase first
+  13. '^' -> '**' because Python ast reads '^' as bitwise XOR
 
 These string rewrites live in `normalize()`. `strip_unknown_words` runs after
 `normalize()` (word-operators already gone) to drop *unknown* unit words like the
@@ -31,6 +33,7 @@ import re
 from dataclasses import dataclass
 
 from .inline import INLINE_VARS, scope_key
+from .numbers import strip_grouping
 from .words import WORD_OPERATORS
 
 # Case-insensitive lookup: lowercase phrase -> symbol.
@@ -266,8 +269,13 @@ def normalize(expr: str) -> str:
     its target; time literals become `_time(...)` before percent/units; pace
     suffixes resolve before units so a bare `km` survives; adjacency runs before
     units are parenthesized; word operators run before `^`->`**`.
+
+    Thousands grouping is stripped before the comma-decimal step, which would
+    otherwise destroy the ",89" of "34.234,89", and before `';' -> ','`, or
+    "min(1;234;567)" would look like a grouped English number.
     """
     expr = _DOLLAR_RE.sub(lambda m: scope_key(m.group(1)), expr)
+    expr = strip_grouping(expr)
     expr = _COMMA_DECIMAL_RE.sub(".", expr)
     expr = _CONV_RE.sub(_conv_repl, expr)
     expr = _TIME_RE.sub(_time_repl, expr)
