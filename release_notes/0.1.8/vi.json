@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Mới: Các số được viết với dấu phân tách hàng nghìn như 1.234.567 hoặc 34,234.89 hiện đã được hiểu.",
+    "Cải thiện: Kết quả giữ nguyên dấu phân tách hàng nghìn của các số bạn đã nhập."
+  ]
+}

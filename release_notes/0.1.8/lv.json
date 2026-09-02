@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Jaunums: Tagad tiek saprasti skaitļi ar tūkstošu atdalītājiem, piemēram, 1.234.567 vai 34,234.89.",
+    "Uzlabojums: Rezultātos tiek saglabāti jūsu ievadīto skaitļu tūkstošu atdalītāji."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nouveau : Les nombres écrits avec des séparateurs de milliers comme 1.234.567 ou 34,234.89 sont désormais compris.",
+    "Amélioration : Les résultats conservent les séparateurs de milliers des nombres que vous avez saisis."
+  ]
+}

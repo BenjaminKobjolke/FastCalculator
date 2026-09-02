@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nuevo: Ahora se entienden los números escritos con separadores de miles como 1.234.567 o 34,234.89.",
+    "Mejorado: Los resultados conservan los separadores de miles de los números que escribiste."
+  ]
+}

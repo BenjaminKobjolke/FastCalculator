@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nové: Čísla zapísané s oddeľovačmi tisícov, ako napríklad 1.234.567 alebo 34,234.89, sa teraz rozpoznávajú.",
+    "Vylepšené: Výsledky zachovávajú oddeľovače tisícov v číslach, ktoré ste zadali."
+  ]
+}

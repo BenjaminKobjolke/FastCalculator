@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nowość: Liczby zapisywane z separatorami tysięcy, takie jak 1.234.567 lub 34,234.89, są teraz rozpoznawane.",
+    "Ulepszenie: Wyniki zachowują separatory tysięcy liczb, które wpisujesz."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nieuw: Getallen geschreven met duizendtalseparators zoals 1.234.567 of 34,234.89 worden nu begrepen.",
+    "Verbeterd: Resultaten behouden de duizendtalseparators van de getallen die je hebt ingevoerd."
+  ]
+}

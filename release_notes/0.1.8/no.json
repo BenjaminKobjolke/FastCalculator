@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nyhet: Tall skrevet med tusenskilletegn som 1.234.567 eller 34,234.89 blir nå forstått.",
+    "Forbedret: Resultatene beholder tusenskilletegnene i tallene du skrev inn."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nyt: Tal skrevet med tusindtalsseparatorer som 1.234.567 eller 34,234.89 bliver nu forstået.",
+    "Forbedret: Resultater bevarer tusindtalsseparatorerne i de tal, du skrev."
+  ]
+}

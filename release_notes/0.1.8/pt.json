@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Novo: Os números escritos com separadores de milhares, como 1.234.567 ou 34,234.89, são agora reconhecidos.",
+    "Melhorado: Os resultados mantêm os separadores de milhares dos números que introduziu."
+  ]
+}

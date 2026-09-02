@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Uus: Nüüd mõistetakse ka tuhande eraldajatega kirjutatud numbreid, näiteks 1.234.567 või 34,234.89.",
+    "Täiustatud: Tulemused säilitavad sisestatud numbrite tuhande eraldajad."
+  ]
+}

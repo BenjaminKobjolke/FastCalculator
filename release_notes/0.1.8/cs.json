@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Novinka: Čísla zapsaná s oddělovači tisíců, jako 1.234.567 nebo 34,234.89, jsou nyní rozpoznávána.",
+    "Vylepšení: Výsledky zachovávají oddělovače tisíců u čísel, která jste zadali."
+  ]
+}

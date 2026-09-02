@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nauja: Dabar atpažįstami skaičiai su tūkstančių skirtukais, pvz., 1.234.567 arba 34,234.89.",
+    "Patobulinta: Rezultatuose išlaikomi tūkstančių skirtukai, kuriuos įvedėte skaičiuose."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Uutta: Tuhaterottimilla kirjoitetut luvut, kuten 1.234.567 tai 34,234.89, ymmärretään nyt.",
+    "Parannettu: Tulokset säilyttävät kirjoittamiesi lukujen tuhaterottimet."
+  ]
+}

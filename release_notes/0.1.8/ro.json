@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Nou: Numerele scrise cu separatori de mii precum 1.234.567 sau 34,234.89 sunt acum înțelese.",
+    "Îmbunătățit: Rezultatele păstrează separatorii de mii ai numerelor pe care le-ai introdus."
+  ]
+}

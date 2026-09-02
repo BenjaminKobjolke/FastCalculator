@@ -1,0 +1,8 @@
+{
+    "version": "0.1.8",
+    "date": "2026-09-02",
+    "notes": [
+        "New: Numbers written with thousands separators like 1.234.567 or 34,234.89 are now understood.",
+        "Improved: Results keep the thousands separators of the numbers you typed."
+    ]
+}

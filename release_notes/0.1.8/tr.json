@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Yeni: 1.234.567 veya 34,234.89 gibi binlik ayraçlarla yazılmış sayılar artık anlaşılır.",
+    "İyileştirildi: Sonuçlar, yazdığınız sayıların binlik ayraçlarını korur."
+  ]
+}

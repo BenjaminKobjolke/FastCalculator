@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Novo: Brojevi zapisani s razdjelnicima tisuća, poput 1.234.567 ili 34,234.89, sada se prepoznaju.",
+    "Poboljšano: Rezultati zadržavaju razdjelnike tisuća brojeva koje ste upisali."
+  ]
+}

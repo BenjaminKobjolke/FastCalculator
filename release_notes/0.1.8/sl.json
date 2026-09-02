@@ -1,0 +1,8 @@
+{
+  "version": "0.1.8",
+  "date": "2026-09-02",
+  "notes": [
+    "Novo: Števila, zapisana z ločili tisočic, kot so 1.234.567 ali 34,234.89, so zdaj prepoznana.",
+    "Izboljšano: Rezultati ohranijo ločila tisočic števil, ki ste jih vnesli."
+  ]
+}
