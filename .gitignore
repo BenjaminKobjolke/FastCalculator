@@ -36,6 +36,8 @@ tools/publish_settings.ini
 tools/previous_version.txt
 claude-plans/
 /PLAN_*.md
+PLAN.md
+HANDOFF.md
 
 # Code analysis (machine-specific config + generated results)
 tools/analyze_code_config.bat
