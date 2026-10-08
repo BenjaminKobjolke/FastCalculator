@@ -159,6 +159,7 @@ units — see [running.md](running.md)):
 5 kg + 5 kg           -> 10 kg
 3 * 4 widgets         -> 12 widgets
 60 Watt               -> 60 Watt
+4.992,00 € + 260,00 € -> 5.252,00 €
 budget = 100
 budget + 20 dollars   -> 120 dollars
 ```

@@ -64,6 +64,14 @@ def test_unknown_units_still_dimensionless() -> None:
     assert r.value == 10 and r.kind is None and r.unit == "kg"
 
 
+def test_trailing_currency_symbol_is_a_label() -> None:
+    r = evaluate("4.992,00 € + 1.248,00 € + 1.170,00 € + 260,00 €", {})
+    assert r.value == 7670 and r.kind is None and r.unit == "€"
+    assert evaluate("100 $", {}).unit == "$"
+    # a stray inline variable in operand position is still rejected
+    assert not evaluate("2 + $foo", {}).success
+
+
 def test_incompatible_units_error() -> None:
     r = evaluate("10 km + 5 min", {})
     assert not r.success and r.error == "incompatible units"

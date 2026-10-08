@@ -109,6 +109,12 @@ def test_strip_unknown_words_keeps_operands_and_calls() -> None:
     assert strip_unknown_words("foo + 1", set()).dropped == ()
 
 
+def test_strip_unknown_words_drops_trailing_currency_symbols() -> None:
+    assert strip_unknown_words("5 € + 5 €", set()).dropped == ("€", "€")
+    # only after a value: a leading symbol stays, so the line still fails to parse
+    assert strip_unknown_words("€ + 1", set()).expr == "€ + 1"
+
+
 def test_time_literal_mm_ss() -> None:
     assert normalize("4:30") == "_time(270)"
     assert normalize("50:00") == "_time(3000)"

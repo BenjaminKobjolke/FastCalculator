@@ -288,6 +288,9 @@ def test_blank_line_shows_the_group_total_with_its_unit() -> None:
         ("10\n20\n\n1\n2\n", ["10", "20", "30", "1", "2", "3"]),
         # the total inherits the group's decimal style
         ("100,00\n50,00\n", ["100,00", "50,00", "150,00"]),
+        # a trailing currency symbol is a label like any unknown unit word
+        ("10,00 €\n5,00 €\n", ["10,00 €", "5,00 €", "15,00 €"]),
+        ("4.992,00 € + 1.248,00 € + 1.170,00 € + 260,00 €\n", ["7.670,00 €", ""]),
         # an explicit "$sum" line holds the total too -> 1300, never 3300
         (
             "Angebot: 2000,00 Euro\nRabatt: $sum - 35%\n",

@@ -54,7 +54,8 @@ _WORD_PATTERN = re.compile(
 # stops "lambda: 1" being read as label "lambda" + expr "1" — it stays a lambda
 # so the walker rejects it (the walker guards everything else too).
 _LABEL_RE = re.compile(r"^\s*(?!lambda\b)[^:]*[A-Za-z][^:]*(?<!\d):\s*(.+)$")
-_IDENT_RE = re.compile(r"[A-Za-z_]\w*")
+# Identifiers, plus currency symbols so "5 €" is dropped/labelled like "5 Watt".
+_IDENT_RE = re.compile(r"[A-Za-z_]\w*|[€$£¥]")
 _ASSIGNMENT_RE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(.+)$")
 _COMMA_DECIMAL_RE = re.compile(r"(?<=\d),(?=\d)")
 # "10 x 10" / "10x10" -> multiply. Only between numbers so a standalone `x`

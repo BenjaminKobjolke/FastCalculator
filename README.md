@@ -36,7 +36,7 @@ natural-language operators in **English and German**.
   Type `$` to autocomplete. See [docs/inline-variables.md](docs/inline-variables.md).
 - **Automatic group totals** — the blank line that closes a block carries that
   block's total, so nothing needs typing. Unknown unit words (`Watt`, `kg`,
-  `EUR`) are dropped from the math but kept as a label on the result:
+  `EUR`) and trailing currency symbols (`€`, `$`, `£`, `¥`) are dropped from the math but kept as a label on the result:
   ```
   Monitor: 60 Watt    -> 60 Watt
   PC: 100 Watt        -> 100 Watt
