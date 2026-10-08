@@ -1,0 +1,7 @@
+{
+  "version": "0.1.9",
+  "date": "2026-10-08",
+  "notes": [
+    "Uus: Valuutasümbolid nagu €, $, £ ja ¥ töötavad nüüd arvutustes ning jäävad tulemuses nähtavaks."
+  ]
+}

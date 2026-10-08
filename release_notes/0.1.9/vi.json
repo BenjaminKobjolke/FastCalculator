@@ -1,0 +1,7 @@
+{
+  "version": "0.1.9",
+  "date": "2026-10-08",
+  "notes": [
+    "Mới: Các ký hiệu tiền tệ như €, $, £ và ¥ hiện hoạt động trong các phép tính và vẫn hiển thị trên kết quả."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.1.9",
+  "date": "2026-10-08",
+  "notes": [
+    "Novinka: Symboly mien ako €, $, £ a ¥ teraz fungujú vo výpočtoch a zostávajú viditeľné vo výsledku."
+  ]
+}

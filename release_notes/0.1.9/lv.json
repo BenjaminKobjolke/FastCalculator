@@ -1,0 +1,7 @@
+{
+  "version": "0.1.9",
+  "date": "2026-10-08",
+  "notes": [
+    "Jaunums: Valūtu simboli, piemēram, €, $, £ un ¥, tagad darbojas aprēķinos un paliek redzami rezultātā."
+  ]
+}

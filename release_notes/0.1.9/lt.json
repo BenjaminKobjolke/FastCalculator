@@ -1,0 +1,7 @@
+{
+  "version": "0.1.9",
+  "date": "2026-10-08",
+  "notes": [
+    "Nauja: valiutų simboliai, pvz., €, $, £ ir ¥, dabar veikia atliekant skaičiavimus ir lieka matomi rezultate."
+  ]
+}
