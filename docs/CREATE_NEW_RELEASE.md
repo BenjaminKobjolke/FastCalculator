@@ -93,7 +93,11 @@ The manual steps below remain the reference for what happens under the hood.
    - The exe is picked up automatically: `%OUTPUT_PATH%\FastCalculator.exe`
      when `tools\compile_settings.bat` sets one, else `dist\FastCalculator.exe`.
    - Requires a local `tools\publish_settings.ini` (gitignored) — copy
-     `tools\publish_settings_example.ini` and fill in FTP credentials.
+     `tools\publish_settings_example.ini`. It holds no FTP credentials:
+     `[FTP] profile` names a section of `ftp_profiles.ini` in the release-tool
+     checkout, which holds the login once for all projects (see that tool's
+     `docs\FTP_PROFILES.md`). `tools\release_create.bat` stops before bumping or
+     building when either file is missing.
 
    ```
    tools\publish_release.bat
