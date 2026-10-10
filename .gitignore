@@ -234,3 +234,6 @@ __marimo__/
 .claude
 reasonix.toml
 tools/CREATE_RELEASE_NOTES.md
+tickets/
+graphify-out/
+.reasonix/
