@@ -16,3 +16,4 @@ if errorlevel 1 (
 )
 echo.
 echo Media written to %~dp0output\demos\
+exit /b 0

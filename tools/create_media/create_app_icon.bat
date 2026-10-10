@@ -14,3 +14,4 @@ REM PNG -> ICO using calculator's own env (PySide6, no extra dependency).
 REM ponytail: single-size .ico via Qt; swap for a Pillow multi-size save if the
 REM Explorer thumbnail ever looks rough.
 uv run --project "%CALC%" python -c "from PySide6.QtGui import QImage; QImage(r'%CALC%\assets\icon.png').save(r'%CALC%\assets\icon.ico')"
+exit /b %errorlevel%

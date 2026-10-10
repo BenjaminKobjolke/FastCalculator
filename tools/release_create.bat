@@ -4,4 +4,5 @@ REM resolves its venv (release-tool is not on PATH), then point create back at
 REM this project. %* passes --internal / --dry-run straight through.
 cd /d D:\GIT\BenjaminKobjolke\release-tool
 call uv run python -m release_tool create "%~dp0release_create.ini" --project-root "%~dp0.." %*
-cd /d "%~dp0"
+REM %errorlevel% is expanded before cd runs, so the tool's exit code survives the cd.
+cd /d "%~dp0" & exit /b %errorlevel%

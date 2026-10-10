@@ -9,4 +9,5 @@ cd /d "%~dp0.."
 
 "%CLI_ANALYZER_PATH%\venv\Scripts\python.exe" "%CLI_ANALYZER_PATH%\main.py" --language %LANGUAGE% --path "." --verbosity minimal --output "code_analysis_results" --maxamountoferrors 50 --rules "code_analysis_rules.json"
 
-cd /d "%~dp0"
+REM %errorlevel% is expanded before cd runs, so the tool's exit code survives the cd.
+cd /d "%~dp0" & exit /b %errorlevel%

@@ -19,3 +19,4 @@ if defined OUTPUT_PATH (
 ) else (
     uv run pyinstaller %PYI_ARGS%
 )
+exit /b %errorlevel%

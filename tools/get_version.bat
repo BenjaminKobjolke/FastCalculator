@@ -12,6 +12,9 @@ if defined VERSION (
     echo !VERSION!
 ) else (
     echo Could not determine version
+    cd %~dp0
+    exit /b 1
 )
 
 cd %~dp0
+exit /b 0
