@@ -159,7 +159,7 @@ class MainWindow(FramelessWindow):
             self._notes = self._show_markdown(self._notes, create_release_notes_window)
             return
         if name in ("/about", "/info"):
-            self._about = self._show_markdown(self._about, _create_about_window)
+            self._about = self._show_markdown(self._about, create_about_window)
             return
         if name.startswith("/window-opacity"):
             self._set_opacity(name.partition(" ")[2].strip())
@@ -284,10 +284,3 @@ class MainWindow(FramelessWindow):
             if extra is not None:
                 extra.close()
         super().closeEvent(event)
-
-
-def _create_about_window() -> MarkdownWindow:
-    """The /about or /info window — simple version display."""
-    version = read_version()
-    body = f"# FastCalculator\n\nv{version}\nwww.workflow-tools.com"
-    return MarkdownWindow("About FastCalculator", lambda: body)

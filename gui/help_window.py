@@ -21,6 +21,7 @@ from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import QTextBrowser, QVBoxLayout, QWidget
 
+from gui.app_version import read_version
 from gui.font_scale import clamp_font_size
 from gui.font_shortcuts import install_font_shortcuts
 from gui.help_content import build_help_markdown
@@ -124,3 +125,10 @@ def create_help_window() -> MarkdownWindow:
 def create_release_notes_window() -> MarkdownWindow:
     """The /release-notes window, in the active language."""
     return MarkdownWindow(t(TK.RELEASE_NOTES_TITLE), build_release_notes_markdown)
+
+
+def create_about_window() -> MarkdownWindow:
+    """The /about or /info window — simple version display."""
+    version = read_version()
+    body = f"# FastCalculator\n\nv{version}\nwww.workflow-tools.com"
+    return MarkdownWindow("About FastCalculator", lambda: body)
