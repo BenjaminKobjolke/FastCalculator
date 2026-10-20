@@ -16,8 +16,10 @@ import ast
 import operator
 from collections.abc import Callable
 
+from .currency import CURRENCY_UNAVAILABLE
 from .errors import (
     EmptyLineError,
+    CurrencyUnavailableError,
     IncompatibleUnitsError,
     UnknownFunctionError,
     UnknownNameError,
@@ -33,6 +35,7 @@ from .preprocess import (
     strip_unknown_words,
     uses_german_comparison,
 )
+from .radix import format_radix, split_radix_output
 from .result import EvalResult
 from .units import (
     DIMLESS,
@@ -67,6 +70,7 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
             raise EmptyLineError("empty")
 
         name, raw_expr = split_assignment(strip_label(stripped))
+        raw_expr, radix = split_radix_output(raw_expr)
         expr = normalize(raw_expr)
         # A line starting with a binary operator continues from the running
         # total: "- 4000" -> "$sum - 4000". Only in document context, where the
@@ -88,6 +92,18 @@ def evaluate(line: str, scope: Scope) -> EvalResult:
                 raise UnsafeExpressionError("cannot assign a comparison")
             return _eval_compare(tree.body, scope, uses_german_comparison(stripped))
         value = _eval_node(tree.body, scope)
+
+        if radix is not None:
+            if value.dim != DIMLESS or value.mag != int(value.mag):
+                raise ValueError("radix output requires a whole, dimensionless number")
+            if name is not None:
+                scope[name] = value
+            return EvalResult.from_radix(
+                value,
+                format_radix(int(value.mag), radix),
+                name,
+                continued=continued,
+            )
 
         if name is not None:
             scope[name] = value
@@ -167,6 +183,8 @@ def _eval_node(node: ast.AST, scope: Scope) -> Quantity:
             return dimensionless(CONSTANTS[node.id])
         if node.id in UNITS:
             return unit_quantity(UNITS[node.id])
+        if node.id.startswith("_cur_"):
+            raise CurrencyUnavailableError(CURRENCY_UNAVAILABLE)
         raise UnknownNameError(f"unknown name: {node.id}")
 
     if isinstance(node, ast.Call):

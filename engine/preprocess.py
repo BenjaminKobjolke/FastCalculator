@@ -32,8 +32,12 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from .currency import CURRENCY_CODES, currency_name
 from .inline import INLINE_VARS, scope_key
 from .numbers import strip_grouping
+from .phrases import rewrite_percent_phrases
+from .radix import rewrite_radix_literals
+from .unit_words import CONV_TARGETS, UNIT_ALIASES
 from .words import WORD_OPERATORS
 
 # Case-insensitive lookup: lowercase phrase -> symbol.
@@ -58,6 +62,12 @@ _LABEL_RE = re.compile(r"^\s*(?!lambda\b)[^:]*[A-Za-z][^:]*(?<!\d):\s*(.+)$")
 _IDENT_RE = re.compile(r"[A-Za-z_]\w*|[€$£¥]")
 _ASSIGNMENT_RE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(.+)$")
 _COMMA_DECIMAL_RE = re.compile(r"(?<=\d),(?=\d)")
+_CURRENCY_ALT = "|".join(
+    re.escape(word) for word in sorted(CURRENCY_CODES, key=len, reverse=True)
+)
+_CURRENCY_AMOUNT_RE = re.compile(
+    r"(\d+(?:\.\d+)?)\s*(" + _CURRENCY_ALT + r")(?![A-Za-z])", re.IGNORECASE
+)
 # "10 x 10" / "10x10" -> multiply. Only between numbers so a standalone `x`
 # stays a variable ("x = 10", "x hoch 2").
 # ponytail: number-flanked only; `10 x pi` / `10 x (2+3)` still won't multiply.
@@ -85,33 +95,9 @@ _LEADING_OP_RE = re.compile(r"^\s*(\*\*|[-+*/%])")
 # are computed at rewrite time and emitted as an int -> `_time(<seconds>)`.
 _TIME_RE = re.compile(r"(?<!\d)(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?(?!\d)")
 
-# Surface unit word -> canonical unit Name (a reserved identifier the evaluator
-# resolves via engine.units.UNITS). Only these are turned into quantities; every
-# other trailing word (kg, apples) is left for `strip_unknown_words` to drop.
-_UNIT_ALIASES: dict[str, str] = {
-    "km/h": "kmh",
-    "kmh": "kmh",
-    "kph": "kmh",
-    "mph": "mph",
-    "km": "km",
-    "kms": "km",
-    "kilometer": "km",
-    "kilometers": "km",
-    "kilometre": "km",
-    "kilometres": "km",
-    "mi": "mi",
-    "mile": "mi",
-    "miles": "mi",
-    "m": "m",
-    "meter": "m",
-    "meters": "m",
-    "metre": "m",
-    "metres": "m",
-    "min": "min",
-    "h": "h",
-    "s": "s",
-}
-_UNIT_ALT = "|".join(re.escape(u) for u in sorted(_UNIT_ALIASES, key=len, reverse=True))
+# Surface unit words are data-only in `unit_words.py`; only known names become
+# quantities, while every other trailing word stays available as a label.
+_UNIT_ALT = "|".join(re.escape(u) for u in sorted(UNIT_ALIASES, key=len, reverse=True))
 # A number glued/spaced to a known unit -> "(<mag> * <Name>)". Parenthesized so
 # "50:00 / 10 km" stays time / (10*km), not (time/10)*km. `(?![A-Za-z/])` stops
 # `m` matching inside `min` and keeps the km of `km/h` from matching alone.
@@ -127,30 +113,8 @@ _PACE_UNIT_RE = re.compile(r"(?:\bmin\s*)?/(km|mi)\b", re.IGNORECASE)
 # unit parenthesization, so it sees the raw "<number> <unit>" form.
 _ADJACENT_RE = re.compile(r"(\d(?:[\d.]*)?\s*(?:km|mi|m|min|h|s)\b)\s+(?=\d)", re.IGNORECASE)
 
-# Conversion target surface form -> reserved unit Name (slash-free, so the pace
-# step never mangles it). Distance/speed/pace only; time renders as h:mm:ss so
-# converting time units is a no-op we skip.
-_CONV_TARGETS: dict[str, str] = {
-    "km": "km",
-    "kilometer": "km",
-    "kilometers": "km",
-    "kms": "km",
-    "mi": "mi",
-    "mile": "mi",
-    "miles": "mi",
-    "m": "m",
-    "meter": "m",
-    "meters": "m",
-    "km/h": "kmh",
-    "kmh": "kmh",
-    "kph": "kmh",
-    "mph": "mph",
-    "/km": "_pace_km",
-    "min/km": "_pace_km",
-    "/mi": "_pace_mi",
-    "min/mi": "_pace_mi",
-}
-_CONV_ALT = "|".join(re.escape(t) for t in sorted(_CONV_TARGETS, key=len, reverse=True))
+_CONV_TARGETS_ALL = {**CONV_TARGETS, **{word: "" for word in CURRENCY_CODES}}
+_CONV_ALT = "|".join(re.escape(t) for t in sorted(_CONV_TARGETS_ALL, key=len, reverse=True))
 # "<expr> in|to <unit>" -> "_to(<expr>, <Name>)". The keyword is bracketed by
 # whitespace on both sides, so the `in` inside `min`/`sin` never matches; runs
 # before the unit/pace steps so the target is captured before they touch it.
@@ -165,7 +129,7 @@ def _time_repl(match: re.Match[str]) -> str:
 
 
 def _unit_repl(match: re.Match[str]) -> str:
-    return f"({match.group(1)} * {_UNIT_ALIASES[match.group(2).lower()]})"
+    return f"({match.group(1)} * {UNIT_ALIASES[match.group(2).lower()]})"
 
 
 def _pace_repl(match: re.Match[str]) -> str:
@@ -173,7 +137,12 @@ def _pace_repl(match: re.Match[str]) -> str:
 
 
 def _conv_repl(match: re.Match[str]) -> str:
-    return f"_to({match.group(1)}, {_CONV_TARGETS[match.group(2).lower()]})"
+    target = match.group(2).lower()
+    return f"_to({match.group(1)}, {currency_name(target) or CONV_TARGETS[target]})"
+
+
+def _currency_amount_repl(match: re.Match[str]) -> str:
+    return f"({match.group(1)} * {currency_name(match.group(2))})"
 
 
 def has_inline_var(line: str) -> bool:
@@ -276,8 +245,11 @@ def normalize(expr: str) -> str:
     "min(1;234;567)" would look like a grouped English number.
     """
     expr = _DOLLAR_RE.sub(lambda m: scope_key(m.group(1)), expr)
+    expr = rewrite_radix_literals(expr)
     expr = strip_grouping(expr)
     expr = _COMMA_DECIMAL_RE.sub(".", expr)
+    expr = rewrite_percent_phrases(expr)
+    expr = _CURRENCY_AMOUNT_RE.sub(_currency_amount_repl, expr)
     expr = _CONV_RE.sub(_conv_repl, expr)
     expr = _TIME_RE.sub(_time_repl, expr)
     expr = _PERCENT_RE.sub(r"_pct(\1)", expr)

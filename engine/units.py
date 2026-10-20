@@ -1,7 +1,7 @@
 """Unit/dimension-tracking value type for the calculator engine.
 
 Pure stdlib, no GUI. A `Quantity` carries a magnitude in *canonical base units*
-(meter, second) plus a dimension `(length_exp, time_exp)`. Plain numbers are
+(meter, second, kilogram, euro) plus a four-part dimension. Plain numbers are
 dimensionless quantities that compare numerically equal to a `float`, so the
 engine and its callers keep working as if values were still floats.
 
@@ -21,13 +21,15 @@ from dataclasses import dataclass
 
 from .errors import IncompatibleUnitsError, UnsafeExpressionError
 
-# Dimension = integer exponents over the base dimensions (length, time).
-Dim = tuple[int, int]
-DIMLESS: Dim = (0, 0)
-LENGTH: Dim = (1, 0)
-TIME: Dim = (0, 1)
-SPEED: Dim = (1, -1)  # length / time
-PACE: Dim = (-1, 1)  # time / length
+# Dimension = integer exponents over length, time, mass and money.
+Dim = tuple[int, int, int, int]
+DIMLESS: Dim = (0, 0, 0, 0)
+LENGTH: Dim = (1, 0, 0, 0)
+TIME: Dim = (0, 1, 0, 0)
+MASS: Dim = (0, 0, 1, 0)
+MONEY: Dim = (0, 0, 0, 1)
+SPEED: Dim = (1, -1, 0, 0)  # length / time
+PACE: Dim = (-1, 1, 0, 0)  # time / length
 
 
 @dataclass(frozen=True)
@@ -35,7 +37,8 @@ class Unit:
     """A named display unit. `canonical = display_magnitude * factor`.
 
     `kind` is the display category the GUI branches on ("distance", "time",
-    "speed", "pace"); `dim` is the physical dimension used for the algebra.
+    "speed", "pace", "mass", "money"); `dim` is the physical dimension used
+    for the algebra.
     """
 
     name: str
@@ -51,6 +54,13 @@ UNITS: dict[str, Unit] = {
     "m": Unit("m", 1.0, LENGTH, "distance"),
     "km": Unit("km", 1000.0, LENGTH, "distance"),
     "mi": Unit("mi", 1609.344, LENGTH, "distance"),
+    # mass (canonical: kilogram)
+    "g": Unit("g", 0.001, MASS, "mass"),
+    "kg": Unit("kg", 1.0, MASS, "mass"),
+    "lb": Unit("lb", 0.45359237, MASS, "mass"),
+    "oz": Unit("oz", 0.028349523125, MASS, "mass"),
+    # money (canonical: euro)
+    "eur": Unit("€", 1.0, MONEY, "money"),
     # time (canonical: second) — also enterable as mm:ss / h:mm:ss literals
     "s": Unit("s", 1.0, TIME, "time"),
     "min": Unit("min", 60.0, TIME, "time"),  # dual role: also the min() function (Call)
@@ -68,6 +78,7 @@ _DEFAULT_UNIT: dict[Dim, Unit] = {
     LENGTH: UNITS["km"],
     SPEED: UNITS["kmh"],
     PACE: UNITS["_pace_km"],
+    MASS: UNITS["kg"],
 }
 
 
@@ -115,11 +126,11 @@ def require_number(q: Quantity) -> float:
 
 
 def _add_dims(a: Dim, b: Dim) -> Dim:
-    return (a[0] + b[0], a[1] + b[1])
+    return tuple(x + y for x, y in zip(a, b, strict=True))  # type: ignore[return-value]
 
 
 def _sub_dims(a: Dim, b: Dim) -> Dim:
-    return (a[0] - b[0], a[1] - b[1])
+    return tuple(x - y for x, y in zip(a, b, strict=True))  # type: ignore[return-value]
 
 
 def _pick_unit(dim: Dim, left: Quantity, right: Quantity) -> Unit | None:

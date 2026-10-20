@@ -13,8 +13,9 @@ from __future__ import annotations
 import re
 
 from engine.functions import CONSTANTS, FUNCTIONS
+from engine.radix import RADIX_LITERAL_PATTERN
 from engine.units import UNITS
-from engine.words import WORD_OPERATORS
+from engine.words import PERCENT_WORDS, WORD_OPERATORS
 
 # The user-facing color categories (also the QSettings/command suffixes).
 # `inline` tints `$`-variables ("$sum"), distinct from user `variable` names.
@@ -42,7 +43,7 @@ _WORD_ALT = "|".join(
 # a written-out amount ("34.234,89") one token instead of two.
 _TOKEN_RE = re.compile(
     r"(?P<operator>\b(?:" + _WORD_ALT + r")\b)"
-    r"|(?P<number>\d+(?:[.,]\d+)*%?)"
+    r"|(?P<number>" + RADIX_LITERAL_PATTERN + r"|\d+(?:[.,]\d+)*%?)"
     r"|(?P<inline>\$[A-Za-z_]\w*)"
     r"|(?P<ident>[A-Za-z_]\w*)"
     r"|(?P<symop>[-+*/^%=<>!])",
@@ -60,14 +61,27 @@ def tokenize(line: str) -> list[tuple[int, int, str]]:
     if line.lstrip().startswith("/"):
         return []
     spans: list[tuple[int, int, str]] = []
+    percent_end: int | None = None
     for m in _TOKEN_RE.finditer(line):
         kind = m.lastgroup
         if kind == "symop":
             category = "operator"
         elif kind == "ident":
-            category = "function" if m.group().lower() in _NAMES else "variable"
+            is_percent_word = (
+                percent_end is not None
+                and not line[percent_end : m.start()].strip()
+                and m.group().lower() in PERCENT_WORDS
+            )
+            category = (
+                "operator"
+                if is_percent_word
+                else "function"
+                if m.group().lower() in _NAMES
+                else "variable"
+            )
         else:  # "operator" (word), "number", or "inline" ($-variable)
             assert kind is not None
             category = kind
         spans.append((m.start(), len(m.group()), category))
+        percent_end = m.end() if kind == "number" and m.group().endswith("%") else None
     return spans

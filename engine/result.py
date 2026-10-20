@@ -56,6 +56,26 @@ class EvalResult:
         return cls(success=True, value=1.0 if truth else 0.0, kind="bool", text=text)
 
     @classmethod
+    def from_radix(
+        cls,
+        q: Quantity,
+        text: str,
+        assigned_name: str | None = None,
+        continued: bool = False,
+    ) -> EvalResult:
+        """Build a radix display result while retaining its computed quantity."""
+
+        return cls(
+            success=True,
+            value=q.mag,
+            assigned_name=assigned_name,
+            kind="radix",
+            quantity=q,
+            text=text,
+            continued=continued,
+        )
+
+    @classmethod
     def from_quantity(
         cls,
         q: Quantity,

@@ -13,8 +13,8 @@ context.
 
 from __future__ import annotations
 
-# The inline variable names, without the leading '$'. Extend here: "avg", ...
-INLINE_VARS: tuple[str, ...] = ("sum",)
+# The inline variable names, without the leading '$'.
+INLINE_VARS: tuple[str, ...] = ("sum", "prev", "avg")
 
 _PREFIX = "_inline_"
 

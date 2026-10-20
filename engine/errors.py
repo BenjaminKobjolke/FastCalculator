@@ -23,6 +23,10 @@ class UnknownNameError(EngineError):
     """A variable or constant name could not be resolved."""
 
 
+class CurrencyUnavailableError(UnknownNameError):
+    """A currency name has no rate in the caller-provided scope."""
+
+
 class UnknownFunctionError(EngineError):
     """A function call referenced a name outside the whitelist."""
 

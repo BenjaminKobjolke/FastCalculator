@@ -36,6 +36,9 @@ WORD_OPERATORS: dict[str, str] = {
     "mod": "%",
 }
 
+# Words whose meaning as operators depends on following a postfix percentage.
+PERCENT_WORDS: tuple[str, ...] = ("of", "on", "off", "von")
+
 # Localized true/false words for comparison results. The evaluator picks the
 # language from the input line ("ist gleich" -> German), see `preprocess.
 # uses_german_comparison`.
