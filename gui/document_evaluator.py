@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import ast
 import re
+from collections.abc import Mapping, Sequence
 from typing import NamedTuple
 
 from engine import EvalResult, evaluate
+from engine.currency import CURRENCY_UNAVAILABLE, currency_scope
 from engine.errors import IncompatibleUnitsError
 from engine.inline import scope_key
 from engine.numbers import grouping_separator, strip_grouping
@@ -36,13 +38,15 @@ _INPUT_DECIMAL_RE = re.compile(r"\d+([.,])(\d+)")
 _THOUSANDS_RE = re.compile(r"(?<=\d)(?=(?:\d{3})+$)")
 
 _SUM_KEY = scope_key("sum")
+_PREV_KEY = scope_key("prev")
+_AVG_KEY = scope_key("avg")
 
 # A group needs at least this many contributing lines before its total is worth
 # showing — otherwise a lone line would just echo itself one row down.
 _MIN_TOTAL_LINES = 2
 
 
-def evaluate_document(text: str) -> list[EvalResult]:
+def evaluate_document(text: str, rates: Mapping[str, float] | None = None) -> list[EvalResult]:
     """Return one EvalResult per line of `text`, sharing a fresh variable scope.
 
     Also feeds the `$sum` inline variable: `_SUM_KEY` is injected before each
@@ -62,20 +66,33 @@ def evaluate_document(text: str) -> list[EvalResult]:
     The blank line that closes a group carries that group's total as its own
     result, so a block of numbers totals itself without anyone typing `$sum`.
     """
-    scope: dict[str, Quantity] = {}
+    scope: dict[str, Quantity] = currency_scope(rates or {})
     results: list[EvalResult] = []
     group_total: Quantity = dimensionless(0.0)
     contributing = 0
     labels: set[str] = set()
+    previous: Quantity | None = None
     for line in text.split("\n"):
         if not line.strip():
-            results.append(_group_total_result(group_total, contributing, labels))
+            result = _group_total_result(group_total, contributing, labels)
+            results.append(result)
+            if result.success and result.quantity is not None:
+                previous = result.quantity
             group_total, contributing, labels = dimensionless(0.0), 0, set()
             continue
         scope[_SUM_KEY] = group_total
+        if previous is None:
+            scope.pop(_PREV_KEY, None)
+        else:
+            scope[_PREV_KEY] = previous
+        if contributing:
+            scope[_AVG_KEY] = apply_binop(ast.Div, group_total, dimensionless(contributing))
+        else:
+            scope.pop(_AVG_KEY, None)
         result = evaluate(line, scope)
         results.append(result)
         if result.success and result.quantity is not None:
+            previous = result.quantity
             contributing += 1
             if result.kind is None and result.unit is not None:
                 labels.add(result.unit)
@@ -152,13 +169,15 @@ def format_result(
     # Comparison results carry their localized word; never decimal-styled.
     if result.kind == "bool":
         return result.text or ""
+    if result.kind == "radix":
+        return result.text or ""
     # Unit-bearing results render from their kind; time/pace as clock text, the
     # rest as a number with a unit suffix (keeping the input's decimal separator).
     if result.kind == "time":
         return _format_hms(result.value)
     if result.kind == "pace":
         return f"{_format_mmss(result.value)} {result.unit}"
-    if result.kind in ("distance", "speed"):
+    if result.kind in ("distance", "speed", "mass"):
         return f"{_format_quantity(result.value, line, inherited)} {result.unit}"
     style = _input_decimal_style(line) if line else _PLAIN_STYLE
     if style.places is None and inherited is not None:
@@ -176,6 +195,23 @@ def format_result(
     number = _grouped(number, style)
     # A plain number with a unit carries a display-only label ("60 Watt").
     return f"{number} {result.unit}" if result.unit is not None else number
+
+
+def pane_texts(
+    lines: Sequence[str],
+    results: Sequence[EvalResult],
+    *,
+    currency_hint: str,
+    max_decimals: int | None = None,
+) -> list[str]:
+    """Render result rows and show a caller-localized hint for missing rates."""
+    styles = inherited_styles(list(lines))
+    return [
+        currency_hint
+        if result.error == CURRENCY_UNAVAILABLE
+        else format_result(result, line, style, max_decimals)
+        for line, result, style in zip(lines, results, styles, strict=True)
+    ]
 
 
 def _format_hms(seconds: float) -> str:

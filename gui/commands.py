@@ -18,6 +18,7 @@ COMMANDS: list[str] = [
     "/clear",
     "/copy",
     "/copy-last",
+    "/currency-rates",
     "/exit",
     "/help",
     "/info",

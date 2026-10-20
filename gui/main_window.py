@@ -20,14 +20,20 @@ from PySide6.QtWidgets import (
 )
 
 from app_logger import AppLogger
-from gui.app_version import read_version
 from gui.command_edit import CommandEdit
 from gui.commands import build_copy_text, last_result_text
-from gui.document_evaluator import evaluate_document, format_result, inherited_styles
+from gui.currency_prefs import CurrencyPrefs
+from gui.currency_rates import currency_hint
+from gui.document_evaluator import evaluate_document, inherited_styles, pane_texts
 from gui.font_scale import clamp_font_size, results_width
 from gui.font_shortcuts import install_font_shortcuts
 from gui.frameless_win import FramelessWindow
-from gui.help_window import MarkdownWindow, create_help_window, create_release_notes_window
+from gui.help_window import (
+    MarkdownWindow,
+    create_about_window,
+    create_help_window,
+    create_release_notes_window,
+)
 from gui.highlighter import MathHighlighter
 from gui.syntax import CATEGORIES
 from gui.window_appearance import Appearance
@@ -97,6 +103,8 @@ class MainWindow(FramelessWindow):
         )
         self._prefs.restore_margin()
         self._prefs.restore_round()
+        self._currency = CurrencyPrefs(self._recalculate)
+        self._currency.restore()
         self._update_results_width()
 
         self._input.textChanged.connect(self._recalculate)
@@ -132,12 +140,13 @@ class MainWindow(FramelessWindow):
 
     def _recalculate(self) -> None:
         lines = self._input.toPlainText().split("\n")
-        results = evaluate_document("\n".join(lines))
-        styles = inherited_styles(lines)
-        result_lines = [
-            format_result(r, line, style, self._prefs.round_decimals)
-            for line, r, style in zip(lines, results, styles, strict=False)
-        ]
+        results = evaluate_document("\n".join(lines), self._currency.rates)
+        result_lines = pane_texts(
+            lines,
+            results,
+            currency_hint=currency_hint(self._currency.enabled),
+            max_decimals=self._prefs.round_decimals,
+        )
         self._results.setPlainText("\n".join(result_lines))
         widest = max((len(s) for s in result_lines), default=0)
         if widest != self._result_chars:
@@ -182,6 +191,9 @@ class MainWindow(FramelessWindow):
         if name.startswith("/round"):
             self._prefs.set_round(name.partition(" ")[2].strip())
             return
+        if name.startswith("/currency-rates"):
+            self._currency.set_download(name.partition(" ")[2].strip())
+            return
         if name.startswith("/window-highlighting"):
             self._appearance.set_highlighting(name.partition(" ")[2].strip())
             return
@@ -192,7 +204,7 @@ class MainWindow(FramelessWindow):
         # The command line was already removed by the widget, so the document
         # holds only real lines to copy.
         lines = self._input.toPlainText().split("\n")
-        results = evaluate_document("\n".join(lines))
+        results = evaluate_document("\n".join(lines), self._currency.rates)
         styles = inherited_styles(lines)
         if name == "/paste-last-result":
             self._input.textCursor().insertText(

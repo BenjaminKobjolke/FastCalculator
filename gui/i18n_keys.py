@@ -15,5 +15,9 @@ class TK:
     HELP_VARIABLES_BODY = "help.variables.body"
     HELP_VARIABLES_HEADING = "help.variables.heading"
 
+    # Currency
+    CURRENCY_DISABLED_HINT = "currency.disabled_hint"
+    CURRENCY_NO_RATE_HINT = "currency.no_rate_hint"
+
     # Release_Notes
     RELEASE_NOTES_TITLE = "release_notes.title"
