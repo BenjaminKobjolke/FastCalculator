@@ -22,6 +22,15 @@ def test_decimals_and_percent() -> None:
     ]
 
 
+def test_percent_phrase_words_are_operators_only_after_percent() -> None:
+    assert _cats("20% of 50") == [
+        ("20%", "number"),
+        ("of", "operator"),
+        ("50", "number"),
+    ]
+    assert _cats("of 50") == [("of", "variable"), ("50", "number")]
+
+
 def test_assignment() -> None:
     assert _cats("price = 20") == [
         ("price", "variable"),
@@ -82,6 +91,14 @@ def test_dollar_variable_in_expression() -> None:
     ]
 
 
+def test_prev_and_avg_are_inline_variables() -> None:
+    assert _cats("$prev + $avg") == [
+        ("$prev", "inline"),
+        ("+", "operator"),
+        ("$avg", "inline"),
+    ]
+
+
 def test_comparison_symbols_are_operators() -> None:
     assert _cats("5 < 3") == [("5", "number"), ("<", "operator"), ("3", "number")]
     assert _cats("5 != 3") == [
@@ -106,4 +123,24 @@ def test_grouped_number_is_one_token() -> None:
         ("34.234,89", "number"),
         ("+", "operator"),
         ("19%", "number"),
+    ]
+
+
+def test_radix_literals_are_number_tokens() -> None:
+    assert _cats("0xFF + 0b1010 + 0o17") == [
+        ("0xFF", "number"),
+        ("+", "operator"),
+        ("0b1010", "number"),
+        ("+", "operator"),
+        ("0o17", "number"),
+    ]
+
+
+def test_mass_units_are_recognized_names() -> None:
+    assert _cats("5 kg + 500 g") == [
+        ("5", "number"),
+        ("kg", "function"),
+        ("+", "operator"),
+        ("500", "number"),
+        ("g", "function"),
     ]

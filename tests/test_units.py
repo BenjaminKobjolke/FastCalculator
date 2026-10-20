@@ -11,6 +11,8 @@ from engine.errors import IncompatibleUnitsError, UnsafeExpressionError
 from engine.units import (
     DIMLESS,
     LENGTH,
+    MASS,
+    MONEY,
     PACE,
     SPEED,
     TIME,
@@ -38,6 +40,20 @@ def test_unit_quantity_is_canonical() -> None:
     assert km.mag == 1000.0 and km.dim == LENGTH
     mi = unit_quantity(UNITS["mi"])
     assert mi.dim == LENGTH and math.isclose(mi.mag, 1609.344)
+
+
+def test_mass_units_are_canonical_and_render_in_kilograms() -> None:
+    grams = unit_quantity(UNITS["g"])
+    pounds = unit_quantity(UNITS["lb"])
+    assert grams.dim == MASS and math.isclose(grams.mag, 0.001)
+    assert pounds.dim == MASS and math.isclose(pounds.mag, 0.45359237)
+    assert render(Quantity(5.0, MASS)) == (5.0, "mass", "kg")
+
+
+def test_euro_is_a_static_money_unit() -> None:
+    euro = unit_quantity(UNITS["eur"])
+    assert euro.dim == MONEY and euro.mag == 1
+    assert convert(euro, euro) == euro
 
 
 def test_multiply_number_by_unit_keeps_unit() -> None:
@@ -141,6 +157,28 @@ def test_convert_rejects_cross_dimension() -> None:
     ten_km = apply_binop(ast.Mult, dimensionless(10), unit_quantity(UNITS["km"]))
     with pytest.raises(IncompatibleUnitsError):
         convert(ten_km, unit_quantity(UNITS["min"]))
+
+
+def test_mass_conversions_and_incompatible_dimensions() -> None:
+    five_lb = apply_binop(ast.Mult, dimensionless(5), unit_quantity(UNITS["lb"]))
+    as_kg = convert(five_lb, unit_quantity(UNITS["kg"]))
+    assert math.isclose(render(as_kg)[0], 2.26796185)
+
+    mixed = apply_binop(
+        ast.Add,
+        apply_binop(ast.Mult, dimensionless(500), unit_quantity(UNITS["g"])),
+        apply_binop(ast.Mult, dimensionless(1), unit_quantity(UNITS["kg"])),
+    )
+    assert mixed.dim == MASS and math.isclose(render(mixed)[0], 1.5)
+
+    ounces = apply_binop(ast.Mult, dimensionless(16), unit_quantity(UNITS["oz"]))
+    assert math.isclose(render(convert(ounces, unit_quantity(UNITS["lb"])))[0], 1.0)
+    divided = apply_binop(ast.Div, ounces, dimensionless(2))
+    assert math.isclose(divided.mag, 0.226796185)
+    assert render(divided) == (8.0, "mass", "oz")
+    with pytest.raises(IncompatibleUnitsError):
+        apply_binop(ast.Add, ounces, unit_quantity(UNITS["km"]))
+    assert compare(ast.Eq, ounces, unit_quantity(UNITS["lb"])) is True
 
 
 def test_render_dimensionless_has_no_unit() -> None:

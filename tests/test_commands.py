@@ -51,7 +51,7 @@ def test_command_at_empty_is_none() -> None:
 
 
 def test_suggest_single_letter_matches_all() -> None:
-    assert suggest("/c") == ["/clear", "/copy", "/copy-last"]
+    assert suggest("/c") == ["/clear", "/copy", "/copy-last", "/currency-rates"]
 
 
 def test_suggest_exit() -> None:
@@ -61,6 +61,13 @@ def test_suggest_exit() -> None:
 def test_release_notes_command_suggests_and_parses() -> None:
     assert suggest("/r") == ["/release-notes", "/round"]
     assert parse_command("/release-notes") == "/release-notes"
+
+
+def test_currency_rates_command_suggests_and_parses_argument() -> None:
+    assert suggest("/currency-r") == ["/currency-rates"]
+    assert parse_command_line("/currency-rates on") == ("/currency-rates", "on")
+    assert parse_command_line("/currency-rates off") == ("/currency-rates", "off")
+    assert parse_command_line("/currency-rates") == ("/currency-rates", "")
 
 
 def test_suggest_round() -> None:
@@ -193,7 +200,7 @@ def test_suggest_syntax_color_family() -> None:
 
 
 def test_suggest_inline_variable() -> None:
-    assert suggest("$") == ["$sum"]
+    assert suggest("$") == ["$sum", "$prev", "$avg"]
     assert suggest("$su") == ["$sum"]
     assert suggest("$SUM") == ["$sum"]  # case-insensitive
 

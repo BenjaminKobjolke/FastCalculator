@@ -31,10 +31,34 @@ def test_percent() -> None:
     assert _val("10 % 3") == 1  # bare modulo still works
 
 
+def test_percent_phrases_english_and_german() -> None:
+    assert _val("20% of 50") == 10
+    assert _val("5% on 30") == pytest.approx(31.5)
+    assert _val("6% off 40") == pytest.approx(37.6)
+    assert _val("50 as % of 200") == 25
+    assert _val("50 as a % of 200") == 25
+    assert _val("20% von 50") == 10
+
+
+def test_percent_phrases_keep_units_labels_and_decimal_commas() -> None:
+    unit_result = evaluate("20% of 50 km", {})
+    assert unit_result.success and unit_result.kind == "distance" and unit_result.unit == "km"
+    assert _val("20,5% of 3,5") == pytest.approx(0.7175)
+    assert evaluate("Tax: 20% of 50", {}).value == 10
+
+
 def test_x_as_multiply_between_numbers() -> None:
     assert _val("10 x 10") == 100
     assert _val("10x10") == 100
     assert _val("2,5 x 4") == 10
+
+
+def test_radix_literals_and_x_multiplication_regression() -> None:
+    assert _val("0xFF") == 255
+    assert _val("0b1010") == 10
+    assert _val("0o17") == 15
+    assert _val("0x10") == 16
+    assert _val("10x10") == 100
 
 
 def test_x_stays_a_variable() -> None:
@@ -82,7 +106,7 @@ def test_trailing_unit_text() -> None:
 def test_unit_text_keeps_scope_variables() -> None:
     scope: Scope = {}
     assert evaluate("x = 5", scope).success
-    assert evaluate("x + 3 dollars", scope).value == 8
+    assert evaluate("x + 3 apples", scope).value == 8
 
 
 @pytest.mark.parametrize(
@@ -220,9 +244,15 @@ def test_unknown_unit_word_becomes_a_display_label() -> None:
     assert r.value == 60 and r.kind is None and r.unit == "Watt"
 
 
-def test_repeated_unknown_unit_word_survives_arithmetic() -> None:
+def test_mass_units_convert_and_format() -> None:
     r = evaluate("5 kg + 5 kg", {})
-    assert r.value == 10 and r.unit == "kg"
+    assert r.success and r.kind == "mass" and r.unit == "kg" and r.value == 10
+
+    assert evaluate("5 lb in kg", {}).value == pytest.approx(2.26796185)
+    assert evaluate("500 g + 1 kg", {}).value == pytest.approx(1.5)
+    assert evaluate("16 oz in lb", {}).value == pytest.approx(1)
+    assert evaluate("1 kg / 2", {}).value == pytest.approx(0.5)
+    assert not evaluate("1 kg + 1 km", {}).success
 
 
 def test_mixed_unknown_words_carry_no_label() -> None:

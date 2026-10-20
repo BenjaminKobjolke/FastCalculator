@@ -58,6 +58,41 @@ def test_sum_ignores_error_lines() -> None:
     assert results[2].value == 10
 
 
+def test_prev_uses_nearest_prior_value_across_blank_lines() -> None:
+    results = evaluate_document("10\n\n20\nfoo +\n$prev")
+    assert results[4].value == 20
+
+
+def test_prev_uses_shown_group_total_as_prior_value() -> None:
+    results = evaluate_document("10\n20\n\n$prev")
+    assert results[3].value == 30
+
+
+def test_prev_fails_on_first_line() -> None:
+    results = evaluate_document("$prev")
+    assert not results[0].success
+
+
+def test_avg_is_mean_of_current_group_values() -> None:
+    results = evaluate_document("10\n20\n$avg")
+    assert results[2].value == 15
+
+
+def test_avg_preserves_group_units() -> None:
+    results = evaluate_document("5 km\n3 km\n$avg")
+    assert format_result(results[2], "$avg") == "4 km"
+
+
+def test_mass_result_uses_four_significant_figure_display() -> None:
+    result = evaluate_document("5 lb in kg")[0]
+    assert format_result(result, "5 lb in kg") == "2.268 kg"
+
+
+def test_avg_fails_before_current_group_has_values() -> None:
+    results = evaluate_document("$avg")
+    assert not results[0].success
+
+
 def test_sum_percent_example() -> None:
     # The plan's worked example: 2000 - 5% of 2000.
     results = evaluate_document("Angebot: 2000\nRabatt: $sum - 5%")
@@ -124,6 +159,24 @@ def test_format_number_trims_integers() -> None:
     results = evaluate_document("6 / 2\n9 / 2")
     assert format_result(results[0]) == "3"
     assert format_result(results[1]) == "4.5"
+
+
+def test_radix_output_formats_verbatim_and_copy_last_value() -> None:
+    from gui.commands import last_result_text
+
+    lines = ["255 in hex", "10 to bin", "15 in oct"]
+    results = evaluate_document("\n".join(lines))
+    assert [format_result(result, line) for result, line in zip(results, lines, strict=True)] == [
+        "0xFF",
+        "0b1010",
+        "0o17",
+    ]
+    assert last_result_text(lines, results) == "0o17"
+
+
+def test_radix_continuation_replaces_running_total() -> None:
+    results = evaluate_document("5\n- 1 in hex\n$sum")
+    assert [result.value for result in results] == [5, 4, 4]
 
 
 def test_output_mirrors_input_decimal_style() -> None:
@@ -215,10 +268,9 @@ def _formatted(text: str) -> list[str]:
 
 
 def test_inline_line_inherits_group_decimal_style() -> None:
-    # The reported bug: "$sum" line drops the ",00" the group above established.
-    # "Euro" survives as a display-only label; the $sum line has none of its own.
+    # Euro is now a real unit, so the inline result retains its currency label.
     out = _formatted("Angebot: 2000,00 Euro\nDiscount: $sum - 35%")
-    assert out == ["2000,00 Euro", "1300,00"]
+    assert out == ["2000,00 €", "1300,00 €"]
 
 
 def test_inline_line_without_group_decimals_stays_integer() -> None:
@@ -291,10 +343,10 @@ def test_blank_line_shows_the_group_total_with_its_unit() -> None:
         # a trailing currency symbol is a label like any unknown unit word
         ("10,00 €\n5,00 €\n", ["10,00 €", "5,00 €", "15,00 €"]),
         ("4.992,00 € + 1.248,00 € + 1.170,00 € + 260,00 €\n", ["7.670,00 €", ""]),
-        # an explicit "$sum" line holds the total too -> 1300, never 3300
+        # Euro is a real unit and remains attached to the explicit total.
         (
             "Angebot: 2000,00 Euro\nRabatt: $sum - 35%\n",
-            ["2000,00 Euro", "1300,00", "1300,00 Euro"],
+            ["2000,00 €", "1300,00 €", "1300,00 €"],
         ),
     ],
 )

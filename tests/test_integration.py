@@ -7,6 +7,7 @@ import math
 import pytest
 
 from engine import Scope, evaluate
+from gui.document_evaluator import evaluate_document, pane_texts
 
 
 @pytest.mark.parametrize(
@@ -58,18 +59,52 @@ def test_running_lines(line: str, value: float, kind: str, unit: str | None) -> 
     assert r.unit == unit
 
 
-def test_unknown_units_still_dimensionless() -> None:
-    # kg is not a running unit -> stripped from the math, kept only as a label
+def test_mass_units_are_physical_quantities() -> None:
     r = evaluate("5 kg + 5 kg", {})
-    assert r.value == 10 and r.kind is None and r.unit == "kg"
+    assert r.value == 10 and r.kind == "mass" and r.unit == "kg"
 
 
 def test_trailing_currency_symbol_is_a_label() -> None:
     r = evaluate("4.992,00 € + 1.248,00 € + 1.170,00 € + 260,00 €", {})
-    assert r.value == 7670 and r.kind is None and r.unit == "€"
-    assert evaluate("100 $", {}).unit == "$"
+    assert r.value == 7670 and r.kind == "money" and r.unit == "€"
+    assert evaluate("100 $", {}).error == "currency unavailable"
     # a stray inline variable in operand position is still rejected
     assert not evaluate("2 + $foo", {}).success
+
+
+def test_mixed_feature_document_with_injected_currency_rates() -> None:
+    results = evaluate_document(
+        "10\n20\n$avg\n$prev + 5\n\n20% of 50\n0xFF\n5 lb in kg\n100 usd in eur",
+        {"USD": 1.25},
+    )
+
+    assert [result.value for result in results[:4]] == [10, 20, 15, 20]
+    assert results[5].value == 10
+    assert results[6].value == 255
+    assert results[7].kind == "mass" and results[7].unit == "kg"
+    assert results[7].value == pytest.approx(2.26796, rel=1e-4)
+    assert results[8].kind == "money" and results[8].unit == "€"
+    assert results[8].value == pytest.approx(80)
+
+
+def test_mixed_feature_currency_without_rates_shows_hint() -> None:
+    lines = ["5 usd in eur"]
+    results = evaluate_document("\n".join(lines))
+
+    assert not results[0].success
+    assert pane_texts(lines, results, currency_hint="currency off: /currency-rates on") == [
+        "currency off: /currency-rates on"
+    ]
+
+
+@pytest.mark.parametrize(
+    "line",
+    ["0x__import__", "20% of __import__('os')", "5 usd in __class__"],
+)
+def test_mixed_feature_inputs_reject_python_introspection(line: str) -> None:
+    result = evaluate(line, {})
+
+    assert not result.success
 
 
 def test_incompatible_units_error() -> None:

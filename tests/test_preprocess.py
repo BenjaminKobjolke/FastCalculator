@@ -139,8 +139,8 @@ def test_durations_and_adjacency() -> None:
 
 
 def test_unknown_unit_stays_bare_for_stripping() -> None:
-    # kg is not a known unit -> left bare so strip_unknown_words drops it later
-    assert normalize("5 kg") == "5 kg"
+    # Mass units are recognized quantities after checkpoint 4.
+    assert normalize("5 kg") == "(5 * kg)"
 
 
 def test_pace_suffix_is_division_by_unit() -> None:
@@ -201,3 +201,31 @@ def test_single_group_stays_ambiguous() -> None:
 def test_grouping_runs_before_semicolon_rewrite() -> None:
     # If grouping ran after ';' -> ',', this would collapse into one number.
     assert normalize("min(1;234;567)") == "min(1,234,567)"
+
+
+def test_percent_phrases_rewrite_to_arithmetic() -> None:
+    assert normalize("20% of 50") == "(_pct(20) * (50))"
+    assert normalize("5% on 30") == "((30) * (1 + _pct(5)))"
+    assert normalize("6% off 40") == "((40) * (1 - _pct(6)))"
+    assert normalize("50 as % of 200") == "(100 * (50) / (200))"
+    assert normalize("50 as a % of 200") == "(100 * (50) / (200))"
+    assert normalize("20% von 50") == "(_pct(20) * (50))"
+
+
+def test_percent_phrases_preserve_decimals_labels_and_existing_percent_syntax() -> None:
+    assert normalize("20,5% of 3,5") == "(_pct(20.5) * (3.5))"
+    assert normalize("Tax: 20% of 50") == "Tax: (_pct(20) * (50))"
+    assert normalize("100 + 19%") == "100 + _pct(19)"
+    assert normalize("10 % 3") == "10 % 3"
+
+
+def test_currency_suffixes_and_conversion_targets_are_rewritten() -> None:
+    assert normalize("50 usd") == "(50 * _cur_usd)"
+    assert normalize("50 $") == "(50 * _cur_usd)"
+    assert normalize("50 eur in usd") == "_to((50 * eur), _cur_usd)"
+    assert normalize("$sum + 20 eur") == "_inline_sum + (20 * eur)"
+
+
+def test_currency_symbol_does_not_rewrite_inline_variables_or_prefix_amounts() -> None:
+    assert normalize("$sum") == "_inline_sum"
+    assert normalize("$20") == "$20"
