@@ -22,8 +22,11 @@ registry under `HKEY_CURRENT_USER\Software\BenjaminKobjolke\FastCalculator`.
 | `window/syntax_inline` | inline `$`-variable token color, hex | `#ffb86c` | `_restore_syntax` | `/window-inline-color`, `/window-theme` |
 | `document/text` | notepad contents (autosaved while typing, on exit; `/clear` resets it) | `""` (empty) | `MainWindow.__init__` | `_save_document` (debounced `textChanged` + `closeEvent`) |
 | `document/cursor` | cursor character offset in the notepad | `0` | `MainWindow.__init__` | `_save_document` |
+| `currency/download` | whether daily exchange-rate downloads are enabled | `False` (off) | `CurrencyPrefs.restore` | `/currency-rates on\|off` (no argument toggles) |
+| `currency/rates` | validated cached ECB rates as JSON | unset | `CurrencyPrefs` when enabled | successful ECB fetch |
+| `currency/date` | publication date of the cached ECB rates | unset | stored with the cache | successful ECB fetch |
 
-Keys are read/written in `gui/main_window.py`, `gui/window_prefs.py`
+Keys are read/written in `gui/main_window.py`, `gui/currency_prefs.py`, `gui/window_prefs.py`
 (`EditorPrefs`: margin, rounding) and `gui/window_appearance.py`
 (`Appearance`: colors, themes). Opacity is clamped to
 **10–100** (`clamp_opacity`, `gui/window_limits.py`) so the window can never

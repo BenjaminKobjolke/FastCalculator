@@ -3,20 +3,24 @@
     "title": "FastCalculator — Help",
     "basics": {
       "heading": "Basics",
-      "body": "Type math on the left; results appear live on the right, one per line.\n\n- `,` and `.` are both the decimal point: `3,5 + 1,5` = `5`.\n- Word operators in English and German: `times`/`mal`, `plus`, `minus`, `divided by`/`durch`, `to the power of`/`hoch`, `modulo`/`mod`.\n- Symbols: `+ - * / ^ %`. `^` is power. Parentheses and unary minus work as expected.\n- Percent: `100 + 19%` = `119`, `100 - 19%` = `81`, bare `19%` = `0.19`.\n- Functions & constants: `sqrt`, `min`, `max`, trig, logs, `pi`, `e`. Multi-arg functions use `;`: `min(3;9;1)`.\n- Grow/shrink the font with `Ctrl++` / `Ctrl+-`."
+      "body": "Type math on the left; results appear live on the right, one per line.\n\n- `,` and `.` are both the decimal point: `3,5 + 1,5` = `5`.\n- Word operators in English and German: `times`/`mal`, `plus`, `minus`, `divided by`/`durch`, `to the power of`/`hoch`, `modulo`/`mod`.\n- Symbols: `+ - * / ^ %`. `^` is power. Parentheses and unary minus work as expected.\n- Percent: `100 + 19%` = `119`; phrases include `20% of 50`, `5% on 30`, `6% off 40`, and German `20% von 50`.\n- Radix numbers: enter `0xFF`, `0b1010`, or `0o17`; use `255 in hex`, `10 in bin`, or `15 in oct` for output.\n- Mass units include `g`, `kg`, `lb`, and `oz`; convert with `in` or `to`.\n- Functions & constants: `sqrt`, `min`, `max`, trig, logs, `pi`, `e`. Multi-arg functions use `;`: `min(3;9;1)`.\n- Grow/shrink the font with `Ctrl++` / `Ctrl+-`."
     },
     "commands": {
       "heading": "Commands",
-      "body": "Type a `/`-command anywhere in a line and press Enter; it acts on the editor and produces no result.\n\n- `/clear` — clear the whole document.\n- `/copy` — copy every line as `input = result`.\n- `/copy-last` — copy the last result.\n- `/paste-last-result` — insert the last result at the cursor.\n- `/help` — open this help window.\n- `/release-notes` — open the release notes.\n- `/exit` — quit the app.\n- `/round <n|off>` — cap results at `n` decimals (rounds, never pads); `off` restores full precision. Persists.\n- `/window-…` — appearance: `/window-theme`, `/window-opacity`, `/window-margin`, `/window-title`, `/window-highlighting`, and the `/window-*-color` commands. All persist across restarts.\n\nAs you type, a ghost shows the shared prefix; press Tab to complete."
+      "body": "Type a `/`-command anywhere in a line and press Enter; it acts on the editor and produces no result.\n\n- `/clear` — clear the whole document.\n- `/copy` — copy every line as `input = result`.\n- `/copy-last` — copy the last result.\n- `/paste-last-result` — insert the last result at the cursor.\n- `/help` — open this help window.\n- `/release-notes` — open the release notes.\n- `/exit` — quit the app.\n- `/round <n|off>` — cap results at `n` decimals (rounds, never pads); `off` restores full precision. Persists.\n- `/currency-rates <on|off>` — enable or disable daily currency rates; no argument toggles. Euro works without rates.\n- `/window-…` — appearance: `/window-theme`, `/window-opacity`, `/window-margin`, `/window-title`, `/window-highlighting`, and the `/window-*-color` commands. All persist across restarts.\n\nAs you type, a ghost shows the shared prefix; press Tab to complete."
     },
     "variables": {
       "heading": "Variables",
-      "body": "Assign once and reuse below:\n\n```\nprice = 20\nprice minus 5 mal 2   -> 10\n```\n\nInline `$`-variables aggregate the results above them within the current group (a blank line starts a new group):\n\n```\nAngebot: 2000\nRabatt: $sum - 5%     -> 1900\n```\n\n`$sum` totals every successful result above it, assignments included. Type `$` to autocomplete."
+      "body": "Assign once and reuse below:\n\n```\nprice = 20\nprice minus 5 mal 2   -> 10\n```\n\nInline variables: `$sum` totals the current group, `$prev` gives the nearest earlier result (even across blank lines), and `$avg` averages values in the current group.\n\n```\n10\n20\n$avg       -> 15\n$prev + 5  -> 20\n```\n\nType `$` to autocomplete. Currency amounts use suffixes such as `20 usd` or `50 €`; rates are off by default. Use `/currency-rates on` to fetch daily ECB rates, cached for offline use. See Currency in the project documentation for details."
     },
     "running": {
       "heading": "Running (pace, time, distance)",
       "body": "Distances and times carry their units, so pace, finish time and speed just work.\n\n- Distances: `km`, `mi`, `m`. Times: type `mm:ss` or `h:mm:ss` (`50:00`, `1:23:45`), or `min`/`h`/`s` (`30 min`).\n- Pace = time ÷ distance: `50:00 / 10 km` -> `5:00 /km`.\n- Finish time = pace × distance: `4:30 min/km * 42.195 km` -> `3:09:53`.\n- Speed = distance ÷ time: `10 km / 50:00` -> `12 km/h`.\n- Convert with `in`/`to`: `10 km in mi`, `5:00 /km in min/mi`, `12 km/h in mph`.\n- Add compatible units: `5 mi + 3 km` -> `11.05 km`. Note `km mi m min h s` are reserved names."
     }
+  },
+  "currency": {
+    "disabled_hint": "currency off: /currency-rates on",
+    "no_rate_hint": "no rate yet"
   },
   "release_notes": {
     "title": "FastCalculator — Release Notes"

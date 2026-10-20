@@ -9,7 +9,7 @@ on the right. A line can be bare math, or math wrapped in words — both compute
 - Because `,` is a decimal point, multi-argument functions use `;` to separate
   arguments: `min(3;9;1)`.
 - The result mirrors your input's decimal style: `100,00 + 19%` reads back as
-  `119,00` (comma, two places). A `$sum` line with no decimals of its own inherits
+  `119,00` (comma, two places). An inline-variable line with no decimals of its own inherits
   the style of the group above it — see [inline-variables.md](inline-variables.md#formatting).
 
 ## Operators
@@ -42,6 +42,20 @@ single `=` stays assignment. Full reference: [comparisons.md](comparisons.md).
 | `100 - 19%` | `81` | 100 minus 19% of 100 |
 | `100 * 19%` | `19` | 100 × 0.19 |
 | `100 / 50%` | `200` | 100 ÷ 0.5 |
+
+Percent phrases make the base explicit: `20% of 50` (or German `20% von 50`)
+is `10`; `5% on 30` is `31.5`; `6% off 40` is `37.6`. You can also write
+`50 as % of 200` or `50 as a % of 200` to get `25`. The percent phrases work
+with units and comma decimals. A bare `%` between two values remains modulo.
+
+## Radix numbers
+
+Use `0x` for hexadecimal, `0b` for binary, and `0o` for octal input:
+`0xFF` = `255`, `0b1010` = `10`, and `0o17` = `15`. To display a whole,
+dimensionless value in another base, add a conversion suffix: `255 in hex` →
+`0xFF`, `10 in bin` → `0b1010`, or `15 in oct` → `0o17`. Fractions and values
+with units cannot be displayed in radix form. Hexadecimal output uses uppercase
+digits.
 
 ## Word operators (English + German)
 
@@ -97,6 +111,8 @@ be used inside any expression.
 | Variable | Value |
 |----------|-------|
 | `$sum` | Total of the results above, within the current group. |
+| `$prev` | The nearest earlier line with a value, including a shown group total; blank lines do not reset it. |
+| `$avg` | The average of the contributing values in the current group, preserving compatible units. |
 
 A **group** is a contiguous block of lines; a **blank line starts a new group**,
 so `$sum` totals only from the last blank line down to the line above it.
@@ -127,8 +143,9 @@ carry their unit through the math, so running calculations work directly:
 10 km in mi        -> 6.214 mi      (convert with in/to)
 ```
 
-The unit words `km mi m min h s kmh mph` become **reserved names**. Full
-reference: [running.md](running.md).
+The unit words `km mi m min h s kmh mph` become **reserved names**. Mass units
+`g`, `kg`, `lb`/`lbs`, and `oz` are real convertible units; mass values display
+in kilograms by default. Full reference: [running.md](running.md).
 
 ## Labels and unit text
 
@@ -161,7 +178,7 @@ units — see [running.md](running.md)):
 60 Watt               -> 60 Watt
 4.992,00 € + 260,00 € -> 5.252,00 €
 budget = 100
-budget + 20 dollars   -> 120 dollars
+budget + 20 apples    -> 120 apples
 ```
 
 The label is display-only: no dimension, no conversion, no `in <unit>`. It
@@ -174,6 +191,10 @@ Only a **single** word per value is dropped, and only when it directly follows a
 number, `)`, or `.`. A word in operand position stays — so `cost + 5` with an
 undefined `cost` still reports "unknown name" rather than silently computing.
 Multi-word units (`5 square feet`) drop only the last word.
+
+Mass and currency words are real units, unlike display labels. Currency
+conversion uses daily ECB rates when downloads are enabled; see
+[currency.md](currency.md).
 
 ## Lines that produce nothing
 

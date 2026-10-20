@@ -12,6 +12,7 @@ they are not math and produce no result value.
 | `/clear`     | Clear the whole document.                                 |
 | `/copy`      | Copy every line as `input = result`, one per line.        |
 | `/copy-last` | Copy the value of the last result — a group total on a trailing blank line counts. |
+| `/currency-rates <on\|off>` | Enable or disable daily exchange-rate downloads; no argument toggles. Persists. |
 | `/paste-last-result` | Insert the last result at the cursor position (a group total included). |
 | `/help`      | Open a localized help window (basics, commands, variables). See [help.md](help.md). |
 | `/info`      | Show app version and website.                             |
@@ -29,14 +30,15 @@ they are not math and produce no result value.
 | `/window-operator-color <hex>` | Color of operator tokens (`+`, `mal`, `divided by`, …). Persists. |
 | `/window-function-color <hex>` | Color of function/constant tokens (`sqrt`, `pi`, …). Persists. |
 | `/window-variable-color <hex>` | Color of variable tokens. Persists. |
-| `/window-inline-color <hex>` | Color of inline `$`-variable tokens (`$sum`). Persists. |
+| `/window-inline-color <hex>` | Color of inline `$`-variable tokens (`$sum`, `$prev`, `$avg`). Persists. |
 
 ## Value commands
 
 `/round`, `/window-opacity`, `/window-margin`, `/window-background-color`,
 `/window-font-color`, `/window-theme`, and the four `/window-*-color` syntax
 commands take a value. Pass it inline (`/round 2`, `/window-opacity 80`,
-`/window-theme dracula`, `/window-number-color #ffb86c`) — or run the command
+`/window-theme dracula`, `/window-number-color #ffb86c`). `/currency-rates on`
+is set inline; `/currency-rates` with no argument toggles. Run another value command
 **with no value** and an input box appears: a number box for round, opacity and
 margin, a hex text box for the colors, and a dropdown of theme names for
 `/window-theme`.
@@ -57,7 +59,7 @@ understands:
 | `operator` | symbols (`+ - * / ^ % =`) and word operators (`mal`, `divided by`)  |
 | `function` | function and constant names (`sqrt`, `min`, `pi`, `e`)              |
 | `variable` | any other identifier (assignment names and references)             |
-| `inline`   | inline `$`-variables (`$sum`)                                        |
+| `inline`   | inline `$`-variables (`$sum`, `$prev`, `$avg`)                        |
 
 Set an individual color with `/window-<category>-color <hex>`, swap the whole
 palette with `/window-theme <name>`, or turn coloring off with
@@ -103,7 +105,7 @@ matches `/clear`, `/copy`, `/copy-last`), the first `Tab` opens the list at once
 
 Suggestions appear whenever the trailing word at the cursor starts with `/`, so
 normal math is never interrupted. The same ghost/Tab autosuggest also works for
-inline `$`-variables — type `$` and `$sum` is offered (see
+inline `$`-variables — type `$` and the available variables are offered (see
 [syntax.md](syntax.md)).
 
 ## Examples

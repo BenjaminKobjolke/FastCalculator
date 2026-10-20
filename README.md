@@ -12,7 +12,10 @@ natural-language operators in **English and German**.
 - **`,` and `.` are both the decimal point**: `3,5 + 1,5` = `5`.
 - **Percent (`%`)** — Numi-style: `100 * 19%` = `19`, `100 + 19%` = `119`,
   `100 - 19%` = `81`, `100 / 50%` = `200`, bare `19%` = `0.19`. Plain modulo
-  (`10 % 3` = `1`) still works — `%` is percent only when nothing follows it.
+  (`10 % 3` = `1`) still works. Phrases include `20% of 50`, `5% on 30`,
+  `6% off 40`, and German `20% von 50`.
+- **Hexadecimal, binary, and octal** — enter `0xFF`, `0b1010`, or `0o17`; use
+  `255 in hex`, `10 in bin`, or `15 in oct` to display whole numbers in a base.
 - **Output mirrors your decimal style** — if the line uses explicit decimals,
   the result copies the separator and place count: `100.00 + 19%` = `119.00`,
   `100,00 + 19%` = `119,00`.
@@ -27,16 +30,21 @@ natural-language operators in **English and German**.
   `ist gleich`) answer `true`/`false` — in German (`wahr`/`falsch`) when the
   German phrase is used. Unit-aware: `5 km == 5000 m` → `true`. A single `=`
   stays assignment. See [docs/comparisons.md](docs/comparisons.md).
-- **Inline `$`-variables** — `$sum` totals the results above it (within the
-  current group; a blank line starts a new group):
+- **Inline `$`-variables** — `$sum` totals the current group, `$prev` reuses
+  the nearest previous result, and `$avg` averages the current group:
   ```
   Angebot: 2000
   Rabatt: $sum - 5%   -> 1900
   ```
   Type `$` to autocomplete. See [docs/inline-variables.md](docs/inline-variables.md).
+- **Mass and currency conversions** — convert `5 lb in kg` or `100 usd in eur`.
+  Currency downloads from the ECB are off by default; `/currency-rates on`
+  enables daily rates, which are cached for offline use. See
+  [docs/currency.md](docs/currency.md).
 - **Automatic group totals** — the blank line that closes a block carries that
-  block's total, so nothing needs typing. Unknown unit words (`Watt`, `kg`,
-  `EUR`) and trailing currency symbols (`€`, `$`, `£`, `¥`) are dropped from the math but kept as a label on the result:
+  block's total, so nothing needs typing. Physical units such as mass and euro
+  remain attached to compatible group totals; unknown display words such as
+  `Watt` also stay visible:
   ```
   Monitor: 60 Watt    -> 60 Watt
   PC: 100 Watt        -> 100 Watt
@@ -169,7 +177,7 @@ engine/    pure evaluation library (stdlib only, no GUI, no third-party deps)
   evaluator.py   evaluate(line, scope) + ast whitelist walker (security boundary)
   words.py       operator word map (English + German), data-only
   functions.py   whitelisted functions + constants, data-only
-  inline.py      inline $-variable names ($sum, ...), data-only
+  inline.py      inline $-variable names ($sum, $prev, $avg), data-only
   result.py      EvalResult typed return
 gui/       PySide6 window + Qt-free document evaluator
 demo/      automation-demo scripts (playback machinery: automated-screenshot-connector)

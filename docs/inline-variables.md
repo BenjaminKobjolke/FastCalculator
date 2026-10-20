@@ -8,6 +8,21 @@ use it inside any expression.
 | Variable | Value |
 |----------|-------|
 | `$sum`   | Total of the results above, within the current group. |
+| `$prev`  | Value from the nearest earlier line that produced a result. |
+| `$avg`   | Average of the successful values in the current group. |
+
+`$prev` searches upward across blank lines and includes a displayed group total.
+It has no value before the first successful result. `$avg` uses successful
+contributing lines in the current group, respects compatible units, and is
+undefined when that group has no values. Both variables can be used inside any
+expression, for example:
+
+```
+10
+20
+$avg       -> 15
+$prev + 5  -> 20
+```
 
 ## Groups
 
@@ -123,7 +138,11 @@ security boundary) is untouched.
   line order. It keeps a per-group running total **as a `Quantity`** (so units
   flow through — [Units](#units)), resets it on blank lines, and writes it into
   `scope[_SUM_KEY]` **before** each `evaluate()` call, folding the line's own
-  `result.quantity` in afterward (restarting on a dimension mismatch).
+  `result.quantity` in afterward (restarting on a dimension mismatch). `$prev`
+  receives the nearest prior result quantity and is not reset between groups;
+  `$avg` receives the current group's compatible total divided by its contributing
+  result count. Missing values are removed from scope so the evaluator reports
+  them as unknown names.
   `_group_total_result()` turns that total into the blank line's own result
   (`_MIN_TOTAL_LINES` is the two-line guard). `inherited_styles()` walks the same groups to
   give each `$`-variable line the decimal style to inherit (see
@@ -144,7 +163,8 @@ security boundary) is untouched.
 
 1. Add its name to `INLINE_VARS` in `engine/inline.py`.
 2. Compute its value in `evaluate_document()` and inject it into `scope` under
-   `scope_key(name)` (the running-sum loop is the pattern to follow).
+   `scope_key(name)` (the running-sum loop is the pattern to follow). Define
+   whether it resets at group boundaries and how units/counts contribute.
 
 Everything else — preprocessing, autocomplete, and coloring — follows from the
 shared `INLINE_VARS` with no further wiring.
