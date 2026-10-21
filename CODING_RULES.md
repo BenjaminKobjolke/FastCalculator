@@ -1,8 +1,7 @@
 <!-- Managed by /coding-rules:apply — do not edit rule blocks by hand -->
-<!-- codex: enabled -->
 
 # Version
-3
+12
 
 Increase this version number whenever this rule file changes.
 
@@ -20,7 +19,9 @@ When working on a project, copy all relevant rules into the project's `CODING_RU
 mandates reading `CODING_RULES.md` before code work — never the full rules, and never an
 `@import` of `CODING_RULES.md` (imports auto-expand into context every turn).
 
-- Always include all rules from `COMMON_RULES.md` and `AI_RULES.md`
+- Always include all rules from `COMMON_RULES.md` and `IMPLEMENTATION_FLOW.md`.
+  `COMMON_RULES.md` is copied into the project's `CODING_RULES.md`;
+  `IMPLEMENTATION_FLOW.md` is copied into the project's own `IMPLEMENTATION_FLOW.md`
 - Also include applicable language-specific, project-type, and supplemental rule files
   (see `PROJECT_TYPES.md` for the project-type overview)
 - Include optional addon rule files only when the user has opted in to that addon
@@ -124,6 +125,34 @@ Every project must provide the following batch files in the `tools/` directory:
 
 These scripts ensure a consistent way to execute tests across environments.
 
+Both scripts must show progress while tests run: report the current setup stage, suite, or test
+before potentially slow work, and show results as execution proceeds. A start banner followed only
+by a final summary is insufficient. Prefer the runner's verbose output and stream or flush it so
+callers can see it during execution. Print one line per test: `flutter test --reporter expanded`,
+`pytest -v`, `phpunit --debug` (`--testdox` lists the tests only after the run on PHPUnit 10+).
+For a legitimate long wait without ordinary output, report the current stage or test and elapsed
+time at least every 60 seconds. Elapsed-time updates must not imply that a test completed or
+advanced. If output is captured for logs or filtering, keep progress visible during execution;
+replaying it only after completion does not count.
+
+Both must **exit with the test runner's own exit code** — capture it right after the run
+(`set TESTRESULT=%ERRORLEVEL%`) and end with `exit /b %TESTRESULT%`. A bat that prints
+"Some tests failed!" but exits 0 reports green to CI, to callers and to AI agents. Never pipe the
+test command into a plain filter — the pipe's exit code is the *filter's*, not the runner's. Never
+redirect the run into a temp file and print or filter that afterwards either: the script is then
+silent for the whole run. Run the command directly so its output streams. If output has to be
+filtered or logged, do it while it streams and return the runner's own code, e.g. `powershell
+-NoProfile -Command "<test command> | Where-Object { $_ -notmatch '<noise>' }; exit $LASTEXITCODE"`,
+or use the runner's own log-file option.
+
+---
+
+## No `pause` in Batch Files
+
+Batch files must never contain a `pause` line. `pause` waits for a keypress, so any bat that has one
+hangs forever when run by CI, another bat, or an AI agent. End with an explicit `exit /b <code>`
+instead, and let the caller decide whether to keep the window open (`cmd /k`).
+
 ---
 
 ## Prefer Type-Safe Values
@@ -155,6 +184,18 @@ existing equivalent. If found, copy or reference it. If not:
 
 This keeps cross-project tooling consistent and prevents the same script
 from being re-invented in every new project.
+
+---
+
+## New Projects Start From a Template
+
+Before creating a new project (an API, an app, a tool — anything that gets its own folder),
+ask the user whether a template project exists for that kind of project. Never scaffold from
+scratch without asking.
+
+- Run `/coding-rules:new-project`: it suggests the template remembered for that project type
+  in `~/.coding-rules/settings.json`, asks, and remembers a newly chosen template for next time.
+- A remembered template is a suggestion — still ask, the user may want another one or none.
 
 ---
 
@@ -284,6 +325,66 @@ responses.
 
 ---
 
+## API Clients: the API Sorts, Filters and Pages (BINDING)
+
+Applies to every project that reads data from an API — app, SPA, desktop tool, script.
+
+- **Show what the API returns, in the order it returns it.** Never download a whole collection
+  to sort, filter, search, count, group or join it locally.
+- **Read lists page by page.** Send the page size and position and load the next page when the
+  user scrolls or asks for more. Never loop over all pages to rebuild the full list on start or
+  on refresh.
+- **A new order, filter or search is a new request** with that parameter, starting at the first
+  page. Reordering the rows already held is wrong as soon as the list is paged: the client holds
+  one page, not the list.
+- **Do not download again what you already hold.** After a create, update or delete use the row
+  the response returned, or re-request the visible page — not the whole collection.
+- **A missing parameter is API work.** When an API you own lacks the sort, filter, search,
+  paging or count a screen needs, request it from the API project (linked todo or
+  `/feedback:write`) and plan against that. "The list is small or unpaged today, so the client
+  can do it" is not a reason. For a third-party API that cannot change, use the paging and
+  sorting it offers and mark any remaining local work with a comment naming the missing
+  capability.
+
+The server half is `project_type/REST_API.md` -> "List Endpoints: Paging, Sorting, Filtering".
+
+---
+
+## Shared Contract Repository for API and Clients (BINDING)
+
+When two or more projects we own talk over the wire — an API plus an app, an API plus a desktop
+app, or all three — keep their shared values in one contract repository. This does not apply to
+third-party APIs.
+
+- **Why:** each side keeps its own copy of every value that crosses the wire. When one side adds a
+  value the other does not know, the other side can break (for example, the API added a todo type
+  and the watcher rejected the whole todo list).
+- **One separate repository** (`<system>-contract`) holds the contract: at minimum every shared
+  enum in `enums.json`, shaped as `"<Name>": {"values": [sorted unique], "direction":
+  "api_to_client" | "client_to_api", "description": "<where it appears>"}`, plus a `README.md`
+  with the change rules and the list of consumers. Do not add version numbers; the submodule
+  pointer is the version.
+- **Every project includes it as a git submodule at `contract/`.** Pick up changes with
+  `git submodule update --remote contract` and commit the pointer bump. Production code never
+  reads `contract/`; it is test input only.
+- **The API is the producer:** export the contract from its own constants (one map, one export
+  script) and add a freshness test that fails when the committed file differs from the export.
+- **Each client is a consumer:** test that every mapped enum matches the contract in its
+  direction (`api_to_client` sets are equal so the client knows every value;
+  `client_to_api` client values are a subset) and that every contract name is mapped.
+- Both tests skip when `contract/` is not checked out.
+- **Change order:** for an `api_to_client` value, update the contract, release clients that know
+  it, then have the API emit it. For a `client_to_api` value, update the contract and API first,
+  then have the client send it. To remove a value, stop it at the API, then remove it from the
+  contract, then from clients. Never rename a value; renaming is an add plus a remove. Add a new
+  shared enum to the contract in the same change that introduces it.
+- Clients still tolerate an unknown value (skip the row; do not fail the whole response) as a
+  last line of defence, not as permission to skip the order.
+- **Setting it up** is work in each project: when one project of the system lacks the submodule
+  or its test, request it there (linked todo or `/feedback:write`).
+
+---
+
 ## Maximum File Length — 300 Lines
 
 Split files when they exceed 300 lines to keep code navigable during fast iteration.
@@ -379,6 +480,14 @@ lists in consuming code.
 
 ---
 
+## Search Across Partial Words
+
+When implementing user-facing search, split the query on whitespace and match every term as a
+case-insensitive substring of the searchable text, regardless of term order. For example,
+`release bat` should find `release_build.bat`. Preserve the project's existing searchable fields.
+
+---
+
 ## Inject Collaborators, Don't Fold Dependencies In
 
 Composition reuse comes in two shapes, and they differ sharply in how much coupling they add to
@@ -420,151 +529,8 @@ the wrong side of **No God Classes**.
 - **Correct pattern**: The subclass builds one `SendConfig` value object once; the base reads its
   fields.
 
----
-
 # Version
-6
-
-Increase this version number whenever this rule file changes.
-
-# AI Workflow Rules (All Languages)
-
-See `COMMON_RULES.md` for rules that apply to all languages.
-
-Unlike the per-language `*_RULES.md` files, these rules are **language-independent** and
-**always apply**. They are not subject to the "some rules may not apply to this project"
-filtering — include them in every project's `CODING_RULES.md`.
-
-These rules define the end-to-end workflow an AI agent must follow when planning and
-implementing changes. Each step is an existing skill referenced by its slash name; run the
-skill rather than reimplementing its behavior.
-
----
-
-## Codex toggle
-
-Some of the workflow steps below can be delegated to the Codex CLI. Whether a
-project uses Codex is controlled by a marker near the top of `CODING_RULES.md`:
-
-- `<!-- codex: enabled -->` — run the `codex exec` commands below.
-- `<!-- codex: disabled -->` or no marker — do NOT run Codex; perform the same
-  checks yourself via the listed fallback skills.
-
-The marker is managed by `/coding-rules:codex on|off|status` (or set during
-`/coding-rules:apply`). Do not flip it yourself without the user asking.
-
-## Feature / Change Workflow
-
-After a plan is proposed and the user approves it, follow this chain. The DRY
-gate is a precondition for implementing — not just an earlier step.
-
-The approved plan must first exist as an explicit Markdown file. Pass that same
-path to both plan-DRY commands.
-
-```
-plan approved
-
-plan DRY check
-  codex enabled:
-    codex exec --dangerously-bypass-approvals-and-sandbox "FULL PATH TO PLAN - Can you check the plan for DRY opportunities and if you find any, apply them to the original plan file. Add a summary at the end called SUMMARY DRY with what you changed and why."
-  codex disabled:
-    /plan:dry <plan-file>
-
-plan convention check
-  codex enabled:
-    codex exec --dangerously-bypass-approvals-and-sandbox "FULL PATH TO PLAN $convention-check - If you want to make any changes, apply them to the original plan file. Add a summary at the end called SUMMARY CONVENTION CHECK with what you changed and why."
-  codex disabled:
-    /convention:check — apply findings to the plan file
-
-/plan:dry-checked    reload the DRY and convention adjusted plan
-
-restate Definition-of-Done aloud
-
-implement
-  While implementing, keep the list of every file you created or modified in THIS
-  session — you know it from your own edits; do NOT derive it from git (other
-  sessions may have concurrent uncommitted changes). After implementing, write the
-  list (one path per line) to a changed-files file next to the plan, named after it:
-  <plan-file-path-without-.md>-changed-files.md
-  (e.g. claude-plans/my-feature-changed-files.md). The plan file is unique per
-  session, so concurrent sessions never collide.
-  Include only source-code files. Exclude documentation and other non-code
-  files (`.md`, plain-text docs, the plan file itself) — the DRY audit only
-  looks at code.
-
-post-implementation DRY audit — scope is ONLY the changed-files file above
-  codex enabled:
-    codex exec --dangerously-bypass-approvals-and-sandbox "Read FULL PATH TO CHANGED-FILES FILE and check ONLY the files listed there for DRY opportunities. Do not use git status or git diff to widen the scope — other sessions may have concurrent uncommitted changes. Do NOT modify any code. Write your suggestions to claude-plans/post-implementation-check.md, overwriting the file if it already exists. Include for each finding the affected files and a short rationale."
-    then read claude-plans/post-implementation-check.md and discuss/apply the findings with the user
-  codex disabled:
-    /dry:check <files from the changed-files file, as pathspec>
-
-Post-Feature Verification + Post-Implementation Code Analysis (project-specific, below)
-
-```
-
-### DRY gate (precondition for implementing)
-
-Do not write a single line until ALL are true. Restate this gate aloud at the
-moment you start implementing — if you cannot, the gate is not cleared:
-
-- [ ] `/plan:dry <plan-file>` adjusted that file and completed its Ponytail pass.
-- [ ] `/plan:dry-checked <plan-file>` reloaded the same adjusted plan.
-- [ ] `/convention:check` found the existing utilities/patterns to reuse.
-
-The gate survives the `implement` step: if mid-implementation you add a new
-helper, type, or pattern the gate would have caught, stop and re-clear it
-before continuing.
-
-### Definition of Done — restate aloud before implementing
-
-Before the first edit, state in chat what "done" means for THIS change:
-
-- [ ] Scope: <one line — what changes, what does not>
-- [ ] Reuse: <existing function/component this builds on, with path>
-- [ ] DRY gate cleared (above)
-- [ ] `/dry:check <session changed-files>` clean (scoped to the changed-files file, never bare)
-- [ ] `/verify:after-change` green (tests + analysis)
-
-### Post-implementation DRY audit — paste-in template
-
-Run `/dry:check` scoped to the session's changed-files file, then paste and fill:
-
-```
-DRY audit — <change name>
-Changed files:     <list from the changed-files file, not git>
-Duplication found: <none | describe>
-Consolidated into: <shared fn/module + path | n/a>
-Convention reused: <name + path>
-Verdict:           <clean | needs rework>
-```
-
----
-
-## Bug-Fix Workflow
-
-Bug fixes use a shorter variant (no plan-DRY phase):
-
-```
-bugs:fix
-  → /verify:after-change
-```
-
----
-
-## Optional Addons
-
-These live in `ai_rules_addons/` and are **not** always-on. Each is opt-in per project — ASK
-the user whether they want it before wiring it into that project's `CODING_RULES.md`.
-
-- [`ai_rules_addons/graphify.md`](ai_rules_addons/graphify.md) — graphify knowledge graph:
-  scoped + directed AST build, folder layout, gitignore, and the query/refresh rules to paste
-  into a project's `CODING_RULES.md`.
-
----
-
-# Version
-1
+8
 
 Increase this version number whenever this rule file changes.
 
@@ -572,47 +538,401 @@ Increase this version number whenever this rule file changes.
 
 See `COMMON_RULES.md` for rules that apply to all languages.
 
-## Template Engine
+## Optional rule files
 
-Keep Python, HTML, CSS, and JS separated.
-This means using a template engine.
+- `python/WEB_TEMPLATES.md` — web templates with Jinja2 or Flask.
+- `python/GUI.md` — PySide6 desktop interface.
+- `python/LOCALIZATION.md` — translated content.
+- `python/RELEASE.md` — release tooling.
+- `python/INSTALLER.md` — Windows installer.
+- `python/DATABASE.md` — SQLAlchemy database.
 
-Use Jinja2:
+Run `/coding-rules:apply` to add one when the project gains it.
+
+## Recipes
+
+Ready-made implementations for recurring features. They are **not** copied into the
+project — they live in the `coding-rules` plugin under `rules/python/recipes/`. Read the
+matching recipe in full before implementing the feature, and follow it instead of
+inventing a new approach.
+
+- `python/recipes/SINGLE_INSTANCE.md` — prevent a second instance of the app from starting.
+
+## CLI Menus
+
+For **interactive command-line** applications, never hand-roll a menu out of `input()`
+and printed option lists. Use **`pick`** — an arrow-key menu with a selection
+indicator, scrolling for long lists, and optional multiselect — on its **blessed**
+backend:
 
 ```bash
-uv add jinja2
+uv add "pick[blessed]"
 ```
 
-Do not put JS code into templates. Use separate `.js` files.
+**Always pass `backend="blessed"`.** `pick`'s default curses backend breaks on Windows
+the moment the program runs a child that inherits the console — a `git` call, a build
+step, anything streaming its output live. From then on curses stops translating the
+arrow keys for the rest of the process: the keys still arrive, but as raw `ESC [ A`
+sequences that `pick` ignores, so every later menu draws and then accepts nothing. It
+looks like a hang and it is sticky — re-initialising curses does not recover it, and
+neither does restoring the console mode. Only never letting the child touch the console
+(capturing its output, which costs live streaming) or decoding the sequences avoids it.
+blessed decodes them, so subprocesses keep the console and their live output.
 
-Example structure:
+### Wrap it — one menu helper per project
 
+Never import `pick` at more than one call site. Wrap it in a single helper class
+(e.g. `menu.py` / `UserChoicesHandler`) so keyboard handling, the indicator style,
+and Ctrl-C behavior are defined once:
+
+```py
+# src/<pkg>/menu.py
+import sys
+from pick import pick
+
+
+def show_menu(
+    options: list[str],
+    title: str,
+    indicator: str = "*",
+    default_index: int = 0,
+) -> int:
+    """Show an arrow-key menu; return the selected index. Ctrl-C exits."""
+    try:
+        _, index = pick(
+            options=options,
+            title=title,
+            indicator=indicator,
+            default_index=default_index,
+            backend="blessed",  # never the curses default: see above
+        )
+        return index
+    except KeyboardInterrupt:
+        sys.exit(1)
 ```
-project/
-├── app/
-├── templates/
-└── static/
-    ├── css/
-    └── js/
+
+### Keep option labels and actions in step
+
+The menu returns an **index**, not a parsed letter. Build the label list and a parallel
+list of typed action values (enum members — see "Prefer Type-Safe Values") in the same
+place, so an option can never be shown without a handler:
+
+```py
+options: list[str] = []
+actions: list[MenuAction] = []
+options.append("Commit"); actions.append(MenuAction.COMMIT)
+if repo.has_untracked:
+    options.append("Add all"); actions.append(MenuAction.ADD_ALL)
+options.append("Cancel"); actions.append(MenuAction.CANCEL)
+
+action = actions[show_menu(options, title)]
 ```
 
-Example template:
+### Testing
 
-```html
-<!-- templates/page.html -->
-<!doctype html>
-<html>
-  <head>
-    <link rel="stylesheet" href="/static/css/app.css">
-  </head>
-  <body>
-    <h1>{{ title }}</h1>
-    <script src="/static/js/app.js"></script>
-  </body>
-</html>
+`pick` needs a real terminal, so tests must not call it. Patch the project's wrapper
+(`show_menu`) — not `pick` itself — and assert on the option labels it was handed:
+
+```py
+monkeypatch.setattr("<pkg>.menu.show_menu", lambda options, title, **kw: 0)
+```
+
+Keep a non-interactive path for every menu (a CLI flag, or auto-select when there is a
+single option) so the program stays scriptable and testable without a TTY. Have the
+wrapper refuse outright when `sys.stdin`/`sys.stdout` is not a TTY: without a console the
+menu blocks on a key that can never arrive, which reads as a freeze rather than an error.
+
+Because the tests patch the wrapper, nothing in the suite ever drives a real menu — so
+also keep a small manual script (`tools/menu_smoke.py` + a `.bat`) that opens a menu, runs
+a subprocess inheriting the console, then opens another menu. That second menu is exactly
+what the curses backend breaks, and only a human at a terminal can see it.
+
+---
+
+## Project Setup Scripts
+
+Copy the setup batch files from the `python_setup_files/` folder bundled with the
+coding-rules plugin (next to this rules file).
+
+### install.bat
+
+Initial project setup:
+
+- Checks if `uv` is installed
+- Creates virtual environment via `uv sync --all-extras`
+- Runs tests to verify setup
+
+### update.bat
+
+Update all dependencies:
+
+- Updates lock file with `uv lock --upgrade`
+- Syncs updated dependencies
+- Runs linting checks (`ruff`, `mypy`)
+- Runs tests to verify compatibility
+
+### tools/run_tests.bat
+
+Run the test suite:
+
+- Runs `pytest tests/ -v` with verbose output
+- Shows pass/fail summary
+- Projects that split unit/integration point it at `tests/unit`
+
+### tools/run_integration_tests.bat
+
+Run the integration test suite:
+
+- Runs `pytest tests/integration -v`
+- Same uv check + summary as run_tests.bat
+
+### Usage
+
+```bash
+# First time setup
+install.bat
+
+# Run tests
+tools\run_tests.bat
+
+# Update dependencies
+update.bat
 ```
 
 ---
+
+# Essential Additional Rules (must-have)
+
+## 1) Use `pyproject.toml` as the single source of truth
+
+No scattered config files. Keep tooling config in `pyproject.toml` (and commit `uv.lock`).
+
+Recommended baseline:
+
+* Python version pinned (e.g. `>=3.11,<3.13`)
+* Dependencies managed via `uv add ...`
+* Lockfile committed: `uv.lock`
+
+---
+
+## 2) Enforce formatting + linting + type checking in CI
+
+Minimum toolchain:
+
+```bash
+uv add --dev ruff mypy
+```
+
+Rules:
+
+* Ruff handles lint + formatting (replace black/isort/flake8).
+* MyPy (or pyright) for typing.
+* CI must run: `ruff check`, `ruff format --check`, `mypy`.
+
+---
+
+## 3) Require type hints on public APIs
+
+Rule of thumb:
+
+* All public functions/classes/methods: typed parameters + return types.
+* Use `typing` well: `Sequence`, `Mapping`, `Protocol`, `TypedDict`, `Literal` when helpful.
+* Avoid `Any` unless you have a boundary (I/O, third-party libs).
+
+---
+
+## 4) Centralize configuration with environment-driven settings
+
+No “magic values” in code. Use a single settings module with env overrides.
+
+```py
+# app/config/settings.py
+from dataclasses import dataclass
+import os
+
+@dataclass(frozen=True)
+class Settings:
+    env: str = os.getenv("APP_ENV", "dev")
+    debug: bool = os.getenv("DEBUG", "0") == "1"
+    default_lang: str = os.getenv("DEFAULT_LANG", "en")
+```
+
+Everything reads from `Settings`, not directly from `os.getenv()` scattered around.
+
+---
+
+## 5) Tests are mandatory, fast, and isolated
+
+Use pytest:
+
+```bash
+uv add --dev pytest
+```
+
+Rules:
+
+* Unit tests for core logic.
+* No network in unit tests.
+* Use tmp dirs / fixtures; no reliance on developer machine state.
+* Run tests in CI on every push.
+
+---
+
+## 6) Use `spec=` with MagicMock to catch interface mismatches
+
+`MagicMock` without `spec` accepts **any** attribute, even non-existent ones:
+
+```python
+# BAD - No interface validation
+mock = MagicMock()
+mock.nonexistent_attribute = "test"  # Silently works
+mock.typo_method()                   # Also works - won't catch bugs!
+```
+
+**Always use `spec=ClassName`** to validate against the real interface:
+
+```python
+# GOOD - Validates against real class
+from unittest.mock import MagicMock
+from mylib import EmailMessage
+
+mock = MagicMock(spec=EmailMessage)
+mock.nonexistent = "test"  # AttributeError - catches the bug!
+```
+
+### Common Pitfall: Mocking Methods vs Attributes
+
+If the real class has a **method**, mock it as a method:
+
+```python
+# Real class has: def get_body(self) -> str
+class EmailMessage:
+    def get_body(self) -> str:
+        return "content"
+
+# WRONG - Creates fake attribute that doesn't exist
+mock = MagicMock()
+mock.body = "test"  # EmailMessage has no .body attribute!
+
+# CORRECT - Mock the actual method
+mock = MagicMock(spec=EmailMessage)
+mock.get_body.return_value = "test"
+```
+
+### Quick Reference
+
+```python
+from unittest.mock import MagicMock, patch
+
+# Mock with spec (recommended)
+mock_obj = MagicMock(spec=RealClass)
+
+# Mock method return value
+mock_obj.method_name.return_value = "value"
+
+# Mock method to raise exception
+mock_obj.method_name.side_effect = ValueError("error")
+
+# Mock property (use PropertyMock)
+from unittest.mock import PropertyMock
+type(mock_obj).prop_name = PropertyMock(return_value="value")
+
+# Patch with spec
+with patch("module.ClassName", spec=RealClass) as mock_cls:
+    mock_cls.return_value.method.return_value = "value"
+```
+
+---
+
+## 7) Required Batch Files
+
+Every project must include these batch files:
+
+* `start.bat` - In the root directory, starts the application
+* `tools/run_tests.bat` - Runs the test suite
+
+---
+
+## Async Patterns
+
+Use `asyncio` for I/O-bound tasks (network requests, file I/O, database queries). Avoid blocking
+calls (`time.sleep`, synchronous HTTP) in async contexts — they block the entire event loop.
+
+---
+
+## Validation
+
+Use Pydantic for request and data validation at API boundaries. Define models for incoming data
+and let Pydantic handle type coercion and error reporting.
+
+---
+
+## Structured Logging
+
+Use `structlog` or the `logging` module with JSON formatters — not `print()`. Configure a
+centralized logging setup that all modules use consistently.
+
+Route all logging through one class named **`AppLogger`** (`app_logger.py`) that wraps
+`structlog`/`logging`. Feature code calls `AppLogger`, never `logging.getLogger(...)` or
+`print()` directly — this gives a single enable/level toggle without touching call sites.
+
+---
+
+## Self-Describing Classes
+
+Implement the common "Self-Describing Classes" rule using a Protocol/ABC or dataclass field
+metadata.
+
+### Option A: Protocol with abstract method
+
+```python
+from typing import Protocol
+
+
+class Searchable(Protocol):
+    def get_searchable_fields(self) -> list[str]: ...
+
+
+class Customer:
+    def __init__(self, name: str, email: str, phone: str) -> None:
+        self.name = name
+        self.email = email
+        self.phone = phone
+
+    def get_searchable_fields(self) -> list[str]:
+        return [self.name, self.email, self.phone]
+```
+
+### Option B: Dataclass field metadata
+
+```python
+from dataclasses import dataclass, field, fields
+
+SEARCHABLE = "searchable"
+
+
+@dataclass
+class Customer:
+    name: str = field(metadata={SEARCHABLE: True})
+    email: str = field(metadata={SEARCHABLE: True})
+    internal_notes: str = field(default="", metadata={SEARCHABLE: False})
+
+
+def get_searchable_values(obj: object) -> list[str]:
+    return [getattr(obj, f.name) for f in fields(obj) if f.metadata.get(SEARCHABLE)]
+```
+
+Prefer the Protocol approach for simple cases. Use dataclass metadata when you need declarative
+per-field control without writing boilerplate methods.
+
+# Version
+1
+
+Increase this version number whenever this rule file changes.
+
+# Python Desktop GUI (PySide6)
+
+Applies on top of `PYTHON_RULES.md` when the project has a PySide6 desktop interface.
 
 ## GUI Framework
 
@@ -623,10 +943,31 @@ latest version — do not pin an old one:
 uv add pyside6
 ```
 
-This is separate from the web template engine above: Jinja2 renders web HTML,
+This is separate from the web template engine in `python/WEB_TEMPLATES.md`: Jinja2 renders web HTML,
 PySide6 builds native desktop windows. Pick by app type.
 
+### Make it look modern
+
+Default Qt reads as a debug tool: gradient buttons, boxed tabs, a caption bar in the
+user's OS accent color, no type hierarchy. Follow
+[`python_setup_files/MODERN_GUI.md`](python_setup_files/MODERN_GUI.md) — the palette /
+stylesheet / icons / window-chrome module split, the vendored-and-tinted icon recipe,
+the Qt gotchas that break a restyle (size policies, per-widget fonts, minimum-size
+floors, focus rings), and how to screenshot pages offscreen to verify it.
+
+The design decisions behind it — tokens, one accent, hierarchy, focus states, empty and
+error states — are language-independent and live in `DESIGN_RULES.md`.
+
 ---
+
+# Version
+1
+
+Increase this version number whenever this rule file changes.
+
+# Python Localization
+
+Applies on top of `PYTHON_RULES.md` when the project has translations.
 
 ## Localization
 
@@ -916,57 +1257,14 @@ self._localization = Localization(
 
 ---
 
-## Project Setup Scripts
+# Version
+1
 
-Copy the setup batch files from the `python_setup_files/` folder bundled with the
-coding-rules plugin (next to this rules file).
+Increase this version number whenever this rule file changes.
 
-### install.bat
+# Python Release Workflow
 
-Initial project setup:
-
-- Checks if `uv` is installed
-- Creates virtual environment via `uv sync --all-extras`
-- Runs tests to verify setup
-
-### update.bat
-
-Update all dependencies:
-
-- Updates lock file with `uv lock --upgrade`
-- Syncs updated dependencies
-- Runs linting checks (`ruff`, `mypy`)
-- Runs tests to verify compatibility
-
-### tools/run_tests.bat
-
-Run the test suite:
-
-- Runs `pytest tests/ -v` with verbose output
-- Shows pass/fail summary
-- Projects that split unit/integration point it at `tests/unit`
-
-### tools/run_integration_tests.bat
-
-Run the integration test suite:
-
-- Runs `pytest tests/integration -v`
-- Same uv check + summary as run_tests.bat
-
-### Usage
-
-```bash
-# First time setup
-install.bat
-
-# Run tests
-tools\run_tests.bat
-
-# Update dependencies
-update.bat
-```
-
----
+Applies on top of `PYTHON_RULES.md` when the project uses release tooling.
 
 ## Release Workflow
 
@@ -996,232 +1294,298 @@ Conventions:
 
 ---
 
-# 8 Essential Additional Rules (must-have)
+# Version
+1
 
-## 1) Use `pyproject.toml` as the single source of truth
+Increase this version number whenever this rule file changes.
 
-No scattered config files. Keep tooling config in `pyproject.toml` (and commit `uv.lock`).
+# Design Rules (All Languages)
 
-Recommended baseline:
+See `COMMON_RULES.md` for rules that apply to all languages. These rules apply to
+anything with a user interface — desktop app, web frontend, mobile app, CLI TUI.
 
-* Python version pinned (e.g. `>=3.11,<3.13`)
-* Dependencies managed via `uv add ...`
-* Lockfile committed: `uv.lock`
+They are about **decisions**, not about a framework. The per-stack implementation
+guides are:
 
----
+- `python_setup_files/MODERN_GUI.md` — PySide6 desktop apps
+- `project_type/FRONTEND.md` — web SPAs (Vite, Tailwind, dark mode)
 
-## 2) Enforce formatting + linting + type checking in CI
-
-Minimum toolchain:
-
-```bash
-uv add --dev ruff mypy
-```
-
-Rules:
-
-* Ruff handles lint + formatting (replace black/isort/flake8).
-* MyPy (or pyright) for typing.
-* CI must run: `ruff check`, `ruff format --check`, `mypy`.
+Default UI toolkits ship a *safe* look, not a good one: gradient buttons, boxed tabs,
+every control the same size, no hierarchy. An interface built from defaults reads as a
+debug tool no matter how good the code behind it is.
 
 ---
 
-## 3) Require type hints on public APIs
+## Tokens, Not Values
 
-Rule of thumb:
+Every color, spacing step, radius, and font size is a **named token defined once**.
+Call sites reference the token; nothing hardcodes `#2B2B2B` or `13px`.
 
-* All public functions/classes/methods: typed parameters + return types.
-* Use `typing` well: `Sequence`, `Mapping`, `Protocol`, `TypedDict`, `Literal` when helpful.
-* Avoid `Any` unless you have a boundary (I/O, third-party libs).
-
----
-
-## 4) Centralize configuration with environment-driven settings
-
-No “magic values” in code. Use a single settings module with env overrides.
-
-```py
-# app/config/settings.py
-from dataclasses import dataclass
-import os
-
-@dataclass(frozen=True)
-class Settings:
-    env: str = os.getenv("APP_ENV", "dev")
-    debug: bool = os.getenv("DEBUG", "0") == "1"
-    default_lang: str = os.getenv("DEFAULT_LANG", "en")
-```
-
-Everything reads from `Settings`, not directly from `os.getenv()` scattered around.
+- **Anti-pattern.** A hex color appears on four screens. Changing the theme means
+  finding all four, and the one you miss is the one the user sees.
+- **Correct pattern.** One palette/theme module (a frozen dataclass, a CSS custom
+  property block, a `ThemeData`) that every screen reads.
+- This is "String Constants" and DRY applied to design. The moment a value appears
+  twice, it is a token.
 
 ---
 
-## 5) Tests are mandatory, fast, and isolated
+## One Accent Color
 
-Use pytest:
+Pick **one** accent and use it only for: the selected navigation item, the focus ring,
+the primary action, and progress. Everything else is a neutral.
 
-```bash
-uv add --dev pytest
-```
-
-Rules:
-
-* Unit tests for core logic.
-* No network in unit tests.
-* Use tmp dirs / fixtures; no reliance on developer machine state.
-* Run tests in CI on every push.
+- An interface where the accent frames the window, fills the title bar, and outlines
+  every button has no accent — it has a background color.
+- Semantic colors (success green, error red) are separate tokens and do **not** follow
+  the accent. If a status color must match another app or a spec, comment the field
+  saying so, so a theme change does not silently redefine it.
+- Never encode information in color alone — pair it with a glyph, a label, or a
+  position (colorblind users, grayscale printing, low-quality projectors).
 
 ---
 
-## 6) Database access uses SQLAlchemy ORM
+## Neutral Ramp Before Color
 
-If a database is needed, use SQLAlchemy ORM (not raw SQL or ad-hoc drivers).
+A dark theme needs at least: window background, an elevated surface, a control fill,
+its hover and pressed states, a border, primary text, and muted text. Most of a good
+interface is that ramp; color is the exception on top of it.
 
----
-
-## 7) Use `spec=` with MagicMock to catch interface mismatches
-
-`MagicMock` without `spec` accepts **any** attribute, even non-existent ones:
-
-```python
-# BAD - No interface validation
-mock = MagicMock()
-mock.nonexistent_attribute = "test"  # Silently works
-mock.typo_method()                   # Also works - won't catch bugs!
-```
-
-**Always use `spec=ClassName`** to validate against the real interface:
-
-```python
-# GOOD - Validates against real class
-from unittest.mock import MagicMock
-from mylib import EmailMessage
-
-mock = MagicMock(spec=EmailMessage)
-mock.nonexistent = "test"  # AttributeError - catches the bug!
-```
-
-### Common Pitfall: Mocking Methods vs Attributes
-
-If the real class has a **method**, mock it as a method:
-
-```python
-# Real class has: def get_body(self) -> str
-class EmailMessage:
-    def get_body(self) -> str:
-        return "content"
-
-# WRONG - Creates fake attribute that doesn't exist
-mock = MagicMock()
-mock.body = "test"  # EmailMessage has no .body attribute!
-
-# CORRECT - Mock the actual method
-mock = MagicMock(spec=EmailMessage)
-mock.get_body.return_value = "test"
-```
-
-### Quick Reference
-
-```python
-from unittest.mock import MagicMock, patch
-
-# Mock with spec (recommended)
-mock_obj = MagicMock(spec=RealClass)
-
-# Mock method return value
-mock_obj.method_name.return_value = "value"
-
-# Mock method to raise exception
-mock_obj.method_name.side_effect = ValueError("error")
-
-# Mock property (use PropertyMock)
-from unittest.mock import PropertyMock
-type(mock_obj).prop_name = PropertyMock(return_value="value")
-
-# Patch with spec
-with patch("module.ClassName", spec=RealClass) as mock_cls:
-    mock_cls.return_value.method.return_value = "value"
-```
+Body text on the background must clear **4.5:1** contrast (3:1 for large text and for
+UI borders that carry meaning). Muted text is muted, not unreadable — check it, don't
+eyeball it.
 
 ---
 
-## 8) Required Batch Files
+## Hierarchy Is Type and Space, Not Boxes
 
-Every project must include these batch files:
+Three levels are usually enough: a page heading, a muted one-line explanation, and body
+or control text. Give each a token (size + weight), and build them with a **shared
+factory** (`heading()` / `subheading()`), never by repeating the styling on each screen.
 
-* `start.bat` - In the root directory, starts the application
-* `tools/run_tests.bat` - Runs the test suite
-
----
-
-## Async Patterns
-
-Use `asyncio` for I/O-bound tasks (network requests, file I/O, database queries). Avoid blocking
-calls (`time.sleep`, synchronous HTTP) in async contexts — they block the entire event loop.
-
----
-
-## Validation
-
-Use Pydantic for request and data validation at API boundaries. Define models for incoming data
-and let Pydantic handle type coercion and error reporting.
+- Separate groups with whitespace before you separate them with a border, and with a
+  border before you separate them with a filled box.
+- A screen that is all boxes has no hierarchy — everything is equally important, which
+  means nothing is.
+- Use a consistent spacing scale (4/8/12/16/24…) rather than whatever number closed the
+  gap on that one screen.
 
 ---
 
-## Structured Logging
+## Size Controls by Importance
 
-Use `structlog` or the `logging` module with JSON formatters — not `print()`. Configure a
-centralized logging setup that all modules use consistently.
+Controls should not all be the same size, and the primary action should not be the same
+weight as its neighbors. A grid of six identical giant buttons is as flat as a grid of
+six identical tiny ones.
 
-Route all logging through one class named **`AppLogger`** (`app_logger.py`) that wraps
-`structlog`/`logging`. Feature code calls `AppLogger`, never `logging.getLogger(...)` or
-`print()` directly — this gives a single enable/level toggle without touching call sites.
+- Primary action: filled, accent.
+- Secondary: outlined or flat with accent text.
+- Rare actions (a custom value, an advanced group): folded away behind a toggle or a
+  collapsed section — present, not prominent.
 
 ---
 
-## Self-Describing Classes
+## Every Focusable Control Has a Visible Focus State
 
-Implement the common "Self-Describing Classes" rule using a Protocol/ABC or dataclass field
-metadata.
+The moment you give a control a custom background, the toolkit's own focus ring
+disappears. Re-add it explicitly, in the accent, on **every** focusable control —
+buttons, fields, lists, tabs.
 
-### Option A: Protocol with abstract method
+Keyboard users, accessibility tooling, and your own automated tests all navigate by
+focus. This is not decoration; a UI with an invisible focus ring is unusable without a
+mouse. Tab through the entire interface once before calling a restyle done.
 
-```python
-from typing import Protocol
+---
 
+## Never Set a Minimum Size to Fix a Layout
 
-class Searchable(Protocol):
-    def get_searchable_fields(self) -> list[str]: ...
+If content is too tall or too wide, make it **scroll or wrap** — do not pin the window.
+A minimum size set to fix one screen becomes a floor every other screen inherits,
+including screens the user is not looking at (tab and stack containers report their
+largest child's minimum as their own).
 
+- Wrap every page/route in a scrolling container.
+- Word-wrap explanatory text; an unwrapped sentence sets the width floor.
+- Then pin it with a test: assert the window resizes to something tiny, and assert the
+  stylesheet contains no minimum-size rule.
 
-class Customer:
-    def __init__(self, name: str, email: str, phone: str) -> None:
-        self.name = name
-        self.email = email
-        self.phone = phone
+---
 
-    def get_searchable_fields(self) -> list[str]:
-        return [self.name, self.email, self.phone]
-```
+## Own the Window Chrome
 
-### Option B: Dataclass field metadata
+On desktop, the title bar and window frame belong to the OS and default to the user's
+system accent color. A carefully themed dark app with a bright green caption bar looks
+broken. Set the caption and border explicitly, and make the call a **silent no-op** on
+platforms and OS versions that do not support it.
 
-```python
-from dataclasses import dataclass, field, fields
+---
 
-SEARCHABLE = "searchable"
+## Icons: Vendor a Subset, Recolor in Code
 
+- Vendor the SVGs you actually use into the repo, with the upstream `LICENSE` and a
+  header naming the set and version. Never fetch icon assets at runtime, and never add
+  a whole icon-font dependency for six glyphs.
+- Recolor from a palette token in code rather than committing one file per color.
+- Cache by `(name, color)`.
+- Keep icon sizes on the same scale as the type — an icon that is not aligned to the
+  text baseline or optical center reads as a mistake.
 
-@dataclass
-class Customer:
-    name: str = field(metadata={SEARCHABLE: True})
-    email: str = field(metadata={SEARCHABLE: True})
-    internal_notes: str = field(default="", metadata={SEARCHABLE: False})
+---
 
+## Design the Empty, Loading, and Error States
 
-def get_searchable_values(obj: object) -> list[str]:
-    return [getattr(obj, f.name) for f in fields(obj) if f.metadata.get(SEARCHABLE)]
-```
+Every list has a first run. Every request fails sometimes. A screen designed only for
+the happy path ships a blank rectangle to every new user.
 
-Prefer the Protocol approach for simple cases. Use dataclass metadata when you need declarative
-per-field control without writing boilerplate methods.
+- **Empty**: say what would be here and how to get one.
+- **Loading**: keep the layout stable — never let content jump when it arrives.
+- **Error**: say what failed and what to do next, in the interface, not only in a log.
+- **Validation**: show it where the input is, not in a dialog. If the user can see the
+  field, tell them there instead of silently falling back to a default.
+
+---
+
+## Follow the Platform, Then Be Consistent
+
+Match the platform's conventions for window controls, menus, shortcuts, and dialogs
+before inventing your own. Inside your app, be *ruthlessly* consistent: the same action
+looks the same everywhere, the same spacing separates the same kinds of things, the
+same word means the same thing on every screen.
+
+If two of your own screens disagree, the screens are wrong — not the user.
+
+---
+
+## Localize From the Start
+
+Every user-visible string goes through the translation layer with a key constant, never
+a raw string at a call site. Layouts must survive a translation that is 40% longer:
+wrap text, avoid fixed-width labels, and never build a sentence by concatenating
+fragments — translate the whole sentence with placeholders.
+
+---
+
+## Verify Visually, and Automate It
+
+A restyle is not done because the tests pass — tests do not look at the screen.
+
+- Render each screen to an image (offscreen/headless is fine and deterministic) and
+  actually look at all of them after a change.
+- Check the app at its smallest supported size, not just the size it opens at.
+- Automate what an image cannot assert: no minimum-size rule in the theme, a focus style
+  on every control, a recolored icon that still has pixels.
+- Never drive a real window with synthetic mouse clicks to capture screenshots — the
+  moment focus moves, those clicks land in someone else's application.
+
+---
+
+## Checklist
+
+- [ ] One token module; no color, size, or radius literal at a call site
+- [ ] One accent, used for selection/focus/primary only
+- [ ] Body text ≥ 4.5:1 contrast; information never carried by color alone
+- [ ] Heading / subheading / body built by a shared factory
+- [ ] Consistent spacing scale; whitespace before borders before boxes
+- [ ] Visible focus state on every focusable control, verified by tabbing through
+- [ ] Nothing sets a minimum size; content scrolls and wraps instead
+- [ ] Window chrome themed, with a no-op fallback
+- [ ] Icons vendored with license, recolored from tokens, cached
+- [ ] Empty / loading / error / validation states designed
+- [ ] All strings localized via key constants; layout survives longer translations
+- [ ] Every screen rendered and looked at after the change
+
+# Version
+14
+
+Increase this version number whenever this rule file changes.
+
+# graphify Knowledge Graph (Optional Addon)
+
+graphify turns a code folder into a queryable knowledge graph — god nodes, communities,
+cross-file relationships, fan-in/fan-out. Use it to orient before grep and to spot god classes.
+
+**Keep the build AST-only (no LLM, no API cost) by scoping to the code dir.** graphify runs a
+free deterministic AST pass on *code* files, but a separate **LLM pass** on every *non-code*
+file — docs, `.md`, `.txt`, config `.yaml`, images (vision), audio/video (whisper). That pass
+needs an LLM (Gemini key or the host agent) and costs tokens. A build scoped to a pure-code dir
+(`lib/`, `src/`, `app/`) has zero non-code files, so it skips the LLM pass entirely and rebuilds
+need no AI. A repo-root build (`/graphify .`) sweeps in `docs/`, `README.md`, icons, and sound
+assets — forcing the LLM pass. **Always scope to the code dir; never build the repo root.**
+
+---
+
+Setup instructions live in the coding-rules plugin at `graphify_setup_files/SETUP.md`.
+
+## Folder layout (know which is which)
+
+- `graphify-out/` at the **project root** = the **live graph** (`graph.json`, `GRAPH_REPORT.md`,
+  `graph.html`). The only one queries read. Keep it `directed=True`.
+- `graphify-out/cache/` at the project root = AST cache written by the CLI refresh (it runs
+  with `GRAPHIFY_OUT` pointing at the root folder, see "Refreshing"). Scratch only.
+- `<code-dir>/graphify-out/` = legacy AST cache from the skill build. Never the live graph
+  under the documented flow; safe to delete. If a `graph.json` ever appears in there, a bare
+  `graphify update` ran without `GRAPHIFY_OUT` — delete that `graph.json`, keep `cache/`.
+
+## What the graph knows (and does not)
+
+- Knows: code structure — classes, methods, calls, references, extends/implements, plus
+  fan-in/fan-out and community / god-node structure.
+- Does NOT know: business rules, API response shape, or rendered template/view output. It is a
+  snapshot — stale until rebuilt. Constants referenced by string can appear as isolated nodes
+  (AST limitation, not a missing dependency).
+
+---
+
+## Using the graph
+
+- For codebase questions, run `graphify query "<question>"` first when `graphify-out/graph.json`
+  exists. `graphify path "<A>" "<B>"` for relationships; `graphify explain "<concept>"` for a
+  focused node. These return a small scoped subgraph vs. reading GRAPH_REPORT.md or raw grep.
+- Judge coupling by direction: high **fan-in** + low fan-out (shared base / constants / DTO) is
+  healthy; high **fan-out** (>~20 outgoing deps) is god-class risk and a refactor signal.
+- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review, or when
+  query/path/explain do not surface enough context.
+
+## Manual refresh bat (`tools/graphify_update.bat`)
+
+Copied from the `graphify_update.bat` template beside this addon, adjusted (`CODE_DIR`).
+Run it from anywhere — it `pushd`es to the repo root itself.
+
+- **Does:** (1) the live-graph CLI refresh from "Refreshing after a code change" in
+  `IMPLEMENTATION_FLOW.md` (sets `GRAPHIFY_OUT` to the root
+  `graphify-out\`, passes the absolute code dir); (2) smoke test — prints the root
+  graph's `directed` flag + node count, `god-nodes`, a sample `query`.
+- **Does NOT:** re-extract docs (see "Doc changes" in `IMPLEMENTATION_FLOW.md`) or build a first graph — that is the
+  skill flow (`/graphify <code-dir> --directed`).
+- **When to use:** after a code change outside an AI session, or as a "is graphify still
+  wired up?" check after cloning, a dependency change, or a graphify upgrade.
+
+## In-tree vendored code — exclude it, scoping alone won't
+
+`--directed`-scoping the build to `<code-dir>` keeps external `vendor/`/`node_modules/` out
+automatically, but a **committed** third-party library living *inside* `<code-dir>` (a bundled
+SDK, a copied library folder) is not gitignored, so graphify scans it like first-party code.
+Symptom: god-nodes / oversized communities in `GRAPH_REPORT.md` whose class names belong to a
+library, not the app (e.g. hundreds of `Facebook*`/`GraphNode*` nodes from an in-tree Facebook
+SDK).
+
+Fix once per project:
+
+1. Spot the vendored folder(s) under `<code-dir>` (e.g. `application/libs/`). Committed
+   **asset/sprite dirs** are the same kind of noise — bundled UI images (jQuery-UI/colorbox
+   sprites, e.g. `extensions/backend/assets/images/`) aren't code but graphify still scans them;
+   exclude them the same way.
+2. Drop a `.graphifyignore` at the scan root (gitignore syntax, honored by default):
+   ```
+   # Vendored / third-party code + bundled assets — not our architecture, noise in the graph
+   libs/
+   ```
+3. Rebuild with the CLI refresh plus `--force` — a narrower corpus is a *smaller* graph,
+   which trips the shrink guard (#479):
+   `GRAPHIFY_OUT="$PWD/graphify-out" graphify update --force "$PWD/<code-dir>"`.
+   Do NOT delete `graphify-out/graph.json` first (see "Refreshing after a code change" in
+   `IMPLEMENTATION_FLOW.md`: the CLI would rebuild
+   it undirected and drop the doc nodes).
+4. Verify: grep the vendored library's distinctive class name in the new `graph.json` — it
+   should return only first-party code that *uses* the library (e.g. your own `FacebookManager`),
+   never the library's own classes.
