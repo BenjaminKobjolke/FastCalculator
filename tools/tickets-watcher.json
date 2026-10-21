@@ -18,6 +18,7 @@
     "fix_ruff_issues_dry_run.bat",
     "generate_i18n_keys.bat",
     "get_version.bat",
+    "graphify_update.bat",
     "increment_version.bat",
     "publish_release.bat",
     "release_create.bat",
@@ -51,7 +52,7 @@
       "code_quality": "green"
     },
     "tools\\run_tests.bat": {
-      "test": "green"
+      "test": "failed"
     },
     "tools\\run_integration_tests.bat": {
       "test": "green"
@@ -60,5 +61,10 @@
       "code_quality": "green"
     }
   },
-  "analysis_format_command": "tools/fix_ruff_issues.bat"
+  "analysis_format_command": "tools/fix_ruff_issues.bat",
+  "analysis_command_failing_tests": {
+    "tools\\run_tests.bat": [
+      "tests/test_tools_bats.py::test_ends_with_explicit_exit_code[graphify_update.bat]"
+    ]
+  }
 }

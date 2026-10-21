@@ -1,0 +1,24 @@
+# Non-code: keeps the root-scoped build AST-only (no LLM pass)
+*.md
+*.json
+*.toml
+*.lock
+*.spec
+*.txt
+LICENSE
+docs/
+tools/
+tickets/
+claude-plans/
+graphify-out/
+code_analysis_results/
+release_notes/
+release_notes0.1.6/
+locales/
+assets/
+demo/
+build/
+dist/
+tmp/
+.claude/
+.reasonix/
