@@ -236,4 +236,5 @@ reasonix.toml
 tools/CREATE_RELEASE_NOTES.md
 tickets/
 graphify-out/
+coding-rules.json
 .reasonix/
