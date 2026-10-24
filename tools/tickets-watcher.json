@@ -52,7 +52,7 @@
       "code_quality": "green"
     },
     "tools\\run_tests.bat": {
-      "test": "failed"
+      "test": "green"
     },
     "tools\\run_integration_tests.bat": {
       "test": "green"
@@ -61,10 +61,5 @@
       "code_quality": "green"
     }
   },
-  "analysis_format_command": "tools/fix_ruff_issues.bat",
-  "analysis_command_failing_tests": {
-    "tools\\run_tests.bat": [
-      "tests/test_tools_bats.py::test_ends_with_explicit_exit_code[graphify_update.bat]"
-    ]
-  }
+  "analysis_format_command": "tools/fix_ruff_issues.bat"
 }
