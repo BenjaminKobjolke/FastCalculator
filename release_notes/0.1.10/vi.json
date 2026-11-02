@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Mới: Chuyển đổi khối lượng và tiền tệ, với tùy chọn sử dụng tỷ giá hối đoái hằng ngày của ECB được lưu vào bộ nhớ đệm để dùng ngoại tuyến.",
+    "Mới: Sử dụng số thập lục phân, nhị phân và bát phân, cùng các cụm phần trăm bằng ngôn ngữ tự nhiên như 20% của 50.",
+    "Cải thiện: Tái sử dụng giá trị trước đó bằng $prev và tính trung bình một nhóm bằng $avg; các dòng hóa đơn được dán có chú thích ở cuối giờ đây được xử lý chính xác."
+  ]
+}

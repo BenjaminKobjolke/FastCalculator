@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nou: Conversia sumelor de masă și valută, cu posibilitatea de a folosi cursurile zilnice de schimb ale BCE, memorate în cache pentru utilizare offline.",
+    "Nou: Folosirea numerelor hexazecimale, binare și octale, precum și a expresiilor procentuale în limbaj natural, cum ar fi 20% din 50.",
+    "Îmbunătățit: Reutilizarea valorilor anterioare cu $prev și calcularea mediei unui grup cu $avg; liniile de factură lipite, cu comentarii la final, sunt acum procesate corect."
+  ]
+}

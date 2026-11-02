@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Yeni: Kütle ve para tutarlarını dönüştürün; isteğe bağlı günlük ECB döviz kurları çevrimdışı kullanım için önbelleğe alınır.",
+    "Yeni: Onaltılık, ikilik ve sekizlik sayıların yanı sıra 50'nin %20'si gibi doğal dilde yüzde ifadeleri kullanın.",
+    "İyileştirildi: $prev ile önceki değerleri yeniden kullanın ve $avg ile bir grubun ortalamasını alın; sonlarında açıklama bulunan yapıştırılmış fatura satırları artık doğru işleniyor."
+  ]
+}

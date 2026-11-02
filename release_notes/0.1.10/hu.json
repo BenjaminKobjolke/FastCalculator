@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Új: Tömeg- és pénzösszegek átváltása, opcionális napi EKB-árfolyamokkal, amelyek offline használatra gyorsítótárba kerülnek.",
+    "Új: Hexadecimális, bináris és oktális számok használata, valamint természetes nyelvű százalékos kifejezések, például: 50 20%-a.",
+    "Továbbfejlesztve: Korábbi értékek újrafelhasználása a $prev segítségével, valamint egy csoport átlagának kiszámítása a $avg segítségével; a sorvégi megjegyzéseket tartalmazó beillesztett számlatételek kezelése is javult."
+  ]
+}

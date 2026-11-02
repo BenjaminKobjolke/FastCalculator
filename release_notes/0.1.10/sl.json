@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Novo: Pretvarjajte masne in valutne zneske z izbirnimi dnevnimi menjalnimi tečaji ECB, shranjenimi za uporabo brez povezave.",
+    "Novo: Uporabljajte šestnajstiška, dvojiška in osmiška števila ter izraze za odstotke v naravnem jeziku, na primer 20 % od 50.",
+    "Izboljšano: Znova uporabite prejšnje vrednosti z $prev in izračunajte povprečje skupine z $avg; prilepljene vrstice računov s komentarji na koncu so zdaj pravilno obdelane."
+  ]
+}

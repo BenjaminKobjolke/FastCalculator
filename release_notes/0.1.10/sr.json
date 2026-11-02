@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Novo: Pretvarajte iznose mase i valuta, uz opcione dnevne kurseve ECB-a koji se čuvaju za korišćenje van mreže.",
+    "Novo: Koristite heksadecimalne, binarne i oktalne brojeve, kao i procente izražene prirodnim jezikom, poput 20% od 50.",
+    "Poboljšano: Ponovo koristite prethodne vrednosti pomoću $prev i izračunajte prosek grupe pomoću $avg; nalepljene stavke fakture sa komentarima na kraju sada se ispravno obrađuju."
+  ]
+}

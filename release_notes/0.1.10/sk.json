@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nové: Prevádzajte hmotnosti a peňažné sumy. Voliteľne môžete používať denné výmenné kurzy ECB ukladané do vyrovnávacej pamäte na offline použitie.",
+    "Nové: Používajte šestnástkové, dvojkové a osmičkové čísla, ako aj percentuálne výrazy v prirodzenom jazyku, napríklad 20 % z 50.",
+    "Vylepšené: Znovu použite predchádzajúce hodnoty pomocou $prev a vypočítajte priemer skupiny pomocou $avg. Vložené riadky faktúry s komentármi na konci sa teraz spracúvajú správne."
+  ]
+}

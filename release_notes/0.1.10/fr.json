@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nouveau : convertissez des masses et des montants en devises, avec des taux de change quotidiens de la BCE facultatifs et mis en cache pour une utilisation hors ligne.",
+    "Nouveau : utilisez des nombres hexadécimaux, binaires et octaux, ainsi que des expressions de pourcentage en langage naturel, comme « 20 % de 50 ».",
+    "Amélioration : réutilisez les valeurs précédentes avec $prev et calculez la moyenne d’un groupe avec $avg ; les lignes de facture collées comportant des commentaires en fin de ligne sont désormais correctement traitées."
+  ]
+}

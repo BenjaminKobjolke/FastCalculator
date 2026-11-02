@@ -1,0 +1,9 @@
+{
+    "version": "0.1.10",
+    "date": "2026-11-02",
+    "notes": [
+        "New: Convert mass and currency amounts, with optional daily ECB exchange rates cached for offline use.",
+        "New: Use hexadecimal, binary, and octal numbers, plus natural-language percent phrases such as 20% of 50.",
+        "Improved: Reuse earlier values with $prev and average a group with $avg; pasted invoice lines with trailing comments are handled correctly."
+    ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Uutta: Muunna massa- ja valuuttamääriä. Päivittäiset EKP:n valuuttakurssit voi halutessaan tallentaa välimuistiin offline-käyttöä varten.",
+    "Uutta: Käytä heksadesimaali-, binääri- ja oktaalilukuja sekä luonnolliskielisiä prosenttilausekkeita, kuten 20 % luvusta 50.",
+    "Parannettu: Käytä aiempia arvoja uudelleen $prev-komennolla ja laske ryhmän keskiarvo $avg-komennolla. Liitetyt laskurivit, joiden lopussa on kommentteja, käsitellään nyt oikein."
+  ]
+}

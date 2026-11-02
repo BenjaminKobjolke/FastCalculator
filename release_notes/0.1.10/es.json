@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nuevo: Convierte cantidades de masa y divisas, con tipos de cambio diarios del BCE opcionales y almacenados en caché para usarlos sin conexión.",
+    "Nuevo: Usa números hexadecimales, binarios y octales, además de expresiones porcentuales en lenguaje natural, como 20 % de 50.",
+    "Mejorado: Reutiliza valores anteriores con $prev y calcula la media de un grupo con $avg; ahora se procesan correctamente las líneas de facturas pegadas que terminan con comentarios."
+  ]
+}

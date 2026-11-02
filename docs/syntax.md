@@ -192,6 +192,13 @@ number, `)`, or `.`. A word in operand position stays — so `cost + 5` with an
 undefined `cost` still reports "unknown name" rather than silently computing.
 Multi-word units (`5 square feet`) drop only the last word.
 
+A trailing comment in parentheses is ignored, so pasted invoice lines work:
+`Kosten: 1.248,00 Euro (netto)`, `1.248,00 € (19% MwSt)` and
+`1.248,00 € (inkl. MwSt)` all give `1.248,00 €`. The group counts as a comment
+when it follows a value and holds at least one unknown word. `2 * (x)` with a
+defined `x` and `sqrt (x)` stay math. A typo in such a group is ignored too:
+`100 (1 + mwts)` gives `100`.
+
 Mass and currency words are real units, unlike display labels. Currency
 conversion uses daily ECB rates when downloads are enabled; see
 [currency.md](currency.md).

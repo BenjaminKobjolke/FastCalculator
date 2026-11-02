@@ -109,6 +109,28 @@ def test_strip_unknown_words_keeps_operands_and_calls() -> None:
     assert strip_unknown_words("foo + 1", set()).dropped == ()
 
 
+def test_strip_unknown_words_ignores_trailing_word_comment() -> None:
+    stripped = strip_unknown_words("(1248.0 * _cur_EUR) (netto)", {"_cur_EUR"})
+    assert stripped.expr.strip() == "(1248.0 * _cur_EUR)"
+    assert stripped.dropped == ()
+    assert strip_unknown_words("5 apples (net price)", set()).expr.strip() == "5"
+
+
+def test_strip_unknown_words_ignores_trailing_comment_with_any_content() -> None:
+    for expr in ("100 (19 % MwSt)", "100 (inkl. MwSt)", "100 (1 + mwts)"):
+        stripped = strip_unknown_words(expr, set())
+        assert stripped.expr.strip() == "100"
+        assert stripped.dropped == ()
+
+
+def test_strip_unknown_words_keeps_trailing_group_that_is_math() -> None:
+    assert strip_unknown_words("sqrt (netto)", {"sqrt"}).expr == "sqrt (netto)"
+    assert strip_unknown_words("sqrt (x + foo)", {"sqrt", "x"}).expr == "sqrt (x + foo)"
+    assert strip_unknown_words("2 * (x)", {"x"}).expr == "2 * (x)"
+    assert strip_unknown_words("5 (x)", {"x"}).expr == "5 (x)"
+    assert strip_unknown_words("5 (2 * 3)", set()).expr == "5 (2 * 3)"
+
+
 def test_strip_unknown_words_drops_trailing_currency_symbols() -> None:
     assert strip_unknown_words("5 € + 5 €", set()).dropped == ("€", "€")
     # only after a value: a leading symbol stays, so the line still fails to parse

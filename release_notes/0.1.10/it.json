@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Novità: converti importi di massa e valuta, con tassi di cambio giornalieri della BCE opzionali, memorizzati nella cache per l’uso offline.",
+    "Novità: usa numeri esadecimali, binari e ottali, oltre a espressioni percentuali in linguaggio naturale, come 20% di 50.",
+    "Miglioramenti: riutilizza i valori precedenti con $prev e calcola la media di un gruppo con $avg; le righe di fattura incollate con commenti finali vengono gestite correttamente."
+  ]
+}

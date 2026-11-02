@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nieuw: Reken massa- en valutabedragen om, met optionele dagelijkse ECB-wisselkoersen die offline worden opgeslagen.",
+    "Nieuw: Gebruik hexadecimale, binaire en octale getallen, plus procentuitdrukkingen in natuurlijke taal, zoals 20% van 50.",
+    "Verbeterd: Hergebruik eerdere waarden met $prev en bereken het gemiddelde van een groep met $avg; geplakte factuurregels met afsluitende opmerkingen worden nu correct verwerkt."
+  ]
+}

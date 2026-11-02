@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Novinka: Převádějte jednotky hmotnosti a měnové částky; denní směnné kurzy ECB lze volitelně ukládat do mezipaměti pro použití offline.",
+    "Novinka: Používejte šestnáctková, binární a osmičková čísla i procenta zadaná přirozeným jazykem, například 20 % z 50.",
+    "Vylepšení: Opakovaně používejte předchozí hodnoty pomocí $prev a počítejte průměr skupiny pomocí $avg; vložené řádky faktury s komentáři na konci se nyní zpracovávají správně."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nowość: Konwertuj jednostki masy i kwoty walut, opcjonalnie korzystając z dziennych kursów EBC zapisywanych w pamięci podręcznej do użycia offline.",
+    "Nowość: Używaj liczb szesnastkowych, binarnych i ósemkowych, a także wyrażeń procentowych w języku naturalnym, takich jak 20% z 50.",
+    "Ulepszenie: Ponownie wykorzystuj wcześniejsze wartości za pomocą $prev i obliczaj średnią grupy za pomocą $avg; wklejone wiersze faktury z komentarzami na końcu są teraz prawidłowo obsługiwane."
+  ]
+}

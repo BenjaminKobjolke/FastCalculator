@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Jauns: Konvertējiet masas un valūtas summas, izmantojot ikdienas ECB valūtas kursus, kurus pēc izvēles var saglabāt kešatmiņā lietošanai bezsaistē.",
+    "Jauns: Izmantojiet heksadecimālus, binārus un oktālus skaitļus, kā arī procentu izteiksmes dabiskā valodā, piemēram, 20% no 50.",
+    "Uzlabots: Atkārtoti izmantojiet iepriekšējās vērtības ar $prev un aprēķiniet grupas vidējo vērtību ar $avg; ielīmētās rēķina rindas ar komentāriem beigās tagad tiek apstrādātas pareizi."
+  ]
+}

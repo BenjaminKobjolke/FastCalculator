@@ -72,6 +72,28 @@ def test_trailing_currency_symbol_is_a_label() -> None:
     assert not evaluate("2 + $foo", {}).success
 
 
+def test_pasted_invoice_lines_ignore_trailing_comment() -> None:
+    lines = [
+        "Kosten: 1.248,00 Euro (netto)",
+        "Kosten: 1.248,00 Euro (netto)",
+        "Kosten: 1.248,00 Euro (netto)",
+        "Kosten: 2.496,00 Euro (netto)",
+        "Kosten: 624,00 Euro (netto)",
+        "Kosten: 120,00 Euro (netto)",
+        "$sum",
+    ]
+    results = evaluate_document("\n".join(lines))
+
+    assert [r.value for r in results] == [1248, 1248, 1248, 2496, 624, 120, 6984]
+    assert all(r.kind == "money" and r.unit == "€" for r in results)
+
+
+@pytest.mark.parametrize("line", ["Kosten: 1.248,00 Euro (19% MwSt)", "1.248,00 € (inkl. MwSt)"])
+def test_trailing_comment_with_percent_or_dot(line: str) -> None:
+    r = evaluate(line, {})
+    assert r.value == 1248 and r.kind == "money" and r.unit == "€"
+
+
 def test_mixed_feature_document_with_injected_currency_rates() -> None:
     results = evaluate_document(
         "10\n20\n$avg\n$prev + 5\n\n20% of 50\n0xFF\n5 lb in kg\n100 usd in eur",

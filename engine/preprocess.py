@@ -25,6 +25,7 @@ These string rewrites live in `normalize()`. `strip_unknown_words` runs after
 "apples" in "5 + 5 apples" — known running units (km, mi, ...) are quantities by
 then, so they survive. It reports what it dropped, so a line can still be
 *labelled* with a word that carries no math ("60 Watt" -> 60, labelled "Watt").
+It also drops a trailing word-only comment like "(netto)".
 """
 
 from __future__ import annotations
@@ -59,12 +60,14 @@ _WORD_PATTERN = re.compile(
 # so the walker rejects it (the walker guards everything else too).
 _LABEL_RE = re.compile(r"^\s*(?!lambda\b)[^:]*[A-Za-z][^:]*(?<!\d):\s*(.+)$")
 # Identifiers, plus currency symbols so "5 €" is dropped/labelled like "5 Watt".
-_IDENT_RE = re.compile(r"[A-Za-z_]\w*|[€$£¥]")
+_IDENT = r"[A-Za-z_]\w*|[€$£¥]"
+_IDENT_RE = re.compile(_IDENT)
+_LAST_IDENT_RE = re.compile(f"(?:{_IDENT})$")
+# A trailing "(netto)" / "(19 % MwSt)": one parenthesized group, not nested.
+_TRAILING_COMMENT_RE = re.compile(r"\(([^()]*)\)\s*$")
 _ASSIGNMENT_RE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(.+)$")
 _COMMA_DECIMAL_RE = re.compile(r"(?<=\d),(?=\d)")
-_CURRENCY_ALT = "|".join(
-    re.escape(word) for word in sorted(CURRENCY_CODES, key=len, reverse=True)
-)
+_CURRENCY_ALT = "|".join(re.escape(word) for word in sorted(CURRENCY_CODES, key=len, reverse=True))
 _CURRENCY_AMOUNT_RE = re.compile(
     r"(\d+(?:\.\d+)?)\s*(" + _CURRENCY_ALT + r")(?![A-Za-z])", re.IGNORECASE
 )
@@ -204,6 +207,7 @@ def strip_unknown_words(expr: str, known: set[str]) -> StrippedExpr:
     expression ("foo + 1", which stays so the walker still flags it).
     """
     # ponytail: single unit word per value; "5 square meters" drops only "meters".
+    expr = _strip_trailing_comment(expr, known)
     dropped: list[str] = []
 
     def repl(match: re.Match[str]) -> str:
@@ -217,6 +221,24 @@ def strip_unknown_words(expr: str, known: set[str]) -> StrippedExpr:
         return name
 
     return StrippedExpr(_IDENT_RE.sub(repl, expr), tuple(dropped))
+
+
+def _strip_trailing_comment(expr: str, known: set[str]) -> str:
+    """Drop a trailing "(netto)"-style comment so it is not read as a call.
+
+    Only a group holding an unknown word, after a value or an unknown word:
+    "(19 % MwSt)" goes, while "sqrt (x)", "2 * (x)" and "5 (2 * 3)" stay math.
+    """
+    # shortcut: one non-nested group; a typo there is ignored ("100 (1 + mwts)" -> 100)
+    # by design, since such a line was an error anyway. Revisit if that bites.
+    match = _TRAILING_COMMENT_RE.search(expr)
+    if match is None or all(word in known for word in _IDENT_RE.findall(match.group(1))):
+        return expr
+    before = expr[: match.start()].rstrip()
+    last_word = _LAST_IDENT_RE.search(before)
+    if last_word is not None:
+        return expr if last_word.group(0) in known else before
+    return before if before and before[-1] in "0123456789.)" else expr
 
 
 def split_assignment(line: str) -> tuple[str | None, str]:

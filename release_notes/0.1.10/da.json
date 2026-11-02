@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nyt: Konvertér masse- og valutabeløb med mulighed for at bruge daglige ECB-valutakurser, der gemmes til offlinebrug.",
+    "Nyt: Brug hexadecimale, binære og oktale tal samt procentudtryk i naturligt sprog, f.eks. 20 % af 50.",
+    "Forbedret: Genbrug tidligere værdier med $prev, og beregn gennemsnittet af en gruppe med $avg. Indsatte fakturalinjer med afsluttende kommentarer håndteres nu korrekt."
+  ]
+}

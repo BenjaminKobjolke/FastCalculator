@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nytt: Omvandla massa- och valutabelopp, med möjlighet att använda dagliga växelkurser från ECB som cachelagras för offlineanvändning.",
+    "Nytt: Använd hexadecimala, binära och oktala tal samt naturliga procentuttryck, till exempel 20 % av 50.",
+    "Förbättrat: Återanvänd tidigare värden med $prev och beräkna medelvärdet för en grupp med $avg. Inklistrade fakturarader med avslutande kommentarer hanteras nu korrekt."
+  ]
+}

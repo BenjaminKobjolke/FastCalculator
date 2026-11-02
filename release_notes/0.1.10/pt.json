@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Novo: Converta quantidades de massa e moeda, com taxas de câmbio diárias opcionais do BCE em cache para utilização offline.",
+    "Novo: Utilize números hexadecimais, binários e octais, além de expressões de percentagem em linguagem natural, como 20% de 50.",
+    "Melhorado: Reutilize valores anteriores com $prev e calcule a média de um grupo com $avg; as linhas de fatura coladas com comentários no final são processadas corretamente."
+  ]
+}

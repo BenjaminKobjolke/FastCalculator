@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Uus: Teisenda massi- ja valuutasummasid. Soovi korral kasuta igapäevaseid EKP vahetuskursse, mis salvestatakse vahemällu võrguühenduseta kasutamiseks.",
+    "Uus: Kasuta kuueteistkümnend-, kahend- ja kaheksandarve ning loomulikus keeles protsendiväljendeid, näiteks „20% 50-st”.",
+    "Täiustatud: Kasuta varasemaid väärtusi uuesti märksõnaga $prev ja arvuta rühma keskmine märksõnaga $avg. Kleepitud arveridu koos lõppu lisatud kommentaaridega käsitletakse nüüd õigesti."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Neu: Masse- und Währungsbeträge umrechnen, mit optionalen täglichen EZB-Wechselkursen, die für die Offline-Nutzung gespeichert werden.",
+    "Neu: Hexadezimale, binäre und oktale Zahlen sowie natürlichsprachliche Prozentangaben wie „20 % von 50“ verwenden.",
+    "Verbessert: Frühere Werte mit $prev wiederverwenden und Gruppen mit $avg mitteln; eingefügte Rechnungszeilen mit nachgestellten Kommentaren werden jetzt korrekt verarbeitet."
+  ]
+}

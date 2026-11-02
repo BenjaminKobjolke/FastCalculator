@@ -1,0 +1,9 @@
+{
+  "version": "0.1.10",
+  "date": "2026-11-02",
+  "notes": [
+    "Nauja: konvertuokite masės ir valiutų sumas. Pasirinktinai galite naudoti kasdienius ECB valiutų kursus, išsaugomus naudoti neprisijungus.",
+    "Nauja: naudokite šešioliktainius, dvejetainius ir aštuntainius skaičius, taip pat natūralios kalbos procentų frazes, pavyzdžiui, 20 % iš 50.",
+    "Patobulinta: pakartotinai naudokite ankstesnes reikšmes su $prev ir apskaičiuokite grupės vidurkį su $avg; įklijuotos sąskaitų eilutės su komentarais gale dabar apdorojamos teisingai."
+  ]
+}
